@@ -1,6 +1,6 @@
 {
   "name": "matrix-appservice-wechaty",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Matrix Application Services Bridge for Wechaty",
   "main": "index.js",
   "scripts": {
