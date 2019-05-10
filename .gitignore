@@ -61,3 +61,5 @@ typings/
 t.*
 /bundles/
 /dist/
+
+*.memory-card.json

@@ -26,7 +26,10 @@
   "homepage": "https://github.com/huan/matrix-appservice-wechaty#readme",
   "dependencies": {
     "matrix-appservice-bridge": "^1.8.1",
-    "wechaty": "^0.22.6"
+    "request": "^2.88.0",
+    "wechaty": "^0.25.14",
+    "wechaty-puppet-padchat": "^0.18.2",
+    "wechaty-puppet-padpro": "0.0.59"
   },
   "git": {
     "scripts": {
@@ -38,7 +41,11 @@
     "tag": "latest"
   },
   "devDependencies": {
+    "@types/node": "^12.0.0",
+    "@types/request": "^2.48.1",
+    "@types/semver": "^6.0.0",
     "git-scripts": "^0.2.1",
+    "qrcode-terminal": "^0.12.0",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
     "typescript": "^3.4.5"
