@@ -63,3 +63,4 @@ t.*
 /dist/
 
 *.memory-card.json
+*.registration.yaml

@@ -2,7 +2,8 @@
   "name": "matrix-appservice-wechaty",
   "version": "0.0.4",
   "description": "Matrix Application Services Bridge for Wechaty",
-  "main": "index.js",
+  "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
   "scripts": {
     "lint": "echo lint",
     "test": "echo test"
@@ -27,7 +28,7 @@
   "dependencies": {
     "matrix-appservice-bridge": "^1.8.1",
     "request": "^2.88.0",
-    "wechaty": "^0.25.14",
+    "wechaty": "^0.26.1",
     "wechaty-puppet-padchat": "^0.18.2",
     "wechaty-puppet-padpro": "0.0.59"
   },
