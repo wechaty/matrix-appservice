@@ -1,2 +1,3 @@
-export * from './wechaty'
-export * from './matrix-appservice-bridge'
+export * from './appservice/'
+export * from './wechaty/'
+export * from './config'
