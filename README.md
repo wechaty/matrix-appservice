@@ -35,6 +35,34 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 > 
 >  -- May 2019
 
+## HOW TO USE MATRIX
+
+I'd like to recommend using Riot for using Matrix. Riot is a universal secure chat app entirely under your control. It supports all types of the platforms, including Web/Browser, Android, and iPhone.
+
+- <https://riot.im/app/>
+- <https://riot.chatie.io/>
+
+## USAGE
+
+### Authentication
+
+This part is __"steal"__ from <https://github.com/tulir/mautrix-whatsapp/wiki/Authentication>
+
+#### Logging in
+
+0. Start a chat with the bridge bot. The bot should say _"This room has been registered as your bridge management/status room."_ if you started the chat correctly.
+1. Run `login`
+2. Log in by scanning the QR code. If the code expires before you scan it, the bridge will send an error to notify you.
+   1. Open Wechat on your phone.
+   2. Tap Menu or Settings and select Scan.
+   3. Point your phone at the image sent by the bot to capture the code.
+3. Finally, the bot should inform you of a successful login and the bridge should start creating portal rooms for all your Wechat groups and private chats.
+
+#### Logging out
+
+Simply run the `logout` management command.
+
+
 ## SEE ALSO
 
 - [Bridging infrastructure for Application Services - HOWTO](https://github.com/matrix-org/matrix-appservice-bridge/blob/master/HOWTO.md)

@@ -2,7 +2,9 @@ import {
   AppServiceRegistration,
 }                             from 'matrix-appservice-bridge'
 
-const MATRIX_WECHATY_NAME = 'wechaty'
+import {
+  MATRIX_WECHATY_NAME,
+}                             from '../config'
 
 export function generateRegistration (
   reg      : any,

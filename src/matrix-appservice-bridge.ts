@@ -5,7 +5,7 @@ import {
 import {
   generateRegistration,
   run,
-}                           from './appservice'
+}                           from './appservice/'
 
 import {
   MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,

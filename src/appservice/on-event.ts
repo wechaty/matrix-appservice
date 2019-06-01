@@ -1,8 +1,13 @@
+import { getBridge } from './get-bridge'
+
 export function onEvent (
   request: any,
   context: any,
 ): void {
   console.log('onEvent()', request, context)
+
+  // FIXME:
+  const ROOM_ID = 'xxx'
 
   const event = request.getData()
   // replace with your room ID
@@ -12,6 +17,8 @@ export function onEvent (
 
   const username = event.user_id
   const text = event.content.body
+
+  const bridge = getBridge()
 
   const intent = bridge.getIntent('@wechaty_' + username.replace(/^@/, ''))
   // intent.sendText(ROOM_ID, `I repeat: ${username} said ${text}`)

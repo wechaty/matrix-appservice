@@ -64,3 +64,4 @@ t.*
 
 *.memory-card.json
 *.registration.yaml
+*-store.db
