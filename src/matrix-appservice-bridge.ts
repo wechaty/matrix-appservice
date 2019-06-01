@@ -12,8 +12,8 @@ import {
 }                                               from './config'
 
 const cli = new Cli({
-  registrationPath: MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,
   generateRegistration,
+  registrationPath: MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,
   run,
 })
 

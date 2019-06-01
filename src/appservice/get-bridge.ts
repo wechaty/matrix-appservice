@@ -10,28 +10,27 @@ import { onEvent }     from './on-event'
 import { onUserQuery } from './on-user-query'
 
 const controller = {
-  onUserQuery,
   onEvent,
+  onUserQuery,
 }
 
-let bridge: Bridge
+let instance: Bridge
 
 export function getBridge (): Bridge {
-  if (!bridge) {
-    bridge = createBridge()
+  if (!instance) {
+    instance = createBridge()
   }
 
-  return bridge
-
-
+  return instance
 }
 
 function createBridge (): Bridge {
   const bridge = new Bridge({
-    homeserverUrl: 'http://matrix.aka.cn:8008',
-    domain: 'aka.cn',
-    registration: MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,
     controller,
+    domain: 'aka.cn',
+    homeserverUrl: 'http://matrix.aka.cn:8008',
+    registration: MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,
   })
+
   return bridge
 }

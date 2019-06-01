@@ -6,13 +6,13 @@ import {
   Wechaty,
 }             from 'wechaty'
 
-let wechaty: Wechaty
+let instance: Wechaty
 
 export function getWechaty (): Wechaty {
-  if (!wechaty) {
-    wechaty = createWechaty()
+  if (!instance) {
+    instance = createWechaty()
   }
-  return wechaty
+  return instance
 }
 
 function createWechaty (): Wechaty {

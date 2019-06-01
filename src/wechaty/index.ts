@@ -1,1 +1,1 @@
-export * from './wechaty'
+export { getWechaty } from './get-wechaty'

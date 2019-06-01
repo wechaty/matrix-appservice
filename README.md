@@ -13,27 +13,29 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 
 - [Integrate Wechat with Matrix with the power of Wechaty #1737](https://github.com/Chatie/wechaty/issues/1737)
 
-> [Matrix](https://matrix.org/blog/index) is like [Pidgin](http://pidgin.im) on your Phone. 
-> 
+> [Matrix](https://matrix.org/blog/index) is like [Pidgin](http://pidgin.im) on your Phone.
+>
 > Pidgin try to IM all your friends in one place in Linux, and with Matrix you can have your Phone clinet with your private server which is highly customized. Matrix did not use XMPP protocol, it's server uses REST so that it could be more easy to extend.
-> 
+>
 > This week I had a great talk with YC partner Eric @[ericmigi](https://github.com/ericmigi), who is a serial entrepreneur and also a geek with technology. He uses Matrix a lot and almost integrated all the instance messanger to his Matrix.
-> 
+>
 > But, the matrix does not support Wechat yet. So we'd like to introduce a matrix-wechat bridge to implement the Wechat protocol, and fill the gap between Matrix and Wechat.
-> 
-> @[ericmigi](https://github.com/ericmigi) provide some links that will help us to kick off a starter, hope we could make a workable POC soon, and any contribution will be welcome. 
-> 
+>
+> @[ericmigi](https://github.com/ericmigi) provide some links that will help us to kick off a starter, hope we could make a workable POC soon, and any contribution will be welcome.
+>
 > 1. [homeserver install in 1 hr](https://github.com/spantaleev/matrix-docker-ansible-deploy)
 > 1. [examples of puppet bridges](https://github.com/matrix-hacks/matrix-puppet-bridge)
-> 
->  -- Apr 2019
+>
+> -- Apr 2019
+
+---
 
 > @[tulir](https://github.com/tulir) has very rich experiences with building the matrix bridges such as:
-> 
+>
 > 1. [A Matrix-Telegram hybrid puppeting/relaybot bridge](https://github.com/tulir/mautrix-telegram)
 > 1. [A Matrix-WhatsApp puppeting bridge](https://github.com/tulir/mautrix-whatsapp)
-> 
->  -- May 2019
+>
+> -- May 2019
 
 ## HOW TO USE MATRIX
 
@@ -50,18 +52,17 @@ This part is __"steal"__ from <https://github.com/tulir/mautrix-whatsapp/wiki/Au
 
 #### Logging in
 
-0. Start a chat with the bridge bot. The bot should say _"This room has been registered as your bridge management/status room."_ if you started the chat correctly.
+1. Start a chat with the bridge bot. The bot should say _"This room has been registered as your bridge management/status room."_ if you started the chat correctly.
 1. Run `login`
-2. Log in by scanning the QR code. If the code expires before you scan it, the bridge will send an error to notify you.
-   1. Open Wechat on your phone.
-   2. Tap Menu or Settings and select Scan.
-   3. Point your phone at the image sent by the bot to capture the code.
-3. Finally, the bot should inform you of a successful login and the bridge should start creating portal rooms for all your Wechat groups and private chats.
+1. Log in by scanning the QR code. If the code expires before you scan it, the bridge will send an error to notify you.
+    1. Open Wechat on your phone.
+    1. Tap Menu or Settings and select Scan.
+    1. Point your phone at the image sent by the bot to capture the code.
+1. Finally, the bot should inform you of a successful login and the bridge should start creating portal rooms for all your Wechat groups and private chats.
 
 #### Logging out
 
 Simply run the `logout` management command.
-
 
 ## SEE ALSO
 
