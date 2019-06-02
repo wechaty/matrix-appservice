@@ -1,3 +1,8 @@
-export * from './appservice/'
-export * from './wechaty/'
-export * from './config'
+export {
+  getCli,
+}               from './appservice/'
+
+export {
+  log,
+  VERSION,
+}               from './config'

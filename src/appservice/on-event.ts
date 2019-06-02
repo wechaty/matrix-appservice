@@ -1,9 +1,9 @@
 import { getBridge } from './get-bridge'
 
-export function onEvent (
+export async function onEvent (
   request: any,
   context: any,
-): void {
+): Promise<void> {
   console.log('onEvent()', request, context)
 
   // FIXME:
@@ -22,5 +22,5 @@ export function onEvent (
 
   const intent = bridge.getIntent('@wechaty_' + username.replace(/^@/, ''))
   // intent.sendText(ROOM_ID, `I repeat: ${username} said ${text}`)
-  intent.sendText(username, `I repeat: you said ${text}`)
+  await intent.sendText(username, `I repeat: you said ${text}`)
 }

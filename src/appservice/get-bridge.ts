@@ -3,8 +3,8 @@ import {
 }                             from 'matrix-appservice-bridge'
 
 import {
-  MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,
-}                                             from '../config'
+  REGISTRATION_FILE,
+}                             from '../config'
 
 import { onEvent }     from './on-event'
 import { onUserQuery } from './on-user-query'
@@ -29,7 +29,7 @@ function createBridge (): Bridge {
     controller,
     domain: 'aka.cn',
     homeserverUrl: 'http://matrix.aka.cn:8008',
-    registration: MATRIX_APPSERVICE_REGISTRATION_YAML_FILE,
+    registration: REGISTRATION_FILE,
   })
 
   return bridge

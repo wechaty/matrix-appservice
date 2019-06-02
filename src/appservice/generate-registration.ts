@@ -18,9 +18,9 @@ export function generateRegistration (
     reg.setSenderLocalpart(MATRIX_WECHATY_NAME)
     reg.setProtocols([MATRIX_WECHATY_NAME])
 
-    reg.addRegexPattern('aliases', `#${MATRIX_WECHATY_NAME}_.+`, true)
-    reg.addRegexPattern('rooms', `!${MATRIX_WECHATY_NAME}_.+`, true)
-    reg.addRegexPattern('users', `@${MATRIX_WECHATY_NAME}_.+`, true)
+    reg.addRegexPattern('aliases', `^#${MATRIX_WECHATY_NAME}_.+`, true)
+    reg.addRegexPattern('rooms', `^!${MATRIX_WECHATY_NAME}_.+`, true)
+    reg.addRegexPattern('users', `^@${MATRIX_WECHATY_NAME}_.+`, true)
 
     callback(reg)
   }

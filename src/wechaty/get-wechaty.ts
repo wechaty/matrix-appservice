@@ -6,6 +6,10 @@ import {
   Wechaty,
 }             from 'wechaty'
 
+import {
+  WECHATY_PROFILE_NAME,
+}                         from '../config'
+
 let instance: Wechaty
 
 export function getWechaty (): Wechaty {
@@ -17,7 +21,7 @@ export function getWechaty (): Wechaty {
 
 function createWechaty (): Wechaty {
   const wechaty = new Wechaty({
-    profile: 'matrix',
+    profile: WECHATY_PROFILE_NAME
   })
 
   wechaty.on('scan',    onScan)

@@ -1,17 +1,20 @@
-import { getBridge }     from './get-bridge'
+import { log } from '../config'
 
+import { getBridge }     from './get-bridge'
 // FIXME:
-const ROOM_ID = '!KHasJNPkKLsCkLHqoO:aka.cn'
+// const ROOM_ID = '!KHasJNPkKLsCkLHqoO:aka.cn'
 
 export function run (
   port   : number,
-  config : any
+  config : object,
 ): void {
   const bridge = getBridge()
 
-  console.log('Matrix-side listening on port %s', port)
+  log.verbose('run', 'config: %s', JSON.stringify(config))
+
+  log.info('run', 'Matrix-side listening on port %s', port)
   bridge.run(port, config)
 
-  const intent = bridge.getIntent('@wechaty_' + 'tester' + ':aka.cn')
-  intent.sendText(ROOM_ID, 'hello matrix')
+  // const intent = bridge.getIntent('@wechaty_' + 'tester' + ':aka.cn')
+  // intent.sendText(ROOM_ID, 'hello matrix')
 }
