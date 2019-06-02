@@ -78,7 +78,7 @@ declare module 'matrix-appservice-bridge' {
 
   class Bridge {
     constructor (options: BridgeOptions)
-    run (port: number, config: any)
+    run (port: number, config: any): Promise<void>
     getIntent (id: string): Intent
   }
 
@@ -91,11 +91,25 @@ declare module 'matrix-appservice-bridge' {
     runBridge(port: number, config: null | object, reg: AppServiceRegistration): void
   }
 
+  interface CreateRoomOptions {
+    room_alias_name : string                // The alias localpart to assign to this room.
+    visibility      : 'public' | 'private'  // Either 'public' or 'private'.
+    invite          : string[]              // A list of user IDs to invite to this room.
+    name            : string                // The name to give this room.
+    topic           : string                // The topic to give this room.
+  }
+
   class Intent {
     constructor (client: MatrixClient, botClient: MatrixClient, opts: object)
     ban(roomId: string, target: string, reason: string): Promise<void>
     createAlias(alias: string, roomId: string): Promise<void>
-    createRoom(opts: object): Promise<void>
+    createRoom(opts: {
+      createAsClient: boolean,
+      options: CreateRoomOptions,
+    }): Promise<{
+      room_id: string,
+      room_alias?: string,
+    }>
     getClient(): MatrixClient
     getEvent(roomId: string, eventId: string, useCache?: boolean): Promise<any>
     getProfileInfo(userId: string, info: string, useCache?: boolean): Promise<any>
@@ -158,8 +172,12 @@ declare module 'matrix-appservice-bridge' {
     set(key: string, val: object): void
   }
 
+  interface RoomBridgeStoreOptions {
+    delimiter: string,
+  }
+
   class RoomBridgeStore {
-    constructor (db: Datastore, ops: object)
+    constructor (db: Datastore, ops: RoomBridgeStoreOptions)
     batchGetLinkedRemoteRooms(matrixIds: Array<string>): RemoteRoomMap
     getEntriesByLinkData(data: object): Array<RoomBridgeStoreEntry>
     getEntriesByMatrixId(matrixId: string): Array<RoomBridgeStoreEntry>

@@ -25,11 +25,16 @@ export function getBridge (): Bridge {
 }
 
 function createBridge (): Bridge {
+
+  const domain        = 'aka.cn'
+  const homeserverUrl = 'http://matrix.aka.cn:8008'
+  const registration  = REGISTRATION_FILE
+
   const bridge = new Bridge({
     controller,
-    domain: 'aka.cn',
-    homeserverUrl: 'http://matrix.aka.cn:8008',
-    registration: REGISTRATION_FILE,
+    domain,
+    homeserverUrl,
+    registration,
   })
 
   return bridge
