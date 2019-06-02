@@ -63,5 +63,5 @@ t.*
 /dist/
 
 *.memory-card.json
-*.registration.yaml
+*-registration.yaml
 *-store.db

@@ -1,2 +1,9 @@
-export const MATRIX_WECHATY_NAME                      = 'wechaty'
-export const MATRIX_APPSERVICE_REGISTRATION_YAML_FILE = 'matrix-appservice-wechaty.registration.yaml'
+export { log } from 'brolog'
+
+export { VERSION }  from './version'
+
+export const MATRIX_WECHATY_NAME  = 'wechaty'
+export const REGISTRATION_FILE    = 'wechaty-registration.yaml'
+export const WECHATY_PROFILE_NAME = 'wechaty-matrix'
+
+export const APPSERVER_DEFAULT_PORT = 8788 // W:87 X:88

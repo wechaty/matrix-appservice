@@ -2,10 +2,10 @@
 
 [![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-blue.svg)](https://github.com/chatie/wechaty)
 
-Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
-
 ![Matrix + Wechaty](https://huan.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
 > Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
+
+Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 
 ## UNDER CONSTRUCTING
 
