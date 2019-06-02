@@ -5,6 +5,7 @@ declare module 'matrix-appservice-bridge' {
 
   type MembershipState = 'joined' | 'join' | 'leave' | string
 
+  // FIXME: declare it in the right way
   const AppServiceRegistration = {
     generateToken: () => string
   }
@@ -32,6 +33,7 @@ declare module 'matrix-appservice-bridge' {
     run                  : (port: number, config: any) => void,
   }
 
+  ///////////////////////////////////////////////////////////////////////
   // FIXME: find the official name for this structure
   interface UserMap {
     [id: string]: {
@@ -45,7 +47,8 @@ declare module 'matrix-appservice-bridge' {
   interface RoomBridgeStoreEntryMap {
     [id: string]: Array<RoomBridgeStoreEntry>
   }
-
+  // FIXME: END
+  ////////////////////////////////
 
   interface RoomInfo {
     id                : string         //	The matrix room ID
