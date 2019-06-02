@@ -24,7 +24,7 @@ process.on('warning', (warning) => {
   console.warn(warning.stack)   // Print the stack trace
 })
 
-function main () {
+async function main () {
   log.verbose('MatrixAppserviceWechaty', `v${VERSION}`)
 
   checkUpdate().catch(console.error)
@@ -34,3 +34,7 @@ function main () {
 }
 
 main()
+.catch(e => {
+  console.error(e)
+  process.exit(1)
+})
