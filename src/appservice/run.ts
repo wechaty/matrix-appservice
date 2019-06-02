@@ -15,7 +15,6 @@ export async function run (
   log.info('run', 'Matrix-side listening on port %s', port)
   await bridge.run(port, config)
 
-
   // const tester1 = bridge.getIntent('@wechaty_tester1:aka.cn')
   // const tester2 = bridge.getIntent('@wechaty_tester1:aka.cn')
 
