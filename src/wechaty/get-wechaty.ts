@@ -7,7 +7,7 @@ import {
 }             from 'wechaty'
 
 import {
-  WECHATY_PROFILE_NAME,
+  WECHATY_NAME,
 }                         from '../config'
 
 let instance: Wechaty
@@ -21,7 +21,7 @@ export function getWechaty (): Wechaty {
 
 function createWechaty (): Wechaty {
   const wechaty = new Wechaty({
-    profile: WECHATY_PROFILE_NAME
+    name: WECHATY_NAME
   })
 
   wechaty.on('scan',    onScan)
