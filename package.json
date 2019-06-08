@@ -44,7 +44,7 @@
   },
   "git": {
     "scripts": {
-      "pre-push": "git-scripts-pre-push"
+      "pre-push": "npx git-scripts-pre-push"
     }
   },
   "publishConfig": {
