@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# Bug compatible with -r not supported (we need a raw string)
 VERSION=$(npx pkg-jq -r .version)
 
 if npx --package @chatie/semver semver-is-prod $VERSION; then

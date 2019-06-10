@@ -8,7 +8,7 @@ SRC_VERSION_TS_FILE='src/version.ts'
   exit 1
 }
 
-VERSION=$(ts-node --files bin/pkg-jq -r .version)
+VERSION=$(npx pkg-jq -r .version)
 
 cat <<_SRC_ > ${SRC_VERSION_TS_FILE}
 /**

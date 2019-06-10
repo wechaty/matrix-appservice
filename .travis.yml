@@ -1,7 +1,6 @@
 language: node_js
 node_js:
   - 10
-  - 12
 
 os:
   - linux
@@ -9,13 +8,6 @@ os:
 cache:
   directories:
     - node_modules
-
-script:
-  - node --version
-  - npm --version
-  - echo "Testing Started ..."
-  - npm test
-  - echo "Testing Finished."
 
 stages:
   - test
@@ -25,6 +17,14 @@ stages:
 
 jobs:
   include:
+    - stage: test
+      script:
+        - node --version
+        - npm --version
+        - echo "Testing Started ..."
+        - npm test
+        - echo "Testing Finished."
+
     - stage: pack
       script:
         - echo "NPM Pack Testing Started ..."
@@ -38,7 +38,7 @@ jobs:
         - echo "NPM Deploying Started ..."
         - npm version
         - ./scripts/generate-version.sh
-        - ./scripts/package-publish-config-tag-latest.sh
+        - ./scripts/package-publish-config-tag.sh
         - npm run dist
         - echo "NPM Building Finished."
 
