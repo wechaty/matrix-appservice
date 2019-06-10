@@ -42,31 +42,26 @@
     "wechaty": "^0.27.11",
     "wechaty-puppet-padpro": "^0.3.2"
   },
-  "git": {
-    "scripts": {
-      "pre-push": "npx git-scripts-pre-push"
-    }
-  },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "next"
   },
   "devDependencies": {
     "@chatie/eslint-config": "^0.3.7",
-    "@chatie/git-scripts": "0.0.2",
-    "@chatie/semver": "^0.1.1",
+    "@chatie/git-scripts": "^0.1.7",
+    "@chatie/semver": "^0.4.5",
     "@chatie/tsconfig": "^0.5.9",
     "@types/argparse": "^1.0.36",
-    "@types/blue-tape": "^0.1.33",
-    "@types/node": "^12.0.0",
     "@types/read-pkg-up": "^3.0.1",
-    "@types/semver": "^6.0.0",
     "@types/update-notifier": "^2.5.0",
-    "blue-tape": "^1.0.0",
-    "git-scripts": "^0.2.1",
     "markdownlint": "^0.14.1",
     "markdownlint-cli": "^0.16.0",
     "qrcode-terminal": "^0.12.0",
-    "semver": "^6.1.1"
+    "tstest": "^0.2.4"
+  },
+  "git": {
+    "scripts": {
+      "pre-push": "git-scripts-pre-push"
+    }
   }
 }
