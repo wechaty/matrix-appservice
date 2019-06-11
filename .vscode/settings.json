@@ -66,4 +66,9 @@
   },
   "editor.formatOnSave": false,
   "python.pythonPath": "python3",
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+  ],
+
 }

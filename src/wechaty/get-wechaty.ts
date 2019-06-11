@@ -21,7 +21,7 @@ export function getWechaty (): Wechaty {
 
 function createWechaty (): Wechaty {
   const wechaty = new Wechaty({
-    name: WECHATY_NAME
+    name: WECHATY_NAME,
   })
 
   wechaty.on('scan',    onScan)
@@ -30,8 +30,8 @@ function createWechaty (): Wechaty {
   wechaty.on('message', onMessage)
 
   wechaty.start()
-  .then(() => log.verbose('Bot', 'Starter Bot Started.'))
-  .catch(e => log.error('Bot', e))
+    .then(() => log.verbose('Bot', 'Starter Bot Started.'))
+    .catch(e => log.error('Bot', e))
 
   return wechaty
 }
@@ -52,13 +52,13 @@ function onScan (
 }
 
 function onLogin (user: Contact) {
-  console.log(`${user} login`)
+  console.info(`${user} login`)
 }
 
 function onLogout (user: Contact) {
-  console.log(`${user} logout`)
+  console.info(`${user} logout`)
 }
 
 async function onMessage (msg: Message) {
-  console.log(msg.toString())
+  console.info(msg.toString())
 }
