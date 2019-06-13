@@ -13,6 +13,7 @@
     "lint:es": "eslint src/**/*.ts --ignore-pattern *.d.ts",
     "lint:ts": "tsc --noEmit",
     "matrix-appservice-wechaty": "ts-node --files bin/matrix-appservice-wechaty",
+    "pack": "npm pack",
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
     "test:unit": "blue-tape -r ts-node/register \"src/**/*.spec.ts\" \"src/*.spec.ts\" \"tests/*.spec.ts\" \"tests/**/*.spec.ts\"",
     "test": "npm run lint && npm run test:unit"
@@ -58,7 +59,11 @@
     "markdownlint": "^0.14.1",
     "markdownlint-cli": "^0.16.0",
     "qrcode-terminal": "^0.12.0",
+    "shx": "^0.3.2",
     "tstest": "^0.2.4"
+  },
+  "bin": {
+    "matrix-appservice-wechaty": "dist/bin/matrix-appservice-wechaty.js"
   },
   "git": {
     "scripts": {
