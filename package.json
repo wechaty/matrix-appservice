@@ -14,7 +14,8 @@
     "lint:ts": "tsc --noEmit",
     "matrix-appservice-wechaty": "ts-node --files bin/matrix-appservice-wechaty",
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
-    "test": "echo test"
+    "test:unit": "blue-tape -r ts-node/register \"src/**/*.spec.ts\" \"src/*.spec.ts\" \"tests/*.spec.ts\" \"tests/**/*.spec.ts\"",
+    "test": "npm run lint && npm run test:unit"
   },
   "repository": {
     "type": "git",
@@ -39,18 +40,18 @@
     "matrix-appservice-bridge": "^1.8.1",
     "read-pkg-up": "^6.0.0",
     "update-notifier": "^3.0.0",
-    "wechaty": "^0.27.11",
-    "wechaty-puppet-padpro": "^0.3.2"
+    "wechaty": "^0.27.16",
+    "wechaty-puppet-padpro": "^0.3.1"
   },
   "publishConfig": {
     "access": "public",
     "tag": "next"
   },
   "devDependencies": {
-    "@chatie/eslint-config": "^0.6.5",
-    "@chatie/git-scripts": "^0.2.1",
+    "@chatie/eslint-config": "^0.6.8",
+    "@chatie/git-scripts": "^0.2.4",
     "@chatie/semver": "^0.4.5",
-    "@chatie/tsconfig": "^0.5.9",
+    "@chatie/tsconfig": "^0.6.1",
     "@types/argparse": "^1.0.36",
     "@types/read-pkg-up": "^3.0.1",
     "@types/update-notifier": "^2.5.0",

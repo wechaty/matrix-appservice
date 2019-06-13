@@ -4,7 +4,7 @@ export async function onEvent (
   request: any,
   context: any,
 ): Promise<void> {
-  console.log('onEvent()', request, context)
+  console.info('onEvent()', request, context)
 
   // FIXME:
   const ROOM_ID = 'xxx'
@@ -12,7 +12,7 @@ export async function onEvent (
   const event = request.getData()
   // replace with your room ID
   if (event.type !== 'm.room.message' || !event.content || event.room_id !== ROOM_ID) {
-      return
+    return
   }
 
   const username = event.user_id
