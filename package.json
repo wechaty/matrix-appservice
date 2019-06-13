@@ -10,7 +10,7 @@
     "dist": "npm run clean && npm run build",
     "lint": "npm run lint:es && npm run lint:ts && npm run lint:md",
     "lint:md": "markdownlint README.md",
-    "lint:es": "eslint src/**/*.ts --ignore-pattern *.d.ts",
+    "lint:es": "eslint src/**/*.ts tests/**/*.spec.ts --ignore-pattern *.d.ts --ignore-pattern fixtures/",
     "lint:ts": "tsc --noEmit",
     "matrix-appservice-wechaty": "ts-node --files bin/matrix-appservice-wechaty",
     "pack": "npm pack",
@@ -42,7 +42,7 @@
     "read-pkg-up": "^6.0.0",
     "update-notifier": "^3.0.0",
     "wechaty": "^0.27.16",
-    "wechaty-puppet-padpro": "^0.3.1"
+    "wechaty-puppet-padpro": "0.3.1"
   },
   "publishConfig": {
     "access": "public",
