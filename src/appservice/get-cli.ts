@@ -3,8 +3,9 @@ import {
 }         from 'matrix-appservice-bridge'
 
 import {
-  APPSERVER_DEFAULT_PORT,
+  DEFAULT_PORT,
   REGISTRATION_FILE,
+  SCHEMA_FILE,
 }                               from '../config'
 
 import {
@@ -26,10 +27,12 @@ export function getCli (): Cli {
 
 function createCli (): Cli {
 
-  const port             = APPSERVER_DEFAULT_PORT
+  const port             = DEFAULT_PORT
   const registrationPath = REGISTRATION_FILE
+  const schema           = SCHEMA_FILE
+
   const bridgeConfig = {
-    schema: 'schema/wechaty-config-schema.yaml',
+    schema,
   }
 
   const cli = new Cli({

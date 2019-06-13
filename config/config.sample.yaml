@@ -1,3 +1,3 @@
 name: matrix-appservice-wechaty
-puppet: wechaty-puppet-mock
-puppet_token:
+puppet: wechaty-puppet-padpro
+puppet_token: xx

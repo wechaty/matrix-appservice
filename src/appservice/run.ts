@@ -2,7 +2,7 @@ import { log } from '../config'
 
 import { getBridge }     from './get-bridge'
 // FIXME:
-// const ROOM_ID = '!KHasJNPkKLsCkLHqoO:aka.cn'
+const ROOM_ID = '!LeCbPwJxwjorqLHegf:aka.cn'
 
 export async function run (
   port   : number,
@@ -20,6 +20,6 @@ export async function run (
 
   // tester1.
 
-  // const intent = bridge.getIntent('@wechaty_' + 'tester' + ':aka.cn')
-  // intent.sendText(ROOM_ID, 'hello matrix')
+  const intent = bridge.getIntent('@wechaty_' + 'tester' + ':aka.cn')
+  intent.sendText(ROOM_ID, 'hello matrix')
 }
