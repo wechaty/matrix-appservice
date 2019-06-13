@@ -38,7 +38,6 @@
   },
   "homepage": "https://github.com/huan/matrix-appservice-wechaty#readme",
   "dependencies": {
-    "argparse": "^1.0.10",
     "brolog": "^1.8.3",
     "matrix-appservice-bridge": "^1.8.1",
     "read-pkg-up": "^6.0.0",
@@ -55,7 +54,6 @@
     "@chatie/git-scripts": "^0.2.4",
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.6.1",
-    "@types/argparse": "^1.0.36",
     "@types/read-pkg-up": "^3.0.1",
     "@types/update-notifier": "^2.5.0",
     "markdownlint": "^0.14.1",
