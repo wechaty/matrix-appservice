@@ -1,18 +1,15 @@
 import { log } from '../config'
 
 import { getBridge }     from './get-bridge'
-// FIXME:
-const ROOM_ID = '!LeCbPwJxwjorqLHegf:aka.cn'
 
 export async function run (
   port   : number,
   config : object,
 ): Promise<void> {
-  const bridge = getBridge()
-
+  log.info('run', 'listening on port %s', port)
   log.verbose('run', 'config: %s', JSON.stringify(config))
 
-  log.info('run', 'Matrix-side listening on port %s', port)
+  const bridge = getBridge()
   await bridge.run(port, config)
 
   // const tester1 = bridge.getIntent('@wechaty_tester1:aka.cn')
@@ -21,5 +18,7 @@ export async function run (
   // tester1.
 
   const intent = bridge.getIntent('@wechaty_' + 'tester' + ':aka.cn')
+
+  const ROOM_ID = '!LeCbPwJxwjorqLHegf:aka.cn'
   intent.sendText(ROOM_ID, 'hello matrix')
 }

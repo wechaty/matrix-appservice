@@ -5,5 +5,3 @@ properties:
     type: string
   puppet:
     type: string
-  puppet_token:
-    type: string

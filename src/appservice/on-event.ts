@@ -9,6 +9,8 @@ import {
   Request,
 }               from 'matrix-appservice-bridge'
 
+const bridge = getBridge()
+
 export async function onEvent (
   request: Request,
   context: BridgeContext,
@@ -16,8 +18,6 @@ export async function onEvent (
   log.info('AppService', 'onEvent({type: "%s"}, {userId: "%s"})', request.data.type, context.senders.matrix.userId)
 
   const event = request.getData()
-
-  const bridge = getBridge()
 
   try {
     await doit(bridge, event)
