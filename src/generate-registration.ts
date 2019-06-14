@@ -3,8 +3,8 @@ import {
 }                             from 'matrix-appservice-bridge'
 
 import {
-  MATRIX_WECHATY_NAME,
-}                             from '../config'
+  WECHATY_LOCALPART,
+}                             from './config'
 
 export function generateRegistration (
   reg      : any,
@@ -14,13 +14,13 @@ export function generateRegistration (
   reg.setAppServiceToken(AppServiceRegistration.generateToken())
 
   // reg.setId(AppServiceRegistration.generateToken())
-  reg.setId(MATRIX_WECHATY_NAME)
-  reg.setSenderLocalpart(MATRIX_WECHATY_NAME)
-  reg.setProtocols([MATRIX_WECHATY_NAME])
+  reg.setId(WECHATY_LOCALPART)
+  reg.setSenderLocalpart(WECHATY_LOCALPART)
+  reg.setProtocols([WECHATY_LOCALPART])
 
-  reg.addRegexPattern('aliases', `^#${MATRIX_WECHATY_NAME}_.+`, true)
-  reg.addRegexPattern('rooms', `^!${MATRIX_WECHATY_NAME}_.+`, true)
-  reg.addRegexPattern('users', `^@${MATRIX_WECHATY_NAME}_.+`, true)
+  reg.addRegexPattern('aliases', `^#${WECHATY_LOCALPART}_.+`, true)
+  reg.addRegexPattern('rooms', `^!${WECHATY_LOCALPART}_.+`, true)
+  reg.addRegexPattern('users', `^@${WECHATY_LOCALPART}_.+`, true)
 
   callback(reg)
 }

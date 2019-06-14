@@ -6,22 +6,22 @@ import {
   Wechaty,
 }             from 'wechaty'
 
-import {
-  WECHATY_NAME,
-}                         from '../config'
-
 let instance: Wechaty
 
-export function getWechaty (): Wechaty {
+export function getWechaty (
+  name: string,
+): Wechaty {
   if (!instance) {
-    instance = createWechaty()
+    instance = createWechaty(name)
   }
   return instance
 }
 
-function createWechaty (): Wechaty {
+function createWechaty (
+  name: string,
+): Wechaty {
   const wechaty = new Wechaty({
-    name: WECHATY_NAME,
+    name,
   })
 
   wechaty.on('scan',    onScan)

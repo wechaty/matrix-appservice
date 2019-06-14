@@ -2,9 +2,9 @@
 
 declare module 'matrix-appservice-bridge' {
 
-  type MsgType =  'm.text'
-                | 'm.room.message'
-                | string
+  import { EventEmitter } from 'events'
+
+  type MsgType = 'm.text'
 
   type EventType = 'm.room.member'
                   |'m.room.message'
@@ -17,11 +17,19 @@ declare module 'matrix-appservice-bridge' {
                   |'m.room.topic'
                   |'m.sticker'
 
+  type StateEventType = 'm.room.name'
+                      | 'm.room.topic'
+                      | 'm.room.power_levels'
+                      | 'm.room.member'
+                      | 'm.room.join_rule'
+                      | 'm.room.history_visibility'
+
   type Controller = any
 
-  type MatrixClient = any
-
-  type MembershipState = 'joined' | 'join' | 'leave' | string
+  type MembershipState =  'joined'
+                        | 'join'
+                        | 'leave'
+                        | string
 
   // FIXME: declare it in the right way
   export export class AppServiceRegistration {
@@ -29,7 +37,6 @@ declare module 'matrix-appservice-bridge' {
     static generateToken(): string
 
   }
-
   /* ********************* */
 
   export interface BridgeOptions {
@@ -137,6 +144,8 @@ declare module 'matrix-appservice-bridge' {
 
   export class Bridge {
 
+    public _botClient: MatrixClient
+
     constructor (options: BridgeOptions)
     run                    (port: number, config: any)                                                       : Promise<void>
     getIntent              (id: string)                                                                      : Intent
@@ -183,8 +192,8 @@ declare module 'matrix-appservice-bridge' {
     room_alias_name? : string                  // The alias localpart to assign to this room.
     visibility       : 'public' | 'private'    // Either 'public' or 'private'.
     invite           : string[]                // A list of user IDs to invite to this room.
-    name             : string                  // The name to give this room.
-    topic            : string                  // The topic to give this room.
+    name?            : string                  // The name to give this room.
+    topic?           : string                  // The topic to give this room.
   }
 
   export class Intent {
@@ -199,30 +208,30 @@ declare module 'matrix-appservice-bridge' {
       room_id: string,
       room_alias?: string,
     }>
-    getClient      ()                                                                  : MatrixClient
-    getEvent       (roomId: string, eventId: string, useCache?: boolean)               : Promise<any>
-    getProfileInfo (userId: string, info: string, useCache?: boolean)                  : Promise<any>
-    getStateEvent  (roomId: string, eventType: string, stateKey?: string)              : Promise<any>
-    invite         (roomId: string, target: string)                                    : Promise<void>
-    join           (roomId: string, viaServers: string[])                              : Promise<void>
-    kick           (roomId: string, target: string, reason: string)                    : Promise<void>
-    leave          (roomId: string)                                                    : Promise<void>
-    onEvent        (event: object)                                                     : void
-    roomState      (roomId: string, useCache?: boolean)                                : Promise<any>
-    sendEvent      (roomId: string, type: string, content: object)                     : Promise<void>
-    sendMessage    (roomId: string, content: object)                                   : Promise<void>
-    sendReadReceipt()                                                                  : Promise<void>
-    sendStateEvent (roomId: string, type: string, skey: string, content: object)       : Promise<void>
-    sendText       (roomId: string, text: string)                                      : Promise<void>
-    sendTyping     (roomId: string, isTyping: boolean)                                 : Promise<void>
-    setAvatarUrl   (url: string)                                                       : Promise<void>
-    setDisplayName (name: string)                                                      : Promise<void>
-    setPowerLevel  (roomId: string, target: string, level: number)                     : Promise<void>
-    setPresence    (presence: 'online' | 'offline' | 'unavailable', status_msg:string) : Promise<void>
-    setRoomAvatar  (roomId: string, avatar: string, info: string)                      : Promise<void>
-    setRoomName    (roomId: string, name: string)                                      : Promise<void>
-    setRoomTopic   (roomId: string, topic: string)                                     : Promise<void>
-    unban          (roomId: string, target: string)                                    : Promise<void>
+    getClient       ()                                                                    : MatrixClient
+    getEvent        (roomId: string, eventId: string, useCache?: boolean)                 : Promise<any>
+    getProfileInfo  (userId: string, info: string, useCache?: boolean)                    : Promise<any>
+    getStateEvent   (roomId: string, eventType: EventType, stateKey?: string)             : Promise<any>
+    invite          (roomId: string, target: string)                                      : Promise<void>
+    join            (roomId: string, viaServers: string[])                                : Promise<void>
+    kick            (roomId: string, target: string, reason: string)                      : Promise<void>
+    leave           (roomId: string)                                                      : Promise<void>
+    onEvent         (event: object)                                                       : void
+    roomState       (roomId: string, useCache?: boolean)                                  : Promise<any>
+    sendEvent       (roomId: string, type: StateEventType, content: object)               : Promise<void>
+    sendMessage     (roomId: string, content: object)                                     : Promise<void>
+    sendReadReceipt()                                                                     : Promise<void>
+    sendStateEvent  (roomId: string, type: StateEventType, skey: string, content: object) : Promise<void>
+    sendText        (roomId: string, text: string)                                        : Promise<void>
+    sendTyping      (roomId: string, isTyping: boolean)                                   : Promise<void>
+    setAvatarUrl    (url: string)                                                         : Promise<void>
+    setDisplayName  (name: string)                                                        : Promise<void>
+    setPowerLevel   (roomId: string, target: string, level: number)                       : Promise<void>
+    setPresence     (presence: 'online' | 'offline' | 'unavailable', status_msg:string)   : Promise<void>
+    setRoomAvatar   (roomId: string, avatar: string, info: string)                        : Promise<void>
+    setRoomName     (roomId: string, name: string)                                        : Promise<void>
+    setRoomTopic    (roomId: string, topic: string)                                       : Promise<void>
+    unban           (roomId: string, target: string)                                      : Promise<void>
 
   }
 
@@ -361,7 +370,7 @@ declare module 'matrix-appservice-bridge' {
     origin_server_ts : number
     room_id          : string
     sender           : string
-    type             : MessageType
+    type             : EventType
     user_id          : string
 
     content: {
@@ -390,6 +399,23 @@ declare module 'matrix-appservice-bridge' {
       remote  : null | RemoteRoom
       remotes : RemoteRoom[]
     }
+  }
+
+  /**
+   * Only part of the MatrixClient methods was put here
+   * because they are too many.
+   * @huan 14 June 2019
+   */
+  class MatrixClient {
+
+    acceptGroupInvite(groupId: string, opts: object): Promise<void>
+    addListener(event: string, listener: () => void): EventEmitter
+    addPushRule(scope: string, kind: string, ruleId: string, body: object, callback?: () => void): Promise<void>
+
+    getDomain(): null | string
+    getUserId(): null | string
+    getUserIdLocalpart(): null | string
+
   }
 
 }

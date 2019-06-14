@@ -2,23 +2,24 @@
 
 import {
   checkUpdate,
-  getCli,
+  createCli,
   log,
   VERSION,
-}             from '../src/'
+}                     from '../src/'
 
 async function main () {
-  log.info('MatrixAppserviceWechaty', `v${VERSION}`)
+  log.info('matrix-appservice-wechaty', `v${VERSION}`)
 
   checkUpdate()
 
   process.on('warning', (warning) => {
+    log.warn('matrix-appservice-wechaty', 'process.on(warning)')
     console.warn(warning.name)    // Print the warning name
     console.warn(warning.message) // Print the warning message
     console.warn(warning.stack)   // Print the stack trace
   })
 
-  const cli = getCli()
+  const cli = await createCli()
   cli.run()
 }
 

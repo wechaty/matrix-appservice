@@ -1,24 +1,25 @@
-import { log } from '../config'
+import { log } from './config'
 
-import { getBridge }     from './get-bridge'
+import { AppServiceManager } from './appservice-manager/'
+import { WechatyManager } from './wechaty-manager/'
 
 export async function run (
   port   : number,
   config : object,
 ): Promise<void> {
-  log.info('run', 'listening on port %s', port)
-  log.verbose('run', 'config: %s', JSON.stringify(config))
+  log.info('matrix-appservice-wechaty', 'run() listening on port %s', port)
+  log.verbose('MatrixAppServiceWechaty', 'run(,config="%s")', JSON.stringify(config))
 
-  const bridge = getBridge()
-  await bridge.run(port, config)
+  const wechatyManager = new WechatyManager()
+  const appServiceManager = new AppServiceManager()
 
-  // const tester1 = bridge.getIntent('@wechaty_tester1:aka.cn')
-  // const tester2 = bridge.getIntent('@wechaty_tester1:aka.cn')
+  wechatyManager.connect(appServiceManager)
+  appServiceManager.connect(wechatyManager)
 
-  // tester1.
+  await Promise.all([
+    appServiceManager.start(port, config),
+    wechatyManager.start(),
+  ])
 
-  const intent = bridge.getIntent('@wechaty_' + 'tester' + ':aka.cn')
-
-  const ROOM_ID = '!LeCbPwJxwjorqLHegf:aka.cn'
-  intent.sendText(ROOM_ID, 'hello matrix')
+  await appServiceManager.bootstrap()
 }

@@ -1,7 +1,6 @@
 export {
-  getCli,
-}               from './appservice/'
-
+  createCli,
+}               from './create-cli'
 export {
   log,
   VERSION,

@@ -6,26 +6,15 @@ import {
   DEFAULT_PORT,
   REGISTRATION_FILE,
   // SCHEMA_FILE,
-}                               from '../config'
-
+}                           from './config'
 import {
   generateRegistration,
 }                           from './generate-registration'
-
 import {
   run,
 }                           from './run'
 
-let instance: Cli
-
-export function getCli (): Cli {
-  if (!instance) {
-    instance = createCli()
-  }
-  return instance
-}
-
-function createCli (): Cli {
+export function createCli (): Cli {
 
   const port             = DEFAULT_PORT
   const registrationPath = REGISTRATION_FILE
