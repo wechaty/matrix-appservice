@@ -1,18 +1,13 @@
 import {
   Bridge,
-}                             from 'matrix-appservice-bridge'
+}           from 'matrix-appservice-bridge'
 
 import {
   REGISTRATION_FILE,
-}                             from '../config'
+}                     from '../config'
 
 import { onEvent }     from './on-event'
 import { onUserQuery } from './on-user-query'
-
-const controller = {
-  onEvent,
-  onUserQuery,
-}
 
 let instance: Bridge
 
@@ -29,6 +24,11 @@ function createBridge (): Bridge {
   const domain        = 'aka.cn'
   const homeserverUrl = 'http://matrix.aka.cn:8008'
   const registration  = REGISTRATION_FILE
+
+  const controller = {
+    onEvent,
+    onUserQuery,
+  }
 
   const bridge = new Bridge({
     controller,
