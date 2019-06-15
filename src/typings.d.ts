@@ -142,9 +142,17 @@ declare module 'matrix-appservice-bridge' {
 
   }
 
-  export class Bridge {
+  class ClientFactory {
 
-    public _botClient: MatrixClient
+    constructor (options: any)
+
+    configure(baseUrl: string, appServiceToken: string, appServiceUserId: string): void
+    getClientAs(userId: null | string, request?: Request): MatrixClient
+    setLogFunction(func: (...any) => any): void
+
+  }
+
+  export class Bridge {
 
     constructor (options: BridgeOptions)
     run                    (port: number, config: any)                                                       : Promise<void>

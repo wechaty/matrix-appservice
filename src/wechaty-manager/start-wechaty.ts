@@ -6,24 +6,9 @@ import {
   Wechaty,
 }             from 'wechaty'
 
-let instance: Wechaty
-
-export function getWechaty (
-  name: string,
-): Wechaty {
-  if (!instance) {
-    instance = createWechaty(name)
-  }
-  return instance
-}
-
-function createWechaty (
-  name: string,
-): Wechaty {
-  const wechaty = new Wechaty({
-    name,
-  })
-
+export async function startWechaty (
+  wechaty: Wechaty,
+): Promise<void> {
   wechaty.on('scan',    onScan)
   wechaty.on('login',   onLogin)
   wechaty.on('logout',  onLogout)
@@ -32,8 +17,6 @@ function createWechaty (
   wechaty.start()
     .then(() => log.verbose('Bot', 'Starter Bot Started.'))
     .catch(e => log.error('Bot', e))
-
-  return wechaty
 }
 
 function onScan (

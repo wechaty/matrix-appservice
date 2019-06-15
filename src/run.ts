@@ -7,14 +7,12 @@ export async function run (
   port   : number,
   config : object,
 ): Promise<void> {
-  log.info('matrix-appservice-wechaty', 'run() listening on port %s', port)
-  log.verbose('MatrixAppServiceWechaty', 'run(,config="%s")', JSON.stringify(config))
+  log.info('matrix-appservice-wechaty', 'run(port=%s,)', port)
 
-  const wechatyManager = new WechatyManager()
   const appServiceManager = new AppServiceManager()
+  const wechatyManager    = new WechatyManager()
 
-  wechatyManager.connect(appServiceManager)
-  appServiceManager.connect(wechatyManager)
+  connect(appServiceManager, wechatyManager)
 
   await Promise.all([
     appServiceManager.start(port, config),
@@ -22,4 +20,12 @@ export async function run (
   ])
 
   await appServiceManager.bootstrap()
+}
+
+function connect (
+  appServiceManager: AppServiceManager,
+  wechatyManager: WechatyManager,
+): void {
+  wechatyManager.connect(appServiceManager)
+  appServiceManager.connect(wechatyManager)
 }

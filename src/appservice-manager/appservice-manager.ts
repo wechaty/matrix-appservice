@@ -1,118 +1,121 @@
-import { EventEmitter } from 'events'
-
 import {
   Bridge,
   BridgeContext,
   Request,
-}                       from 'matrix-appservice-bridge'
-
+}                 from 'matrix-appservice-bridge'
 import {
-  WechatyManager,
-}                     from '../wechaty-manager/'
+  WechatyOptions,
+}                 from 'wechaty'
 
 import {
   log,
-  REGISTRATION_FILE,
-}                     from '../config'
+}                       from '../config'
+import {
+  WechatyManager,
+}                       from '../wechaty-manager/'
 
-import { dispatchEvent } from './dispatch-event'
+import { bootstrap }    from './bootstrap'
+import { createBridge } from './create-bridge'
+import { onEvent }      from './on-event'
+import { onUserQuery }  from './on-user-query'
 
-export class AppServiceManager extends EventEmitter {
+export class AppServiceManager {
 
   public bridge?         : Bridge
   public wechatyManager? : WechatyManager
 
   constructor () {
     log.verbose('AppServiceManager', 'constructor()')
-    super()
   }
 
   public connect (
     wechatyManager: WechatyManager,
-  ): void {
-    log.verbose('AppServiceManager', 'connect()')
+  ): AppServiceManager {
+    log.verbose('AppServiceManager', 'connectWechatyManager()')
 
     if (this.wechatyManager) {
       throw new Error('wechatyManager can not be set more than once')
     }
+
     this.wechatyManager = wechatyManager
+    return this
   }
 
   public async start (
     port   : number,
     config : object,
   ): Promise<void> {
-    log.verbose('AppServiceManager', 'start(%s, %s)', port, JSON.stringify(config))
+    log.verbose('AppServiceManager', 'start(%s, "%s")', port, JSON.stringify(config))
 
-    if (this.bridge) {
-      throw new Error('bridge had already been set!')
+    if (!this.wechatyManager) {
+      throw new Error(`there's no wechatyManager yet. call connect() first`)
     }
 
-    this.bridge = this.createBridge()
-    await this.bridge.run(port, config)
+    await this.initBridge(port, config)
   }
 
   /**
    * Main entrence
    */
   public async bootstrap (): Promise<void> {
-    log.verbose('AppServiceManager', 'bootstrap(%s)')
+    log.verbose('AppServiceManager', 'bootstrap()')
 
-    // const tester1 = bridge.getIntent('@wechaty_tester1:aka.cn')
-    // const tester2 = bridge.getIntent('@wechaty_tester1:aka.cn')
+    try {
+      await bootstrap(this)
+    } catch (e) {
+      log.error('AppServiceManager', 'bootstrap() rejection: %s', e && e.message)
+    }
+  }
 
-    // TODO:
+  public getWechatyOptionsList (): WechatyOptions[] {
+    return [
+      {
+        name: 'test',
+      },
+    ]
+  }
 
-    const intent = this.bridge!.getIntent('@wechaty_' + 'tester' + ':aka.cn')
+  public onEvent (
+    request: Request,
+    context: BridgeContext,
+  ): void {
+    log.verbose('AppServiceManager', 'onEvent()')
 
-    const ROOM_ID = '!LeCbPwJxwjorqLHegf:aka.cn'
-    intent.sendText(ROOM_ID, 'hello matrix')
+    onEvent(this, request, context)
+      .catch(e => {
+        log.error('AppServiceManager', 'onEvent() rejection: %s', e && e.message)
+      })
+  }
+
+  public async onUserQuery (queriedUser: any): Promise<object> {
+    log.verbose('AppServiceManager', 'onUserQuery()')
+
+    try {
+      const provision = await onUserQuery(this, queriedUser)
+      return provision
+    } catch (e) {
+      log.error('AppServiceManager', 'onUserQuery() rejection: %s', e && e.message)
+    }
+
+    // auto-provision users with no additonal data
+    return {}
   }
 
   /**
    * Private methods
    */
-
-  private createBridge () {
-    log.verbose('AppServiceManager', 'createBridge()')
-
-    const domain        = 'aka.cn'
-    const homeserverUrl = 'http://matrix.aka.cn:8008'
-    const registration  = REGISTRATION_FILE
-
-    const controller = {
-      onEvent     : this.onEvent.bind(this),
-      onUserQuery : this.onUserQuery.bind(this),
-    }
-
-    const bridge = new Bridge({
-      controller,
-      domain,
-      homeserverUrl,
-      registration,
-    })
-
-    return bridge
-  }
-
-  private async onEvent (
-    request: Request,
-    context: BridgeContext,
+  private async initBridge (
+    port: number,
+    config: object,
   ): Promise<void> {
-    log.verbose('AppServiceManager', 'onEvent({type: "%s"}, {userId: "%s"})', request.data.type, context.senders.matrix.userId)
+    log.verbose('AppServiceManager', 'initBridge()')
 
-    const event = request.getData()
-
-    try {
-      await dispatchEvent(this, event)
-    } catch (e) {
-      log.error('AppServiceManager', 'onEvent exception: %s', e && e.message)
+    if (this.bridge) {
+      throw new Error('bridge had already been set!')
     }
-  }
 
-  private onUserQuery (queriedUser: any): object {
-    log.verbose('AppServiceManager', 'onUserQuery(%s)', queriedUser)
-    return {} // auto-provision users with no additonal data
+    this.bridge = createBridge(this)
+    await this.bridge.run(port, config)
   }
 
 }

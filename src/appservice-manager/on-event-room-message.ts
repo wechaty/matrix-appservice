@@ -169,7 +169,7 @@ function isWechatyBotId (
   manager: AppServiceManager,
   matrixUserId: string,
 ): boolean {
-  const domain = manager.bridge!._botClient.getDomain()
+  const domain = manager.bridge!.getClientFactory().getClientAs(null).getDomain()
 
   const REGEX_TEXT  = `^@?${WECHATY_LOCALPART}(:${domain})?$`
   const MATCH_REGEX = new RegExp(REGEX_TEXT, 'i')

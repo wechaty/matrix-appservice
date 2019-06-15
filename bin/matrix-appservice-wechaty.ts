@@ -8,6 +8,8 @@ import {
 }                     from '../src/'
 
 async function main () {
+  log.level('silly')
+
   log.info('matrix-appservice-wechaty', `v${VERSION}`)
 
   checkUpdate()

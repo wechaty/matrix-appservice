@@ -1,15 +1,12 @@
 import {
   Wechaty,
-  PuppetModuleName,
+  WechatyOptions,
 }                   from 'wechaty'
-
-import {
-  PuppetOptions,
-}                   from 'wechaty-puppet'
 
 import { log } from '../config'
 
 import { AppServiceManager } from '../appservice-manager/'
+import { startWechaty } from './start-wechaty'
 
 export class WechatyManager {
 
@@ -17,6 +14,8 @@ export class WechatyManager {
   private wechatyStore       : Map<string, Wechaty>
 
   constructor () {
+    log.verbose('WechatyManager', 'constructor()')
+
     this.wechatyStore = new Map<string, Wechaty>()
   }
 
@@ -35,38 +34,59 @@ export class WechatyManager {
   public async start (): Promise<void> {
     log.verbose('WechatyManager', 'start()')
 
+    if (!this.appServiceManager) {
+      throw new Error(`there's no appSrviceManager yet. call connect() first`)
+    }
+
+    const optionList = this.appServiceManager.getWechatyOptionsList()
+    for (const wechatyOption of optionList) {
+      this.add(wechatyOption)
+    }
     // loop start wechaty pool
   }
 
-  public get (key: string): undefined | Wechaty {
-    return this.wechatyStore.get(key)
+  public get (name: string): Wechaty {
+    log.verbose('WechatyManager', 'get(%s)', name)
+
+    const wechaty = this.wechatyStore.get(name)
+    if (!wechaty) {
+      throw new Error(`wechaty store no such key ${name}`)
+    }
+    return wechaty
   }
 
-  public add (
-    key            : string,
-    puppet?        : PuppetModuleName,
-    puppetOptions? : PuppetOptions,
-  ): void {
-    if (this.wechatyStore.has(key)) {
-      throw new Error(`${key} is already exist`)
+  public async add (wechatyOptions: WechatyOptions): Promise<void> {
+    log.verbose('WechatyManager', 'add("%s")', JSON.stringify(wechatyOptions))
+
+    const name = wechatyOptions.name
+    if (!name) {
+      throw new Error('wechaty manager needs a name to manage wechaty')
     }
 
-    const wechaty = new Wechaty({
-      name: key,
-      puppet,
-      puppetOptions,
-    })
+    if (this.wechatyStore.has(name)) {
+      throw new Error(`${name} is already exist`)
+    }
 
-    this.wechatyStore.set(key, wechaty)
+    const wechaty = new Wechaty(wechatyOptions)
+    await startWechaty(wechaty)
+
+    this.wechatyStore.set(name, wechaty)
   }
 
-  public del (
-    key: string,
-  ): void {
-    if (!this.wechatyStore.has(key)) {
-      throw new Error(`wechaty store no such key ${key}`)
+  public async del (
+    name: string,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'del(%s)', name)
+
+    const wechaty = this.wechatyStore.get(name)
+
+    if (!wechaty) {
+      throw new Error(`wechaty store no such key ${name}`)
     }
-    this.wechatyStore.delete(key)
+
+    await wechaty.stop()
+
+    this.wechatyStore.delete(name)
   }
 
 }
