@@ -47,7 +47,7 @@
     "tag": "next"
   },
   "devDependencies": {
-    "@chatie/eslint-config": "^0.3.7",
+    "@chatie/eslint-config": "^0.6.0",
     "@chatie/git-scripts": "^0.2.1",
     "@chatie/semver": "^0.4.5",
     "@chatie/tsconfig": "^0.5.9",
