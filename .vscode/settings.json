@@ -46,10 +46,6 @@
       }
     ]
   },
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-  ],
   "files.exclude": {
     "dist/": true,
     "doc/": true,
