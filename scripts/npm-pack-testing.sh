@@ -9,14 +9,14 @@ mkdir "$TMPDIR"
 mv *-*.*.*.tgz "$TMPDIR"
 cp tests/fixtures/smoke-testing.ts "$TMPDIR"
 
-cd $TMPDIR
+pushd "$TMPDIR"
+
 npm init -y
 npm install --production \
   *-*.*.*.tgz \
-  @types/node \
-  typescript
+  @chatie/tsconfig
 
-./node_modules/.bin/tsc \
+npx tsc \
   --lib esnext \
   --strict \
   --noEmitOnError \
@@ -25,4 +25,6 @@ npm install --production \
   smoke-testing.ts
 
 node smoke-testing.js
-# (for i in {1..3}; do node smoke-testing.js && break || sleep 1; done)
+
+popd
+rm -fr "$TMPDIR"

@@ -6,34 +6,17 @@ import {
   Wechaty,
 }             from 'wechaty'
 
-import {
-  WECHATY_NAME,
-}                         from '../config'
-
-let instance: Wechaty
-
-export function getWechaty (): Wechaty {
-  if (!instance) {
-    instance = createWechaty()
-  }
-  return instance
-}
-
-function createWechaty (): Wechaty {
-  const wechaty = new Wechaty({
-    name: WECHATY_NAME
-  })
-
+export async function startWechaty (
+  wechaty: Wechaty,
+): Promise<void> {
   wechaty.on('scan',    onScan)
   wechaty.on('login',   onLogin)
   wechaty.on('logout',  onLogout)
   wechaty.on('message', onMessage)
 
   wechaty.start()
-  .then(() => log.verbose('Bot', 'Starter Bot Started.'))
-  .catch(e => log.error('Bot', e))
-
-  return wechaty
+    .then(() => log.verbose('Bot', 'Starter Bot Started.'))
+    .catch(e => log.error('Bot', e))
 }
 
 function onScan (
@@ -52,13 +35,13 @@ function onScan (
 }
 
 function onLogin (user: Contact) {
-  console.log(`${user} login`)
+  console.info(`${user} login`)
 }
 
 function onLogout (user: Contact) {
-  console.log(`${user} logout`)
+  console.info(`${user} logout`)
 }
 
 async function onMessage (msg: Message) {
-  console.log(msg.toString())
+  console.info(msg.toString())
 }

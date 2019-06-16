@@ -1,40 +1,32 @@
 #!/usr/bin/env node
 
-import readPkgUp from 'read-pkg-up'
-import { UpdateNotifier }   from 'update-notifier'
-
 import {
-  getCli,
+  checkUpdate,
+  createCli,
   log,
   VERSION,
-}             from '../src/'
-
-async function checkUpdate () {
-  const pkg = readPkgUp.sync({ cwd: __dirname })!.package
-  const notifier  = new UpdateNotifier({
-    pkg,
-    updateCheckInterval: 1000 * 60 * 60 * 24 * 7, // 1 week
-  })
-  notifier.notify()
-}
-
-process.on('warning', (warning) => {
-  console.warn(warning.name)    // Print the warning name
-  console.warn(warning.message) // Print the warning message
-  console.warn(warning.stack)   // Print the stack trace
-})
+}                     from '../src/'
 
 async function main () {
-  log.verbose('MatrixAppserviceWechaty', `v${VERSION}`)
+  log.level('silly')
 
-  checkUpdate().catch(console.error)
+  log.info('matrix-appservice-wechaty', `v${VERSION}`)
 
-  const cli = getCli()
+  checkUpdate()
+
+  process.on('warning', (warning) => {
+    log.warn('matrix-appservice-wechaty', 'process.on(warning)')
+    console.warn(warning.name)    // Print the warning name
+    console.warn(warning.message) // Print the warning message
+    console.warn(warning.stack)   // Print the stack trace
+  })
+
+  const cli = await createCli()
   cli.run()
 }
 
 main()
-.catch(e => {
-  console.error(e)
-  process.exit(1)
-})
+  .catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
