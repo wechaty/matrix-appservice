@@ -6,17 +6,13 @@ import {
   Wechaty,
 }             from 'wechaty'
 
-export async function startWechaty (
+export async function initWechaty (
   wechaty: Wechaty,
 ): Promise<void> {
   wechaty.on('scan',    onScan)
   wechaty.on('login',   onLogin)
   wechaty.on('logout',  onLogout)
   wechaty.on('message', onMessage)
-
-  wechaty.start()
-    .then(() => log.verbose('Bot', 'Starter Bot Started.'))
-    .catch(e => log.error('Bot', e))
 }
 
 function onScan (
