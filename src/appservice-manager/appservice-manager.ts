@@ -30,15 +30,13 @@ export class AppServiceManager {
 
   public connect (
     wechatyManager: WechatyManager,
-  ): AppServiceManager {
+  ): void {
     log.verbose('AppServiceManager', 'connectWechatyManager()')
 
     if (this.wechatyManager) {
       throw new Error('wechatyManager can not be set more than once')
     }
-
     this.wechatyManager = wechatyManager
-    return this
   }
 
   public async start (
@@ -51,7 +49,8 @@ export class AppServiceManager {
       throw new Error(`there's no wechatyManager yet. call connect() first`)
     }
 
-    await this.initBridge(port, config)
+    this.bridge = this.createBridge()
+    await this.bridge.run(port, config)
   }
 
   /**
@@ -104,18 +103,15 @@ export class AppServiceManager {
   /**
    * Private methods
    */
-  private async initBridge (
-    port: number,
-    config: object,
-  ): Promise<void> {
-    log.verbose('AppServiceManager', 'initBridge()')
+  private createBridge (): Bridge {
+    log.verbose('AppServiceManager', 'createBridge()')
 
     if (this.bridge) {
-      throw new Error('bridge had already been set!')
+      throw new Error('bridge had already exist!')
     }
 
-    this.bridge = createBridge(this)
-    await this.bridge.run(port, config)
+    const bridge = createBridge(this)
+    return bridge
   }
 
 }

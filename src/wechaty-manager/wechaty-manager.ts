@@ -6,7 +6,7 @@ import {
 import { log } from '../config'
 
 import { AppServiceManager } from '../appservice-manager/'
-import { startWechaty } from './start-wechaty'
+import { initWechaty } from './start-wechaty'
 
 export class WechatyManager {
 
@@ -42,7 +42,13 @@ export class WechatyManager {
     for (const wechatyOption of optionList) {
       this.add(wechatyOption)
     }
+
     // loop start wechaty pool
+    for (const [name, wechaty] of this.wechatyStore) {
+      await wechaty.start()
+        .then(() => log.verbose('WechatyManager', 'start() %s started', name))
+        .catch(e => log.error('WechatyManager', 'start() %s rejection', name, e && e.message))
+    }
   }
 
   public get (name: string): Wechaty {
@@ -68,7 +74,7 @@ export class WechatyManager {
     }
 
     const wechaty = new Wechaty(wechatyOptions)
-    await startWechaty(wechaty)
+    await initWechaty(wechaty)
 
     this.wechatyStore.set(name, wechaty)
   }
