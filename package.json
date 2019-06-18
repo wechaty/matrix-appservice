@@ -47,7 +47,7 @@
     "wechaty-puppet-padpro": "^0.3.7"
   },
   "devDependencies": {
-    "@chatie/eslint-config": "^0.6.11",
+    "@chatie/eslint-config": "^0.6.17",
     "@chatie/git-scripts": "^0.2.4",
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.6.1",

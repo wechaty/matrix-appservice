@@ -5,7 +5,7 @@ export function checkUpdate (): void {
   readPkgUp({ cwd: __dirname })
     .then(pack => {
       if (!pack) {
-        return
+        throw new Error('package.json not found')
       }
 
       const pkg = pack.package
@@ -17,6 +17,7 @@ export function checkUpdate (): void {
         updateCheckInterval,
       })
       notifier.notify()
+      return null
     })
     .catch(console.error)
 }

@@ -40,7 +40,7 @@ export class WechatyManager {
 
     const optionList = this.appServiceManager.getWechatyOptionsList()
     for (const wechatyOption of optionList) {
-      this.add(wechatyOption)
+      await this.add(wechatyOption)
     }
 
     // loop start wechaty pool

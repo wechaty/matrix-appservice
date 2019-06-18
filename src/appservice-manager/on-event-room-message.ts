@@ -113,8 +113,8 @@ async function bridgeToWechatIndividual (
   text: string,
 ): Promise<void> {
   log.verbose('AppServiceManager', 'bridgeToWechatIndividual(%s, %s, %s)', matrixUserId, toGhostId, text)
-
 }
+
 function isWechatyLoggedIn (
   manager: AppServiceManager,
   matrixUserId: string
@@ -244,7 +244,7 @@ async function test (
   const ROOM_ID = '!LeCbPwJxwjorqLHegf:aka.cn'
   if (roomId === ROOM_ID) {
     const intent = manager.bridge!.getIntent('@wechaty_' + userId.replace(/^@/, ''))
-    intent.sendText(ROOM_ID, `I repeat: ${userId} said ${text}`)
+    await intent.sendText(ROOM_ID, `I repeat: ${userId} said ${text}`)
 
     console.info('XIXI username', userId, text)
 

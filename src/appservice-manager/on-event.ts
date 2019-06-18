@@ -38,7 +38,7 @@ async function dispatchEvent (
   switch (event.type) {
 
     case 'm.room.message':
-      onEventRoomMessage(manager, event)
+      await onEventRoomMessage(manager, event)
       break
 
     default:
