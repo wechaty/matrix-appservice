@@ -6,15 +6,16 @@ import {
 
 import {
   log,
-}             from '../config'
+}             from '../../config'
 
-import { AppServiceManager } from './appservice-manager'
+import { BridgeUser } from '../bridge-user'
+
 import {
   onEventRoomMessage,
 }                       from './on-event-room-message'
 
 export async function onEvent (
-  manager: AppServiceManager,
+  this: BridgeUser,
   request: Request,
   context: BridgeContext,
 ): Promise<void> {
@@ -23,14 +24,14 @@ export async function onEvent (
   const event = request.getData()
 
   try {
-    await dispatchEvent(manager, event)
+    await dispatchEvent.call(this, event)
   } catch (e) {
     log.error('AppServiceManager', 'onEvent exception: %s', e && e.message)
   }
 }
 
 async function dispatchEvent (
-  manager: AppServiceManager,
+  this: BridgeUser,
   event: Event,
 ): Promise<void> {
   log.verbose('AppService', 'onEvent() dispatcher()')
@@ -38,7 +39,7 @@ async function dispatchEvent (
   switch (event.type) {
 
     case 'm.room.message':
-      await onEventRoomMessage(manager, event)
+      await onEventRoomMessage.call(this, event)
       break
 
     default:

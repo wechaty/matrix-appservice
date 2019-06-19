@@ -19,7 +19,19 @@ export async function run (
     wechatyManager.start(),
   ])
 
-  await appServiceManager.bootstrap()
+  const optionList = appServiceManager.getWechatyOptionsList()
+  for (const [matrixUserId, wechatyOption] of optionList) {
+    await wechatyManager.add(matrixUserId, wechatyOption)
+  }
+
+  // loop start wechaty pool
+  for (const [name, wechaty] of wechatyManager.wechatyStore) {
+    await wechaty.start()
+      .then(() => log.verbose('WechatyManager', 'start() %s started', name))
+      .catch(e => log.error('WechatyManager', 'start() %s rejection', name, e && e.message))
+  }
+
+  // await bootstrap()
 }
 
 function connect (

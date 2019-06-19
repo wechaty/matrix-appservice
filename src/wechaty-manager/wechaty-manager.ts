@@ -6,17 +6,27 @@ import {
 import { log } from '../config'
 
 import { AppServiceManager } from '../appservice-manager/'
-import { initWechaty } from './start-wechaty'
+
+import {
+  onScan,
+  onLogin,
+  onLogout,
+  onMessage,
+  BridgeUser,
+}             from '../bridge-user/'
 
 export class WechatyManager {
 
   private appServiceManager? : AppServiceManager
-  private wechatyStore       : Map<string, Wechaty>
+
+  public wechatyStore : Map<string,      Wechaty>
+  // private nameStore    : WeakMap<Wechaty, string>
 
   constructor () {
     log.verbose('WechatyManager', 'constructor()')
 
-    this.wechatyStore = new Map<string, Wechaty>()
+    this.wechatyStore = new Map<string,      Wechaty>()
+    // this.nameStore    = new WeakMap<Wechaty, string>()
   }
 
   public connect (
@@ -37,18 +47,6 @@ export class WechatyManager {
     if (!this.appServiceManager) {
       throw new Error(`there's no appSrviceManager yet. call connect() first`)
     }
-
-    const optionList = this.appServiceManager.getWechatyOptionsList()
-    for (const wechatyOption of optionList) {
-      await this.add(wechatyOption)
-    }
-
-    // loop start wechaty pool
-    for (const [name, wechaty] of this.wechatyStore) {
-      await wechaty.start()
-        .then(() => log.verbose('WechatyManager', 'start() %s started', name))
-        .catch(e => log.error('WechatyManager', 'start() %s rejection', name, e && e.message))
-    }
   }
 
   public get (name: string): Wechaty {
@@ -61,7 +59,10 @@ export class WechatyManager {
     return wechaty
   }
 
-  public async add (wechatyOptions: WechatyOptions): Promise<void> {
+  public async add (
+    matrixUserId: string,
+    wechatyOptions: WechatyOptions,
+  ): Promise<void> {
     log.verbose('WechatyManager', 'add("%s")', JSON.stringify(wechatyOptions))
 
     const name = wechatyOptions.name
@@ -74,7 +75,7 @@ export class WechatyManager {
     }
 
     const wechaty = new Wechaty(wechatyOptions)
-    await initWechaty(wechaty)
+    await this.initWechaty(matrixUserId, wechaty)
 
     this.wechatyStore.set(name, wechaty)
   }
@@ -93,6 +94,20 @@ export class WechatyManager {
     await wechaty.stop()
 
     this.wechatyStore.delete(name)
+  }
+
+  private async initWechaty (
+    matrixUserId : string,
+    wechaty      : Wechaty,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'initWechaty(%s,)', matrixUserId)
+
+    const bridgeUser = new BridgeUser(matrixUserId, this.appServiceManager!.bridge!, wechaty)
+
+    wechaty.on('scan',    (qrcode, status) => onScan.call(bridgeUser, qrcode, status))
+    wechaty.on('login',   user => onLogin.call(bridgeUser, user))
+    wechaty.on('logout',  user => onLogout.call(bridgeUser, user))
+    wechaty.on('message', msg => onMessage.call(bridgeUser, msg))
   }
 
 }

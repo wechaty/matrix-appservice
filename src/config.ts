@@ -1,6 +1,6 @@
 import path from 'path'
 
-export { log } from 'brolog'
+export { log } from 'wechaty'
 
 export { VERSION }  from './version'
 

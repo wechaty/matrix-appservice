@@ -2,7 +2,7 @@ import { AppServiceManager } from './appservice-manager'
 
 import {
   log,
-}                 from '../config'
+}                 from './config'
 
 export async function bootstrap (
   manager: AppServiceManager
