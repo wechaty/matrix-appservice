@@ -13,40 +13,26 @@ import {
   onLogout,
   onMessage,
   BridgeUser,
-}             from '../bridge-user/'
+}             from '../bridge-user-manager'
 
 export class WechatyManager {
-
-  private appServiceManager? : AppServiceManager
 
   public wechatyStore : Map<string,      Wechaty>
   // private nameStore    : WeakMap<Wechaty, string>
 
-  constructor () {
+  constructor (
+    public appServiceManager: AppServiceManager,
+  ) {
     log.verbose('WechatyManager', 'constructor()')
+
+    this.appServiceManager.connect(this)
 
     this.wechatyStore = new Map<string,      Wechaty>()
     // this.nameStore    = new WeakMap<Wechaty, string>()
   }
 
-  public connect (
-    appServiceManager: AppServiceManager,
-  ): void {
-    log.verbose('WechatyManager', 'connect()')
-
-    if (this.appServiceManager) {
-      throw new Error('should not connect appServiceManager more than once.')
-    }
-
-    this.appServiceManager = appServiceManager
-  }
-
   public async start (): Promise<void> {
     log.verbose('WechatyManager', 'start()')
-
-    if (!this.appServiceManager) {
-      throw new Error(`there's no appSrviceManager yet. call connect() first`)
-    }
   }
 
   public get (name: string): Wechaty {

@@ -2,6 +2,7 @@ import { log } from './config'
 
 import { AppServiceManager } from './appservice-manager/'
 import { WechatyManager } from './wechaty-manager/'
+import { BridgeUserManager } from './bridge-user-manager'
 
 export async function run (
   port   : number,
@@ -10,16 +11,16 @@ export async function run (
   log.info('matrix-appservice-wechaty', 'run(port=%s,)', port)
 
   const appServiceManager = new AppServiceManager()
-  const wechatyManager    = new WechatyManager()
-
-  connect(appServiceManager, wechatyManager)
+  const wechatyManager    = new WechatyManager(appServiceManager)
 
   await Promise.all([
     appServiceManager.start(port, config),
     wechatyManager.start(),
   ])
 
-  const optionList = appServiceManager.getWechatyOptionsList()
+  const bridgeUserManager = new BridgeUserManager(appServiceManager)
+
+  const optionList = bridgeUserManager.getBridgeUserList()
   for (const [matrixUserId, wechatyOption] of optionList) {
     await wechatyManager.add(matrixUserId, wechatyOption)
   }
@@ -32,12 +33,4 @@ export async function run (
   }
 
   // await bootstrap()
-}
-
-function connect (
-  appServiceManager: AppServiceManager,
-  wechatyManager: WechatyManager,
-): void {
-  wechatyManager.connect(appServiceManager)
-  appServiceManager.connect(wechatyManager)
 }

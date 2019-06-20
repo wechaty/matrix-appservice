@@ -8,7 +8,7 @@ import {
 
 import {
   BridgeUser,
-}             from '../'
+}             from '..'
 
 export async function onScan (
   this: BridgeUser,
@@ -25,7 +25,7 @@ export async function onScan (
   const statusName = ScanStatus[status]
   log.info('Bot', '%s(%s) %s', statusName, status, qrcodeImageUrl)
 
-  await this.appServiceBotIntent.sendText(
+  await this.bridge.getIntent(null).sendText(
     this.matrixDirectMessageRoomID,
     `${statusName}(${status}) ${qrcodeImageUrl}`,
   )

@@ -8,7 +8,7 @@ import {
 
 import {
   BridgeUser,
-}             from '../'
+}             from '..'
 
 export async function onLogout (
   this: BridgeUser,
@@ -17,7 +17,7 @@ export async function onLogout (
   log.verbose('wechaty-manager', 'on-logout')
   console.info(`${user} logout`)
 
-  await this.appServiceBotIntent.sendText(
+  await this.bridge.getIntent(null).sendText(
     this.matrixUserId,
     `${user} logout`,
   )

@@ -264,11 +264,11 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (userId: string, dataopt?: object, escape = true)
     escapeUserId()
-    get(key: string): undefined | object
+    get(key: string): any
     getDisplayName(): null | string
     getId(): string
     serialize(): object
-    set(key: string, val: object): void
+    set(key: string, val: any): void
     setDisplayName(name: string): void
 
   }

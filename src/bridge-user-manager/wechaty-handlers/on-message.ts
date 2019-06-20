@@ -8,7 +8,7 @@ import {
 
 import {
   BridgeUser,
-}             from '../'
+}             from '..'
 
 export async function onMessage (
   this: BridgeUser,
@@ -17,7 +17,7 @@ export async function onMessage (
   log.verbose('wechaty-manager', 'on-message')
   console.info(msg.toString())
 
-  await this.appServiceBotIntent.sendText(
+  await this.bridge.getIntent(null).sendText(
     this.matrixDirectMessageRoomID,
     msg.toString()
   )

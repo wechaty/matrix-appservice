@@ -1,11 +1,14 @@
 import {
   Bridge,
   BridgeContext,
+  Intent,
   Request,
-}                 from 'matrix-appservice-bridge'
+  RoomBridgeStore,
+  UserBridgeStore,
+}                   from 'matrix-appservice-bridge'
 import {
   WechatyOptions,
-}                 from 'wechaty'
+}                   from 'wechaty'
 
 import {
   log,
@@ -15,21 +18,16 @@ import {
 }                       from '../wechaty-manager/'
 
 import { createBridge } from './create-bridge'
-import {
-  onEvent as onBridgeUserEvent,
-  // onUserQuery as onBridgeUserUserQuery,
-}                                           from '../bridge-user/matrix-handlers/'
-
-import { BridgeUser } from '../bridge-user'
-
-import {
-  onNonBridgeUserEvent,
-}                                           from './on-non-bridge-user-event'
+import { onUserQuery }  from './on-user-query'
+import { onEvent }      from './on-event'
 
 export class AppServiceManager {
 
-  public bridge?         : Bridge
-  public wechatyManager? : WechatyManager
+  public botIntent?       : Intent
+  public bridge?          : Bridge
+  public roomBridgeStore? : RoomBridgeStore
+  public userBridgeStore? : UserBridgeStore
+  public wechatyManager?  : WechatyManager
 
   constructor () {
     log.verbose('AppServiceManager', 'constructor()')
@@ -56,19 +54,24 @@ export class AppServiceManager {
       throw new Error(`there's no wechatyManager yet. call connect() first`)
     }
 
-    this.bridge = this.createBridge()
-    await this.bridge.run(port, config)
-  }
+    const bridge = this.createBridge()
+    await bridge.run(port, config)
 
-  public getWechatyOptionsList (): [string, WechatyOptions][] {
-    return [
-      [
-        '@huan:aka.cn',
-        {
-          name: 'test',
-        },
-      ],
-    ]
+    const botIntent = bridge.getIntent(null)
+    const userBridgeStore = bridge.getUserStore()
+    const roomBridgeStore = bridge.getRoomStore()
+
+    if (!userBridgeStore) {
+      throw new Error('can not get UserBridgeStore')
+    }
+    if (!roomBridgeStore) {
+      throw new Error('can not get RoomBridgeStore')
+    }
+
+    this.botIntent       = botIntent
+    this.bridge          = bridge
+    this.roomBridgeStore = roomBridgeStore
+    this.userBridgeStore = userBridgeStore
   }
 
   public onEvent (
@@ -77,52 +80,31 @@ export class AppServiceManager {
   ): void {
     log.verbose('AppServiceManager', 'onEvent()')
 
-    const matrixUserId = context.senders.matrix.userId
+    onEvent
+      .call(this, request, context)
+      .catch(e => {
+        log.error('AppServiceManager', 'onEvent() rejection: %s', e && e.message)
+      })
 
-    if (this.isBridgeUser(matrixUserId)) {
-      const wechaty = this.wechatyManager!.get(matrixUserId)
-      const bridgeUser = new BridgeUser(matrixUserId, this.bridge!, wechaty)
-
-      onBridgeUserEvent.call(bridgeUser, request, context)
-        .catch(e => {
-          log.error('AppServiceManager', 'onEvent() onBridgeUserEvent() rejection: %s', e && e.message)
-        })
-
-    } else {
-
-      onNonBridgeUserEvent.call(this, request, context)
-        .catch(e => {
-          log.error('AppServiceManager', 'onEvent() onNonBridgeUserEvent() rejection: %s', e && e.message)
-        })
-
-    }
   }
 
   public async onUserQuery (queriedUser: any): Promise<object> {
-    log.verbose('AppServiceManager', 'onUserQuery("%s")', JSON.stringify(queriedUser))
+    log.verbose('AppServiceManager', 'onUserQuery()')
 
-    // if (isBridgeUser(matrixUserId)) {
-    //   const wechaty = this.wechatyManager!.get(matrixUserId)
-    //   const bridgeUser = new BridgeUser(matrixUserId, this.bridge!, wechaty)
+    let provision = {}
+    try {
+      provision = await onUserQuery.call(this, queriedUser)
+    } catch (e) {
+      log.error('AppServiceManager', 'onUserQuery() rejection: %s', e && e.message)
+    }
 
-    //   onBridgeUserUserQuery.call(bridgeUser, queriedUser)
-    //     .catch(e => {
-    //       log.error('AppServiceManager', 'onUserQuery() onBridgeUserUserQuery() rejection: %s', e && e.message)
-    //     })
-    // try {
-    //   const provision = await onUserQuery.call(this, queriedUser)
-    //   return provision
-    // } catch (e) {
-    //   log.error('AppServiceManager', 'onUserQuery() rejection: %s', e && e.message)
-    // }
-
-    // auto-provision users with no additonal data
-    return {}
+    return provision
   }
 
-  /**
-   * Private methods
-   */
+  /*******************
+   * Private methods *
+   *******************/
+
   private createBridge (): Bridge {
     log.verbose('AppServiceManager', 'createBridge()')
 
@@ -132,11 +114,6 @@ export class AppServiceManager {
 
     const bridge = createBridge(this)
     return bridge
-  }
-
-  private isBridgeUser (matrixUserId: string): boolean {
-    // TODO:
-    return !!matrixUserId
   }
 
 }

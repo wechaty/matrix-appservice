@@ -20,12 +20,12 @@ import {
   onLogout as onWechatyLogout,
   onMessage as onWechatyMessage,
   onScan as onWechatyScan,
-}                                   from './wechaty-handlers/'
+}                                   from './wechaty-handlers'
 
 import {
   onEvent as onMatrixEvent,
   // onUserQuery as onMatrixUserQuery,
-}                                   from './matrix-handlers/'
+}                                   from './matrix-handlers'
 
 export class BridgeUser {
 
@@ -33,7 +33,6 @@ export class BridgeUser {
   public readonly matrixUserDomain    : string
 
   public readonly matrixUserIntent    : Intent
-  public readonly appServiceBotIntent : Intent
 
   public readonly matrixDirectMessageRoomID: string
 
@@ -44,15 +43,11 @@ export class BridgeUser {
   ) {
     log.verbose('BridgeUser', 'constructor(%s,,)', matrixUserId)
 
-    const matches = matrixUserId.match(/^@(.+):(.+)$/)
-    if (!matches) {
-      throw new Error('can not parse matrixUserId: ' + matrixUserId)
-    }
+    const split = this.matrixUserId.split(':')
 
-    this.matrixUserLocalPart = matches[1]
-    this.matrixUserDomain    = matches[2]
+    this.matrixUserLocalPart = split[0].substring(1)
+    this.matrixUserDomain    = split[1]
 
-    this.appServiceBotIntent = bridge.getIntent(null)
     this.matrixUserIntent    = bridge.getIntent(matrixUserId)
 
     // FIXME: query, or create it if not exists
