@@ -6,9 +6,9 @@ import {
   RoomBridgeStore,
   UserBridgeStore,
 }                   from 'matrix-appservice-bridge'
-import {
-  WechatyOptions,
-}                   from 'wechaty'
+// import {
+//   WechatyOptions,
+// }                   from 'wechaty'
 
 import {
   log,

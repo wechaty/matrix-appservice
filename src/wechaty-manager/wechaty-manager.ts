@@ -27,7 +27,7 @@ export class WechatyManager {
 
     this.appServiceManager.connect(this)
 
-    this.wechatyStore = new Map<string,      Wechaty>()
+    this.wechatyStore = new Map<string, Wechaty>()
     // this.nameStore    = new WeakMap<Wechaty, string>()
   }
 
@@ -35,65 +35,65 @@ export class WechatyManager {
     log.verbose('WechatyManager', 'start()')
   }
 
-  public get (name: string): Wechaty {
-    log.verbose('WechatyManager', 'get(%s)', name)
+  public load (
+    matrixUserId: string,
+    wechatyOptions?: WechatyOptions,
+  ): Wechaty {
+    log.verbose('WechatyManager', 'load(%s,"%s")', matrixUserId, JSON.stringify(wechatyOptions))
+    log.silly('WechatyManager', 'load() currently wechatyStore has %s wechaty instances.', this.wechatyStore.size)
 
-    const wechaty = this.wechatyStore.get(name)
-    if (!wechaty) {
-      throw new Error(`wechaty store no such key ${name}`)
+    let wechaty = this.wechatyStore.get(matrixUserId)
+    if (wechaty) {
+      return wechaty
     }
+
+    wechaty = this.createWechaty(matrixUserId)
+    this.wechatyStore.set(matrixUserId, wechaty)
+
     return wechaty
   }
 
-  public async add (
+  public async destroy (
     matrixUserId: string,
-    wechatyOptions: WechatyOptions,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'add("%s")', JSON.stringify(wechatyOptions))
+    log.verbose('WechatyManager', 'destroy(%s)', matrixUserId)
 
-    const name = wechatyOptions.name
-    if (!name) {
-      throw new Error('wechaty manager needs a name to manage wechaty')
-    }
-
-    if (this.wechatyStore.has(name)) {
-      throw new Error(`${name} is already exist`)
-    }
-
-    const wechaty = new Wechaty(wechatyOptions)
-    await this.initWechaty(matrixUserId, wechaty)
-
-    this.wechatyStore.set(name, wechaty)
-  }
-
-  public async del (
-    name: string,
-  ): Promise<void> {
-    log.verbose('WechatyManager', 'del(%s)', name)
-
-    const wechaty = this.wechatyStore.get(name)
+    const wechaty = this.wechatyStore.get(matrixUserId)
 
     if (!wechaty) {
-      throw new Error(`wechaty store no such key ${name}`)
+      throw new Error(`wechaty store no such key ${matrixUserId}`)
     }
 
     await wechaty.stop()
 
-    this.wechatyStore.delete(name)
+    this.wechatyStore.delete(matrixUserId)
   }
 
-  private async initWechaty (
-    matrixUserId : string,
-    wechaty      : Wechaty,
-  ): Promise<void> {
-    log.verbose('WechatyManager', 'initWechaty(%s,)', matrixUserId)
+  private createWechaty (
+    matrixUserId    : string,
+    wechatyOptions? : WechatyOptions,
+  ): Wechaty {
+    log.verbose('WechatyManager', 'createWechaty(%s,"%s")', matrixUserId, JSON.stringify(wechatyOptions))
 
-    const bridgeUser = new BridgeUser(matrixUserId, this.appServiceManager!.bridge!, wechaty)
+    wechatyOptions = {
+      ...wechatyOptions,
+      name: matrixUserId,
+    }
+
+    const wechaty = new Wechaty(wechatyOptions)
+
+    const bridgeUser = new BridgeUser(
+      matrixUserId,
+      this.appServiceManager!.bridge!,
+      wechaty,
+    )
 
     wechaty.on('scan',    (qrcode, status) => onScan.call(bridgeUser, qrcode, status))
     wechaty.on('login',   user => onLogin.call(bridgeUser, user))
     wechaty.on('logout',  user => onLogout.call(bridgeUser, user))
     wechaty.on('message', msg => onMessage.call(bridgeUser, msg))
+
+    return wechaty
   }
 
 }

@@ -20,16 +20,13 @@ export async function run (
 
   const bridgeUserManager = new BridgeUserManager(appServiceManager)
 
-  const optionList = bridgeUserManager.getBridgeUserList()
-  for (const [matrixUserId, wechatyOption] of optionList) {
-    await wechatyManager.add(matrixUserId, wechatyOption)
-  }
+  const bridgeUserList = await bridgeUserManager.getBridgeUserList()
 
   // loop start wechaty pool
-  for (const [name, wechaty] of wechatyManager.wechatyStore) {
-    await wechaty.start()
-      .then(() => log.verbose('WechatyManager', 'start() %s started', name))
-      .catch(e => log.error('WechatyManager', 'start() %s rejection', name, e && e.message))
+  for (const bridgeUser of bridgeUserList) {
+    await bridgeUser.wechaty.start()
+      .then(() => log.verbose('run', 'bridgeUser.wechaty.start() %s started', bridgeUser.matrixUserId))
+      .catch(e => log.error('run', 'bridgeUser.wechaty.start() %s rejection: %s', bridgeUser.matrixUserId, e && e.message))
   }
 
   // await bootstrap()

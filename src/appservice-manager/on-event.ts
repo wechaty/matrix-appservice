@@ -8,6 +8,7 @@ import {
 }                   from '../config'
 import {
   BridgeUser,
+  wechatyEnabled,
 }                   from '../bridge-user-manager'
 
 import {
@@ -30,10 +31,11 @@ export async function onEvent (
 ) {
   log.verbose('AppServiceManager', 'onEvent({type: "%s"}, {userId: "%s"})', request.data.type, context.senders.matrix.userId)
 
-  const matrixUserId = context.senders.matrix.userId
+  const matrixUser   = context.senders.matrix
+  const matrixUserId = matrixUser.userId
 
-  if (isBridgeUser(matrixUserId)) {
-    const wechaty = this.wechatyManager!.get(matrixUserId)
+  if (wechatyEnabled(matrixUser)) {
+    const wechaty = this.wechatyManager!.load(matrixUserId)
     const bridgeUser = new BridgeUser(matrixUserId, this.bridge!, wechaty)
 
     onBridgeUserEvent.call(bridgeUser, request, context)
@@ -50,9 +52,4 @@ export async function onEvent (
 
   }
 
-}
-
-function isBridgeUser (matrixUserId: string): boolean {
-  // TODO:
-  return !!matrixUserId
 }

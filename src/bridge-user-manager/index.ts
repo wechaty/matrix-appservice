@@ -9,3 +9,10 @@ export {
   onMessage,
   onScan,
 }                     from './wechaty-handlers'
+export {
+  // enableWechaty,
+  // disableWechaty,
+  // wechatyConfig,
+  // wechatyQueryFilter,
+  wechatyEnabled,
+}                     from './wechaty-schema-helpers'
