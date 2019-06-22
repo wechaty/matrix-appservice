@@ -16,3 +16,5 @@ cat <<_SRC_ > ${SRC_VERSION_TS_FILE}
  */
 export const VERSION: string = '${VERSION}'
 _SRC_
+
+echo "$VERSION generated."
