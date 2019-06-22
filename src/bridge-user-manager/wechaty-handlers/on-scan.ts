@@ -23,9 +23,9 @@ export async function onScan (
   ].join('')
 
   const statusName = ScanStatus[status]
-  log.info('Bot', '%s(%s) %s', statusName, status, qrcodeImageUrl)
+  log.verbose('bridge-user-manager', 'wechaty-handlers/on-scan %s(%s) %s', statusName, status, qrcodeImageUrl)
 
-  await this.bridge.getIntent(null).sendText(
+  await this.matrixBotIntent.sendText(
     this.matrixDirectMessageRoomID,
     `${statusName}(${status}) ${qrcodeImageUrl}`,
   )

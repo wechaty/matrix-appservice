@@ -17,8 +17,7 @@ import {
 
 export class WechatyManager {
 
-  public wechatyStore : Map<string,      Wechaty>
-  // private nameStore    : WeakMap<Wechaty, string>
+  private store: Map<string, Wechaty>
 
   constructor (
     public appServiceManager: AppServiceManager,
@@ -27,8 +26,7 @@ export class WechatyManager {
 
     this.appServiceManager.connect(this)
 
-    this.wechatyStore = new Map<string, Wechaty>()
-    // this.nameStore    = new WeakMap<Wechaty, string>()
+    this.store = new Map<string, Wechaty>()
   }
 
   public async start (): Promise<void> {
@@ -36,19 +34,19 @@ export class WechatyManager {
   }
 
   public load (
-    matrixUserId: string,
-    wechatyOptions?: WechatyOptions,
+    matrixUserId    : string,
+    wechatyOptions? : WechatyOptions,
   ): Wechaty {
     log.verbose('WechatyManager', 'load(%s,"%s")', matrixUserId, JSON.stringify(wechatyOptions))
-    log.silly('WechatyManager', 'load() currently wechatyStore has %s wechaty instances.', this.wechatyStore.size)
+    log.silly('WechatyManager', 'load() currently wechatyStore has %s wechaty instances.', this.store.size)
 
-    let wechaty = this.wechatyStore.get(matrixUserId)
+    let wechaty = this.store.get(matrixUserId)
     if (wechaty) {
       return wechaty
     }
 
     wechaty = this.createWechaty(matrixUserId)
-    this.wechatyStore.set(matrixUserId, wechaty)
+    this.store.set(matrixUserId, wechaty)
 
     return wechaty
   }
@@ -58,7 +56,7 @@ export class WechatyManager {
   ): Promise<void> {
     log.verbose('WechatyManager', 'destroy(%s)', matrixUserId)
 
-    const wechaty = this.wechatyStore.get(matrixUserId)
+    const wechaty = this.store.get(matrixUserId)
 
     if (!wechaty) {
       throw new Error(`wechaty store no such key ${matrixUserId}`)
@@ -66,7 +64,7 @@ export class WechatyManager {
 
     await wechaty.stop()
 
-    this.wechatyStore.delete(matrixUserId)
+    this.store.delete(matrixUserId)
   }
 
   private createWechaty (

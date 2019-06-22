@@ -11,6 +11,9 @@
 
 Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 
+- [Matrix Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
+- [Matrix Bridge List](https://matrix.org/bridges/#we-chat)
+
 ## UNDER CONSTRUCTING
 
 ## INTRO
@@ -70,6 +73,7 @@ Simply run the `logout` management command.
 
 ## SEE ALSO
 
+- [Matrix Javascript SDK v2.0](https://matrix-org.github.io/matrix-js-sdk/2.0.1/index.html)
 - [Bridging infrastructure for Application Services - HOWTO](https://github.com/matrix-org/matrix-appservice-bridge/blob/master/HOWTO.md)
 - [Matrix Application Service Bridge Node.js SDK](http://matrix-org.github.io/matrix-appservice-bridge/)
 - [Matrix Application Service API](https://matrix.org/docs/spec/application_service/r0.1.0.html)

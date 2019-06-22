@@ -14,10 +14,9 @@ export async function onMessage (
   this: BridgeUser,
   msg: Message
 ): Promise<void> {
-  log.verbose('wechaty-manager', 'on-message')
-  console.info(msg.toString())
+  log.verbose('bridge-user-manager', 'wechaty-handlers/on-message %s', msg.toString())
 
-  await this.bridge.getIntent(null).sendText(
+  await this.matrixBotIntent.sendText(
     this.matrixDirectMessageRoomID,
     msg.toString()
   )

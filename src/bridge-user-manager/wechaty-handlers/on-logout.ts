@@ -14,11 +14,10 @@ export async function onLogout (
   this: BridgeUser,
   user: Contact,
 ) {
-  log.verbose('wechaty-manager', 'on-logout')
-  console.info(`${user} logout`)
+  log.verbose('bridge-user-manager', 'wechaty-handlers/on-logout %s logout', user)
 
-  await this.bridge.getIntent(null).sendText(
-    this.matrixUserId,
+  await this.matrixBotIntent.sendText(
+    this.matrixDirectMessageRoomID,
     `${user} logout`,
   )
 

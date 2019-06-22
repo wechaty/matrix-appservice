@@ -32,6 +32,7 @@ export class BridgeUser {
   public readonly matrixUserLocalPart : string
   public readonly matrixUserDomain    : string
 
+  public readonly matrixBotIntent     : Intent
   public readonly matrixUserIntent    : Intent
 
   public readonly matrixDirectMessageRoomID: string
@@ -48,6 +49,7 @@ export class BridgeUser {
     this.matrixUserLocalPart = split[0].substring(1)
     this.matrixUserDomain    = split[1]
 
+    this.matrixBotIntent     = bridge.getIntent(null)
     this.matrixUserIntent    = bridge.getIntent(matrixUserId)
 
     // FIXME: query, or create it if not exists
