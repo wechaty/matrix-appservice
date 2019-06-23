@@ -1,6 +1,8 @@
 import {
   Event,
-}           from 'matrix-appservice-bridge'
+  MatrixRoom,
+  RemoteRoom,
+}               from 'matrix-appservice-bridge'
 
 import {
   log,
@@ -67,18 +69,18 @@ function isDirectRoom (
 ): boolean {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message isDriectRoom(%s)', matrixRoomId)
 
-  const matrixRoom = this.bridge.getRoomStore()!.getMatrixRoom(matrixRoomId)
-  matrixRoom!.get('is_direct')
+  // const matrixRoom = this.bridge.getRoomStore()!.getMatrixRoom(matrixRoomId)
+  // matrixRoom!.get('is_direct')
 
   const client = this.bridge.getClientFactory().getClientAs(this.matrixUserId)
   const matrixClientRoom = client.getRoom(matrixRoomId)
   if (!matrixClientRoom) {
     return false
   }
-  matrixClientRoom
 
-  // TODO
-  return !!matrixRoomId.match(/a/)
+  const dmInviter = matrixClientRoom.getDMInviter()
+
+  return !!dmInviter
 }
 
 async function onDirectMessage (
@@ -92,6 +94,8 @@ async function onDirectMessage (
 ): Promise<void> {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message onDirectMessage()')
 
+  // FIXME: here is always enabled.
+  // move the enable wechaty dialog code to upper
   const wechatyEnabled = await isEnabledWechaty.call(this, args.matrixUserId)
 
   if (isWechatyBotId.call(this, args.toGhostId)) {
@@ -112,9 +116,9 @@ async function onDirectMessage (
   // message to wechaty ghost users
   if (!this.wechaty.logonoff()) {
     await gotoLoginWechatyDialog(args.matrixUserId)
+  } else {
+    await bridgeToWechatIndividual(args.matrixUserId, args.toGhostId, args.text)
   }
-
-  await bridgeToWechatIndividual(args.matrixUserId, args.toGhostId, args.text)
 
 }
 
@@ -197,55 +201,88 @@ async function onGroupMessage (
   args: {
     matrixRoomId : string,
     matrixUserId : string,
-    toGhostId    : string,
     text         : string,
+    toGhostId    : string,
   },
 ): Promise<void> {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message onGroupMessage()')
 
-  const hasLinkedRoom = await hasLinkedWechatyRoom.call(this, args.matrixRoomId)
-  if (hasLinkedRoom) {
-    await bridgeToWechatyRoom(args.matrixRoomId, args.text)
-  }
+  const { matrixRoom, remoteRoom } = await getRoomPair.call(this, args.matrixRoomId)
 
-  log.silly('bridge-user-manager', 'matrix-handlers/on-event-room-message onGroupMessage(%s) did not match any wechat room', args.matrixRoomId)
+  if (remoteRoom) {
+
+    await bridgeToWechatyRoom.call(this, {
+      matrixRoom,
+      remoteRoom,
+      text: args.text,
+      toGhostId: args.toGhostId,
+    })
+
+  } else {
+    log.silly('bridge-user-manager', 'matrix-handlers/on-event-room-message onGroupMessage(%s) did not match any wechat room', args.matrixRoomId)
+  }
 
   await test.call(this, args.matrixUserId, args.matrixRoomId, args.text)
 }
 
-async function hasLinkedWechatyRoom (
+async function getRoomPair (
   this: BridgeUser,
   matrixRoomId: string,
-): Promise<boolean> {
+): Promise<{
+  matrixRoom: MatrixRoom,
+  remoteRoom: RemoteRoom,
+}> {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message hasLinkedWechatyRoom(%s)', matrixRoomId)
 
   const roomStore = this.bridge.getRoomStore()
 
   if (!roomStore) {
     log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message hasLinkedWechatyRoom() no room store')
-    return false
+    throw new Error('no room store')
   }
 
   const matrixRoom = await roomStore.getMatrixRoom(matrixRoomId)
   if (!matrixRoom) {
-    return false
+    throw new Error('can not get matrix room from id: ' + matrixRoomId)
   }
 
-  const WECHAT_ROOM_ID_KEY = 'wechaty_room_id'
-  const wechatRoomId = matrixRoom.get(WECHAT_ROOM_ID_KEY)
-
-  if (!wechatRoomId) {
-    return false
+  const remoteRoomList = await roomStore.getLinkedRemoteRooms(matrixRoomId)
+  if (remoteRoomList.length <= 0) {
+    throw new Error('can not get remote room from matrixRoomId: ' + matrixRoomId)
   }
+  const remoteRoom = remoteRoomList[0]
 
-  return true
+  return {
+    matrixRoom,
+    remoteRoom,
+  }
 }
 
 async function bridgeToWechatyRoom (
-  matrixRoomId: string,
-  text: string,
-): Promise<void> {
-  log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message bridgeToWechatyRoom(%s, %s)', matrixRoomId, text)
+  this: BridgeUser,
+  args: {
+    matrixRoom : MatrixRoom,
+    remoteRoom : RemoteRoom,
+    text       : string,
+    toGhostId  : string,
+}): Promise<void> {
+  log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message bridgeToWechatyRoom(%s, %s)',
+    args.matrixRoom.roomId, args.text)
+
+  const wechatyRoomId = args.remoteRoom.getId()
+
+  try {
+
+    const room = this.wechaty.Room.load(wechatyRoomId)
+    await room.say(`${args.toGhostId} -> ${args.text}`)
+
+  } catch (e) {
+    const errMsg = `no wechaty room found for id: ${wechatyRoomId}`
+    log.warn('bridge-user-manager', 'matrix-handlers on-0event-room-message bridgeToWechatyRoom() %s',
+      errMsg)
+    await this.matrixBotIntent.sendText(this.matrixDirectMessageRoomID, errMsg)
+  }
+
 }
 
 async function test (

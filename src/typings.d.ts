@@ -300,25 +300,30 @@ declare module 'matrix-appservice-bridge' {
   export class RoomBridgeStore {
 
     constructor (db: Datastore, ops: RoomBridgeStoreOptions)
-    batchGetLinkedRemoteRooms    (matrixIds: Array<string>)                                                       : RemoteRoomMap
-    getEntriesByLinkData         (data: object)                                                                   : Array<RoomBridgeStoreEntry>
-    getEntriesByMatrixId         (matrixId: string)                                                               : Array<RoomBridgeStoreEntry>
-    getEntriesByMatrixIds        (ids: Array<string>)                                                             : Promise<RoomBridgeStoreEntryMap>
-    getEntriesByMatrixRoomData   (data: object)                                                                   : Array<RoomBridgeStoreEntry>
-    getEntriesByRemoteId         (remoteId: string)                                                               : Array<RoomBridgeStoreEntry>
-    getEntriesByRemoteRoomData   (data: object)                                                                   : Array<RoomBridgeStoreEntry>
-    getEntryById                 (id: string)                                                                     : Promise<null | RoomBridgeStoreEntry>
-    getLinkedMatrixRooms         (remoteId: string)                                                               : Array<MatrixRoom>
-    getLinkedRemoteRooms         (matrixId: string)                                                               : Array<RemoteRoom>
-    getMatrixRoom                (roomId: string)                                                                 : null | MatrixRoom
-    linkRooms                    (matrixRoom: MatrixRoom, remoteRoom: RemoteRoom, data?: object, linkId?: string) : Promise<void>
-    removeEntriesByLinkData      (data: object)                                                                   : Promise<void>
-    removeEntriesByMatrixRoomData(data: object)                                                                   : Promise<void>
-    removeEntriesByMatrixRoomId  (matrixId: string)                                                               : Promise<void>
-    removeEntriesByRemoteRoomData(data: object)                                                                   : Promise<void>
-    removeEntriesByRemoteRoomId  (remoteId: string)                                                               : Promise<void>
-    setMatrixRoom                (matrixRoom: MatrixRoom)                                                         : Promise<void>
-    upsertEntry                  (entry: RoomBridgeStoreEntry)                                                    : Promise<void>
+    batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : RemoteRoomMap
+    getEntriesByLinkData          (data: object)                : Array<RoomBridgeStoreEntry>
+    getEntriesByMatrixId          (matrixId: string)            : Array<RoomBridgeStoreEntry>
+    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<RoomBridgeStoreEntryMap>
+    getEntriesByMatrixRoomData    (data: object)                : Array<RoomBridgeStoreEntry>
+    getEntriesByRemoteId          (remoteId: string)            : Array<RoomBridgeStoreEntry>
+    getEntriesByRemoteRoomData    (data: object)                : Array<RoomBridgeStoreEntry>
+    getEntryById                  (id: string)                  : Promise<null | RoomBridgeStoreEntry>
+    getLinkedMatrixRooms          (remoteId: string)            : Array<MatrixRoom>
+    getLinkedRemoteRooms          (matrixId: string)            : Array<RemoteRoom>
+    getMatrixRoom                 (roomId: string)              : null | MatrixRoom
+    removeEntriesByLinkData       (data: object)                : Promise<void>
+    removeEntriesByMatrixRoomData(data: object)                 : Promise<void>
+    removeEntriesByMatrixRoomId   (matrixId: string)            : Promise<void>
+    removeEntriesByRemoteRoomData(data: object)                 : Promise<void>
+    removeEntriesByRemoteRoomId   (remoteId: string)            : Promise<void>
+    setMatrixRoom                 (matrixRoom: MatrixRoom)      : Promise<void>
+    upsertEntry                   (entry: RoomBridgeStoreEntry) : Promise<void>
+    linkRooms                    (
+      matrixRoom : MatrixRoom,
+      remoteRoom : RemoteRoom,
+      data?      : object,
+      linkId?    : string,
+    ): Promise<void>
 
   }
 
@@ -409,6 +414,13 @@ declare module 'matrix-appservice-bridge' {
     }
   }
 
+  // TODO: add all methods for Room class from matrix-js-sdk
+  class MatrixClientRoom {
+
+    public getDMInviter (): undefined | string
+
+  }
+
   /**
    * Only part of the MatrixClient methods was put here
    * because they are too many.
@@ -424,7 +436,7 @@ declare module 'matrix-appservice-bridge' {
     getUserId(): null | string
     getUserIdLocalpart(): null | string
 
-    getRoom(roomId: string): null | MatrixRoom
+    getRoom(roomId: string): null | MatrixClientRoom
 
   }
 
