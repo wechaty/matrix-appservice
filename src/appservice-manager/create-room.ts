@@ -6,13 +6,11 @@ export async function createDirectRoom (
   intent       : Intent,
   matrixUserId : string,
   name?        : string,
-  topic?       : string,
 ): Promise<string> {
-  log.verbose('AppService', 'createDirectMessageRoom("%s", "%s", "%s", "%s")',
+  log.verbose('AppService', 'createDirectMessageRoom("%s", "%s", "%s")',
     intent.getClient().getUserId(),
     matrixUserId,
     name || '',
-    topic || '',
   )
 
   const roomInfo = await intent.createRoom({
@@ -25,7 +23,6 @@ export async function createDirectRoom (
         matrixUserId,
       ],
       name,
-      topic,
     },
   })
 

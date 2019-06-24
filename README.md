@@ -80,6 +80,16 @@ Simply run the `logout` management command.
 - [Matrix Client-Server API](https://matrix.org/docs/spec/client_server/r0.4.0.html)
 - [Matrix Specification](https://matrix.org/docs/spec/)
 
+### Matrix AppService Bridges in JavaScript
+
+- [Matrix<->Skype user-puppeting portal](https://github.com/mobitel-ltd/matrix-skype-bridge)
+- [Communication Matrix with Skype via puppet](https://github.com/mobitel-ltd/mobitel-matrix-puppet-skype)
+- [Matrix AppService Bridge Gitter](https://github.com/matrix-org/matrix-appservice-gitter)
+- [Node.js Telegram bridge for Matrix](https://github.com/FruitieX/matrix-appservice-telegram)
+- [Slack-compatible webhooks for matrix](https://github.com/turt2live/matrix-appservice-webhooks)
+- [A matrix SMS bridge, powered by Twilio](https://github.com/turt2live/matrix-appservice-twilio)
+- [Node.js IRC bridge for Matrix](https://github.com/matrix-org/matrix-appservice-irc)
+
 ## HISTORY
 
 ### master
