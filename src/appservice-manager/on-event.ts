@@ -29,7 +29,7 @@ export async function onEvent (
   request: Request,
   context: BridgeContext,
 ) {
-  log.verbose('AppServiceManager', 'onEvent({type: "%s"}, {userId: "%s"})', request.data.type, context.senders.matrix.userId)
+  log.verbose('appservice-manager', 'on-event onEvent({type: "%s"}, {userId: "%s"})', request.data.type, context.senders.matrix.userId)
 
   const matrixUser   = context.senders.matrix
   const matrixUserId = matrixUser.userId

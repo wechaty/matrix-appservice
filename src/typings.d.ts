@@ -437,6 +437,7 @@ declare module 'matrix-appservice-bridge' {
     getUserIdLocalpart(): null | string
 
     getRoom(roomId: string): null | MatrixClientRoom
+    getRooms (): MatrixClientRoom[]
 
   }
 

@@ -303,7 +303,6 @@ async function test (
       intent,
       userId,
       'name: haha',
-      'topic: long longgggggggg',
     )
 
     console.info('createdRoomId', createdRoomId)

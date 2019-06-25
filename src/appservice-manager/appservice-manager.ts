@@ -1,8 +1,6 @@
 import {
   Bridge,
-  BridgeContext,
   Intent,
-  Request,
   RoomBridgeStore,
   UserBridgeStore,
 }                   from 'matrix-appservice-bridge'
@@ -12,12 +10,12 @@ import {
 
 import {
   log,
+  REGISTRATION_FILE,
 }                       from '../config'
 import {
   WechatyManager,
 }                       from '../wechaty-manager/'
 
-import { createBridge } from './create-bridge'
 import { onUserQuery }  from './on-user-query'
 import { onEvent }      from './on-event'
 
@@ -74,33 +72,6 @@ export class AppServiceManager {
     this.userBridgeStore = userBridgeStore
   }
 
-  public onEvent (
-    request: Request,
-    context: BridgeContext,
-  ): void {
-    log.verbose('AppServiceManager', 'onEvent()')
-
-    onEvent
-      .call(this, request, context)
-      .catch(e => {
-        log.error('AppServiceManager', 'onEvent() rejection: %s', e && e.message)
-      })
-
-  }
-
-  public async onUserQuery (queriedUser: any): Promise<object> {
-    log.verbose('AppServiceManager', 'onUserQuery()')
-
-    let provision = {}
-    try {
-      provision = await onUserQuery.call(this, queriedUser)
-    } catch (e) {
-      log.error('AppServiceManager', 'onUserQuery() rejection: %s', e && e.message)
-    }
-
-    return provision
-  }
-
   /*******************
    * Private methods *
    *******************/
@@ -112,7 +83,22 @@ export class AppServiceManager {
       throw new Error('bridge had already exist!')
     }
 
-    const bridge = createBridge(this)
+    const domain        = 'aka.cn'
+    const homeserverUrl = 'http://matrix.aka.cn:8008'
+    const registration  = REGISTRATION_FILE
+
+    const controller = {
+      onEvent     : onEvent.bind(this),
+      onUserQuery : onUserQuery.bind(this),
+    }
+
+    const bridge = new Bridge({
+      controller,
+      domain,
+      homeserverUrl,
+      registration,
+    })
+
     return bridge
   }
 
