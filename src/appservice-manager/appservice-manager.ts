@@ -55,7 +55,7 @@ export class AppServiceManager {
     const bridge = this.createBridge()
     await bridge.run(port, config)
 
-    const botIntent = bridge.getIntent(null)
+    const botIntent = bridge.getIntent()
     const userBridgeStore = bridge.getUserStore()
     const roomBridgeStore = bridge.getRoomStore()
 

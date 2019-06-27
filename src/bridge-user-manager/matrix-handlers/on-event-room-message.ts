@@ -184,7 +184,7 @@ function isWechatyBotId (
   this: BridgeUser,
   matrixUserId: string,
 ): boolean {
-  const domain = this.bridge.getClientFactory().getClientAs(null).getDomain()
+  const domain = this.bridge.getClientFactory().getClientAs().getDomain()
 
   const REGEX_TEXT  = `^@?${WECHATY_LOCALPART}(:${domain})?$`
   const MATCH_REGEX = new RegExp(REGEX_TEXT, 'i')

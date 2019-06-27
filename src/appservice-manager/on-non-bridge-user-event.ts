@@ -21,6 +21,22 @@ import { AppServiceManager } from './appservice-manager'
   type: 'm.room.member',
   unsigned: { age: 64 },
   user_id: '@huan:aka.cn' }
+
+  { age: 80,
+  content:
+   { avatar_url: null,
+     displayname: 'wechaty_xxx',
+     is_direct: true,
+     membership: 'invite' },
+  event_id: '$156164754730XRMfy:aka.cn',
+  origin_server_ts: 1561647547234,
+  room_id: '!XDxZYEqhdGdPHVmxmP:aka.cn',
+  sender: '@huan:aka.cn',
+  state_key: '@wechaty_xxx:aka.cn',
+  type: 'm.room.member',
+  unsigned: { age: 80 },
+  user_id: '@huan:aka.cn' }
+
   */
 export async function onNonBridgeUserEvent (
   this: AppServiceManager,
@@ -54,21 +70,22 @@ function isDirectRoom (
 
   // TODO(huan): continue to work on this part...
 
-  const client = bridge.getClientFactory().getClientAs('@huan:aka.cn')
-  console.info('client', client)
-  console.info('client.store', (client as any).store)
+  // const client = bridge.getClientFactory().getClientAs('@huan:aka.cn')
+  // console.info('client', client)
+  // console.info('client.store', (client as any).store)
 
-  const roomList = client.getRooms()
-  console.info('roomList', roomList)
+  // const roomList = client.getRooms()
+  // console.info('roomList', roomList)
 
-  const matrixClientRoom = client.getRoom(matrixRoomId)
-  console.info('matrixClientRoom', matrixClientRoom)
-  if (!matrixClientRoom) {
-    return false
-  }
+  // const matrixClientRoom = client.getRoom(matrixRoomId)
+  // console.info('matrixClientRoom', matrixClientRoom)
+  // if (!matrixClientRoom) {
+  //   return false
+  // }
 
-  const dmInviter = matrixClientRoom.getDMInviter()
-  console.info('dmInviter', dmInviter)
+  // const dmInviter = matrixClientRoom.getDMInviter()
+  // console.info('dmInviter', dmInviter)
 
-  return !!dmInviter
+  // return !!dmInviter
+  return !!bridge
 }

@@ -79,7 +79,11 @@ declare module 'matrix-appservice-bridge' {
 
   export class AppServiceBot {
 
-    constructor (client: MatrixClient, registration: AppServiceRegistration, memberCache: MembershipCache)
+    constructor (
+      client: MatrixClient,
+      registration: AppServiceRegistration,
+      memberCache: MembershipCache,
+    )
     getJoinedMembers(roomId: string): Promise<UserMap>
     getJoinedRooms(): Promise<Array<string>>
     isRemoteUser(userId: string): boolean
@@ -129,7 +133,7 @@ declare module 'matrix-appservice-bridge' {
     constructor (options: any)
 
     configure(baseUrl: string, appServiceToken: string, appServiceUserId: string): void
-    getClientAs(userId: null | string, request?: Request): MatrixClient
+    getClientAs(userId?: string, request?: Request): MatrixClient
     setLogFunction(func: (...any) => any): void
 
   }
@@ -141,7 +145,7 @@ declare module 'matrix-appservice-bridge' {
     getIntent              (id: string)                                                                      : Intent
     getBot                ()                                                                                 : AppServiceBot
     getClientFactory      ()                                                                                 : ClientFactory
-    getIntent             (userId: null | string, request?: Request)                                         : Intent
+    getIntent             (userId?: string, request?: Request)                                         : Intent
     getIntentFromLocalpart(localpart: null | string, request?: Request)                                      : Intent
     getPrometheusMetrics  ()                                                                                 : RequestFactory
     getRequestFactory     ()                                                                                 : RequestFactory
@@ -203,7 +207,7 @@ declare module 'matrix-appservice-bridge' {
     getProfileInfo  (userId: string, info: string, useCache?: boolean)                    : Promise<any>
     getStateEvent   (roomId: string, eventType: EventType, stateKey?: string)             : Promise<any>
     invite          (roomId: string, target: string)                                      : Promise<void>
-    join            (roomId: string, viaServers: string[])                                : Promise<void>
+    join            (roomId: string, viaServers?: string[])                               : Promise<void>
     kick            (roomId: string, target: string, reason: string)                      : Promise<void>
     leave           (roomId: string)                                                      : Promise<void>
     onEvent         (event: object)                                                       : void
@@ -359,18 +363,39 @@ declare module 'matrix-appservice-bridge' {
 
   }
 
+  /*
+  { age: 80,
+    content:
+     { avatar_url: null,
+       displayname: 'wechaty_xxx',
+       is_direct: true,
+       membership: 'invite' },
+    event_id: '$156164754730XRMfy:aka.cn',
+    origin_server_ts: 1561647547234,
+    room_id: '!XDxZYEqhdGdPHVmxmP:aka.cn',
+    sender: '@huan:aka.cn',
+    state_key: '@wechaty_xxx:aka.cn',
+    type: 'm.room.member',
+    unsigned: { age: 80 },
+    user_id: '@huan:aka.cn' }
+  */
   export interface Event {
     age              : number,
     event_id         : string
     origin_server_ts : number
     room_id          : string
     sender           : string
+    state_key?       : string,
     type             : EventType
     user_id          : string
 
-    content: {
-      body    : string
-      msgtype : MsgType
+    content?: {
+      avatar_url  : null | string,
+      body        : string
+      displayname : string,
+      is_direct   : boolean,
+      membership  : never | 'invite'
+      msgtype?    : MsgType
     },
 
     unsigned: {
