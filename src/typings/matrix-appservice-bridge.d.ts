@@ -4,32 +4,14 @@ declare module 'matrix-appservice-bridge' {
 
   import { EventEmitter } from 'events'
 
-  type MsgType = 'm.text'
-
-  type EventType = 'm.room.member'
-                  |'m.room.message'
-                  |'m.room.tombstone'
-                  |'m.room.power_levels'
-                  |'m.room.join_rules'
-                  |'m.room.history_visibility'
-                  |'m.room.guest_access'
-                  |'m.room.name'
-                  |'m.room.topic'
-                  |'m.sticker'
-
-  type StateEventType = 'm.room.name'
-                      | 'm.room.topic'
-                      | 'm.room.power_levels'
-                      | 'm.room.member'
-                      | 'm.room.join_rule'
-                      | 'm.room.history_visibility'
+  import {
+    EventType,
+    MsgType,
+    MatrixClient,
+    MembershipState,
+  }                     from 'matrix-js-sdk'
 
   type Controller = any
-
-  type MembershipState =  'joined'
-                        | 'join'
-                        | 'leave'
-                        | string
 
   // FIXME: declare it in the right way
   export export class AppServiceRegistration {
@@ -225,11 +207,11 @@ declare module 'matrix-appservice-bridge' {
     kick            (roomId: string, target: string, reason: string)                      : Promise<void>
     leave           (roomId: string)                                                      : Promise<void>
     onEvent         (event: object)                                                       : void
-    roomState       (roomId: string, useCache?: boolean)                                  : Promise<any>
-    sendEvent       (roomId: string, type: StateEventType, content: object)               : Promise<void>
+    roomState       (roomId: string, useCache = false)                                    : Promise<any>
+    sendEvent       (roomId: string, type: EventType, content: object)                    : Promise<void>
     sendMessage     (roomId: string, content: object)                                     : Promise<void>
     sendReadReceipt()                                                                     : Promise<void>
-    sendStateEvent  (roomId: string, type: StateEventType, skey: string, content: object) : Promise<void>
+    sendStateEvent  (roomId: string, type: EventType, skey: string, content: object)      : Promise<void>
     sendText        (roomId: string, text: string)                                        : Promise<void>
     sendTyping      (roomId: string, isTyping: boolean)                                   : Promise<void>
     setAvatarUrl    (url: string)                                                         : Promise<void>
@@ -412,33 +394,6 @@ declare module 'matrix-appservice-bridge' {
       remote  : null | RemoteRoom
       remotes : RemoteRoom[]
     }
-  }
-
-  // TODO: add all methods for Room class from matrix-js-sdk
-  class MatrixClientRoom {
-
-    public getDMInviter (): undefined | string
-
-  }
-
-  /**
-   * Only part of the MatrixClient methods was put here
-   * because they are too many.
-   * @huan 14 June 2019
-   */
-  class MatrixClient {
-
-    acceptGroupInvite(groupId: string, opts: object): Promise<void>
-    addListener(event: string, listener: () => void): EventEmitter
-    addPushRule(scope: string, kind: string, ruleId: string, body: object, callback?: () => void): Promise<void>
-
-    getDomain(): null | string
-    getUserId(): null | string
-    getUserIdLocalpart(): null | string
-
-    getRoom(roomId: string): null | MatrixClientRoom
-    getRooms (): MatrixClientRoom[]
-
   }
 
 }

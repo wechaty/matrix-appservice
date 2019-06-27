@@ -10,6 +10,18 @@ import {
 
 import { AppServiceManager } from './appservice-manager'
 
+/*
+{ age: 64,
+  content: { is_direct: true, membership: 'invite' },
+  event_id: '$156160813719ZSyyB:aka.cn',
+  origin_server_ts: 1561608137848,
+  room_id: '!BJWCOBYsBwgHqqomGG:aka.cn',
+  sender: '@huan:aka.cn',
+  state_key: '@wechaty:aka.cn',
+  type: 'm.room.member',
+  unsigned: { age: 64 },
+  user_id: '@huan:aka.cn' }
+  */
 export async function onNonBridgeUserEvent (
   this: AppServiceManager,
   request: Request,
