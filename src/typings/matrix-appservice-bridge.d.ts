@@ -210,7 +210,7 @@ declare module 'matrix-appservice-bridge' {
     roomState       (roomId: string, useCache = false)                                    : Promise<any>
     sendEvent       (roomId: string, type: EventType, content: object)                    : Promise<void>
     sendMessage     (roomId: string, content: object)                                     : Promise<void>
-    sendReadReceipt()                                                                     : Promise<void>
+    sendReadReceipt ()                                                                     : Promise<void>
     sendStateEvent  (roomId: string, type: EventType, skey: string, content: object)      : Promise<void>
     sendText        (roomId: string, text: string)                                        : Promise<void>
     sendTyping      (roomId: string, isTyping: boolean)                                   : Promise<void>
