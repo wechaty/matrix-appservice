@@ -78,7 +78,7 @@ declare module 'matrix-js-sdk' {
     getUsersReadUpTo(event: MatrixEvent): Array<string>
     getVersion(): string
     guessDMUserId(): string
-    hasMembershipState(userId: string, membership: string): boolean
+    hasMembershipState(userId: string, membership: MembershipType): boolean
     hasUnverifiedDevices(): bool
     hasUserReadEvent(userId: string, eventId: string): boolean
     loadMembersIfNeeded(): Promise<void>
@@ -92,7 +92,7 @@ declare module 'matrix-js-sdk' {
     setUnreadNotificationCount(type: string, count: number): void
     shouldEncryptForInvitedMembers(): boolean
     shouldUpgradeToVersion(): null | string
-    updateMyMembership(membership: MemberShipState): void
+    updateMyMembership(membership: MemberShipType): void
     updatePendingEvent (event: MatrixEvent, newStatus: EventStatus, newEventId: string): void
     userMayUpgradeRoom(userId: string): boolean
 
@@ -138,13 +138,18 @@ declare module 'matrix-js-sdk' {
                         |'m.sticker'
 
   export type MsgType = never
+                      |'m.audio'
+                      |'m.file'
+                      |'m.image'
+                      |'m.sticker'
                       |'m.text'
+                      |'m.video'
 
-  export type MembershipState = never
-                              |'invite'
-                              |'joined'
-                              |'join'
-                              |'leave'
+  export type MembershipType = never
+                            |'invite'
+                            |'joined'
+                            |'join'
+                            |'leave'
   /**
    * Only part of the MatrixClient methods was put here
    * because they are too many.
@@ -575,7 +580,7 @@ declare module 'matrix-js-sdk' {
     public powerLevel     : Number   // The power level for this room member.
     public powerLevelNorm : Number   // The normalised power level (0-100) for this room member.
     public user           : User     // The User object for this room member, if one exists.
-    public membership     : string   // The membership state for this room member e.g. 'join'.
+    public membership     : MembershipType   // The membership state for this room member e.g. 'join'.
     public events         : Object   // The events describing this RoomMember.
 
     constructor (roomId: string, userId: string)
