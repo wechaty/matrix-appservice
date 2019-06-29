@@ -102,6 +102,12 @@ Simply run the `logout` management command.
 
 1. Auto response the message in a Matrix Room.
 
+## DISCLAIMER
+
+Copied from disclaimer part from [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer):
+
+> I accept no responsibility if Tencent ban your IP, Account or even your details on their system. They have never given official support on custom clients.
+
 ## AUTHOR
 
 [Huan LI (李卓桓)](http://linkedin.com/in/zixia) <zixia@zixia.net>
