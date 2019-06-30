@@ -6,7 +6,7 @@ import {
 
 import {
   log,
-  WECHATY_LOCALPART,
+  // WECHATY_LOCALPART,
 }                       from '../../config'
 // import {
 //   AppServiceManager,
@@ -217,16 +217,17 @@ async function getRoomPair (
     throw new Error('no room store')
   }
 
-  const matrixRoom = await roomStore.getMatrixRoom(matrixRoomId)
-  if (!matrixRoom) {
-    throw new Error('can not get matrix room from id: ' + matrixRoomId)
+  const entryList = roomStore.getEntriesByMatrixId(matrixRoomId)
+  if (entryList.length <= 0) {
+    throw new Error('no entry found')
   }
 
-  const remoteRoomList = await roomStore.getLinkedRemoteRooms(matrixRoomId)
-  if (remoteRoomList.length <= 0) {
-    throw new Error('can not get remote room from matrixRoomId: ' + matrixRoomId)
+  const matrixRoom = entryList[0].matrix
+  const remoteRoom = entryList[0].remote
+
+  if (!matrixRoom || !remoteRoom) {
+    throw new Error('room not found!')
   }
-  const remoteRoom = remoteRoomList[0]
 
   return {
     matrixRoom,
@@ -245,10 +246,13 @@ async function bridgeToWechatyRoom (
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message bridgeToWechatyRoom(%s, %s)',
     args.matrixRoom.roomId, args.text)
 
-  const wechatyRoomId = args.remoteRoom.getId()
+  const wechatyRoomId = args.remoteRoom.get('roomId') as undefined | string
+
+  if (!wechatyRoomId) {
+    throw new Error('no room id')
+  }
 
   try {
-
     const room = this.wechaty.Room.load(wechatyRoomId)
     await room.say(`${args.toGhostId} -> ${args.text}`)
 

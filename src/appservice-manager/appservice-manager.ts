@@ -43,17 +43,17 @@ export class AppServiceManager {
   }
 
   public async start (
-    port   : number,
-    config : BridgeConfig,
+    port         : number,
+    bridgeConfig : BridgeConfig,
   ): Promise<void> {
-    log.verbose('AppServiceManager', 'start(%s, "%s")', port, JSON.stringify(config))
+    log.verbose('AppServiceManager', 'start(%s, "%s")', port, JSON.stringify(bridgeConfig))
 
     if (!this.wechatyManager) {
       throw new Error(`there's no wechatyManager yet. call connect() first`)
     }
 
-    const bridge = this.createBridge(config)
-    await bridge.run(port, config)
+    const bridge = this.createBridge(bridgeConfig)
+    await bridge.run(port, bridgeConfig)
 
     const botIntent = bridge.getIntent()
     const userBridgeStore = bridge.getUserStore()

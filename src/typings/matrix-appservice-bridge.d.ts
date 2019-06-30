@@ -272,7 +272,7 @@ declare module 'matrix-appservice-bridge' {
   export class RemoteRoom {
 
     constructor (identifier: string, dataopt?: object)
-    get(key: string): undefined | object
+    get(key: string): unknown
     getId(): string
     serialize(): object
     set(key: string, val: object): void
