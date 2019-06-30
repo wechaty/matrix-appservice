@@ -80,6 +80,10 @@ Simply run the `logout` management command.
 - [Matrix Client-Server API](https://matrix.org/docs/spec/client_server/r0.4.0.html)
 - [Matrix Specification](https://matrix.org/docs/spec/)
 
+### Matrix AppService Bridges in TypeScript
+
+- [A bridge between Matrix and Discord](https://github.com/Half-Shot/matrix-appservice-discord)
+
 ### Matrix AppService Bridges in JavaScript
 
 - [Matrix<->Skype user-puppeting portal](https://github.com/mobitel-ltd/matrix-skype-bridge)
@@ -97,6 +101,12 @@ Simply run the `logout` management command.
 ### v0.1 May 2019
 
 1. Auto response the message in a Matrix Room.
+
+## DISCLAIMER
+
+Copied from disclaimer part from [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer):
+
+> I accept no responsibility if Tencent ban your IP, Account or even your details on their system. They have never given official support on custom clients.
 
 ## AUTHOR
 

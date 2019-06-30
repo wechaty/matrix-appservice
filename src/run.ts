@@ -1,4 +1,7 @@
-import { log } from './config'
+import {
+  log,
+  BridgeConfig,
+}                         from './config'
 
 import { AppServiceManager } from './appservice-manager/'
 import { WechatyManager } from './wechaty-manager/'
@@ -6,7 +9,7 @@ import { BridgeUserManager } from './bridge-user-manager'
 
 export async function run (
   port   : number,
-  config : object,
+  config : BridgeConfig,
 ): Promise<void> {
   log.info('matrix-appservice-wechaty', 'run(port=%s,)', port)
 
@@ -30,4 +33,41 @@ export async function run (
   }
 
   // await bootstrap()
+}
+
+function presudoMatrixMessage () {
+
+  if (sendFromRemoteUser()) {
+    return
+  }
+
+  if (linkedRoom()) {
+    forwardMessage()
+    return
+  }
+
+  if (isDirect()) {
+    if (enabledWechaty()) {
+      setupDialog()
+    } else {
+      enableDialog()
+    }
+    return
+  }
+
+  // Group, not direct
+  log.warn()
+  return
+
+}
+
+
+function presudoWechatMessage () {
+  if (self()) {
+    return
+  }
+
+    forwardWechatMessage()
+    return
+
 }

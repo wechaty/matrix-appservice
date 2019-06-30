@@ -16,6 +16,8 @@ export async function onMessage (
 ): Promise<void> {
   log.verbose('bridge-user-manager', 'wechaty-handlers/on-message %s', msg.toString())
 
+  // const rooms = await this.bridge.getRoomStore().getEntriesByRemoteRoomData({
+
   await this.matrixBotIntent.sendText(
     this.matrixDirectMessageRoomID,
     msg.toString()

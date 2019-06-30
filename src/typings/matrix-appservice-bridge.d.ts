@@ -4,32 +4,14 @@ declare module 'matrix-appservice-bridge' {
 
   import { EventEmitter } from 'events'
 
-  type MsgType = 'm.text'
-
-  type EventType = 'm.room.member'
-                  |'m.room.message'
-                  |'m.room.tombstone'
-                  |'m.room.power_levels'
-                  |'m.room.join_rules'
-                  |'m.room.history_visibility'
-                  |'m.room.guest_access'
-                  |'m.room.name'
-                  |'m.room.topic'
-                  |'m.sticker'
-
-  type StateEventType = 'm.room.name'
-                      | 'm.room.topic'
-                      | 'm.room.power_levels'
-                      | 'm.room.member'
-                      | 'm.room.join_rule'
-                      | 'm.room.history_visibility'
+  import {
+    EventType,
+    MsgType,
+    MatrixClient,
+    MembershipType,
+  }                     from 'matrix-js-sdk'
 
   type Controller = any
-
-  type MembershipState =  'joined'
-                        | 'join'
-                        | 'leave'
-                        | string
 
   // FIXME: declare it in the right way
   export export class AppServiceRegistration {
@@ -44,6 +26,7 @@ declare module 'matrix-appservice-bridge' {
     domain        : string
     homeserverUrl : string
     registration  : string
+    suppressEcho? : boolean     // True to stop receiving onEvent callbacks for events which were sent by a bridge user. Default: true.
   }
 
   export interface BridgeConfig {
@@ -62,7 +45,7 @@ declare module 'matrix-appservice-bridge' {
 
   /* *********************************************** */
   // FIXME: find the official name for this structure
-  interface UserMap {
+  interface RoomMemberMap {
     [id: string]: {
       display_name: string,
       avatar_url: string,
@@ -71,8 +54,8 @@ declare module 'matrix-appservice-bridge' {
   interface RemoteRoomMap {
     [id: string]: RemoteRoom
   }
-  interface RoomBridgeStoreEntryMap {
-    [id: string]: Array<RoomBridgeStoreEntry>
+  interface EntryMap {
+    [id: string]: Array<Entry>
   }
   // FIXME: END
   /* ****************** */
@@ -84,7 +67,7 @@ declare module 'matrix-appservice-bridge' {
     remoteJoinedUsers : Array<string>  //  A list of
   }
 
-  export interface RoomBridgeStoreEntry {
+  export interface Entry {
     id        : string             //  The unique ID for this entry.
     matrix_id : string             // "room_id",
     remote_id : string             // "remote_room_id",
@@ -97,20 +80,24 @@ declare module 'matrix-appservice-bridge' {
 
   export class AppServiceBot {
 
-    constructor (client: MatrixClient, registration: AppServiceRegistration, memberCache: MembershipCache)
-    getJoinedMembers(roomId: string): Promise<UserMap>
+    constructor (
+      client: MatrixClient,
+      registration: AppServiceRegistration,
+      memberCache: MembershipCache,
+    )
+    getJoinedMembers(roomId: string): Promise<RoomMemberMap>
     getJoinedRooms(): Promise<Array<string>>
     isRemoteUser(userId: string): boolean
 
   }
 
-  export interface BridgeProvisionedUser {
+  export interface ProvisionedUser {
     name?   : string      // The display name to set for the provisioned user.
     url?    : string      // The avatar URL to set for the provisioned user.
     remote? : RemoteUser  //
   }
 
-  export interface BridgeThirdPartyLocationResult {
+  export interface ThirdPartyLocationResult {
     alias    : string  // The Matrix room alias to the portal room representing this 3PL
     protocol : string  // The name of the 3PE protocol
     fields   : object  // The normalised values of the location query field data.
@@ -125,7 +112,7 @@ declare module 'matrix-appservice-bridge' {
     parseUser     : BridgeParseUser      // Function. Called for reverse parse requests on 3PU user IDs.
   }
 
-  export interface BridgeThirdPartyUserResult {
+  export interface ThirdPartyUserResult {
     userid   : string  // The Matrix user ID for the ghost representing this 3PU
     protocol : string  // The name of the 3PE protocol
     fields   : object  // The normalised values of the user query field data.
@@ -147,9 +134,18 @@ declare module 'matrix-appservice-bridge' {
     constructor (options: any)
 
     configure(baseUrl: string, appServiceToken: string, appServiceUserId: string): void
-    getClientAs(userId: null | string, request?: Request): MatrixClient
+    getClientAs(userId?: string, request?: Request): MatrixClient
     setLogFunction(func: (...any) => any): void
 
+  }
+
+  export interface ProvisionedRoom {
+    creationOpts: {
+      room_alias_name : string
+      name?           : string,
+      topic?          : string
+    },
+    remote?: RemoteRoom,
   }
 
   export class Bridge {
@@ -159,7 +155,7 @@ declare module 'matrix-appservice-bridge' {
     getIntent              (id: string)                                                                      : Intent
     getBot                ()                                                                                 : AppServiceBot
     getClientFactory      ()                                                                                 : ClientFactory
-    getIntent             (userId: null | string, request?: Request)                                         : Intent
+    getIntent             (userId?: string, request?: Request)                                               : Intent
     getIntentFromLocalpart(localpart: null | string, request?: Request)                                      : Intent
     getPrometheusMetrics  ()                                                                                 : RequestFactory
     getRequestFactory     ()                                                                                 : RequestFactory
@@ -169,17 +165,17 @@ declare module 'matrix-appservice-bridge' {
     provisionUser         (matrixUser: MatrixUser, provisionedUser: ProvisionedUser)                         : Promise<void>
     registerBridgeGauges  (counterFunc: () => any)                                                           : object
     run                   (port: number, config: object, appServiceInstance?: AppService)                    : void
-    getLocation           (protocol: string, fields: object)                                                 : Promise<Array<BridgeThirdPartyLocationResult>>
+    getLocation           (protocol: string, fields: object)                                                 : Promise<Array<ThirdPartyLocationResult>>
     getProtocol           (protocol: string)                                                                 : Promise<BridgeThirdPartyProtocolResult>
-    getUser               (protocol: string, fields: options)                                                : Promise<Array<BridgeThirdPartyUserResult>>
+    getUser               (protocol: string, fields: options)                                                : Promise<Array<ThirdPartyUserResult>>
     onAliasQueried        (alias: string, roomId: string)                                                    : void
-    onAliasQuery          (alias: string, aliasLocalpart: string)                                            : BridgeProvisionedRoom | Promise<BridgeProvisionedRoom>
+    onAliasQuery          (alias: string, aliasLocalpart: string)                                            : ProvisionedRoom | Promise<ProvisionedRoom>
     onEvent               (request: Request, context: BridgeContext)                                         : void
     onLog                 (line: string, isError: boolean)                                                   : void
     onRoomUpgrade         (oldRoomId: string, newRoomId: string, newVersion: string, context: BridgeContext) : void
-    onUserQuery           (matrixUser: MatrixUser)                                                           : BridgeProvisionedUser | Promise<BridgeProvisionedUser>
-    parseLocation         (alias: string)                                                                    : Promise<Array<BridgeThirdPartyLocationResult>>
-    parseUser             (userid: string)                                                                   : Promise<Array<BridgeThirdPartyUserResult>>
+    onUserQuery           (matrixUser: MatrixUser)                                                           : ProvisionedUser | Promise<ProvisionedUser>
+    parseLocation         (alias: string)                                                                    : Promise<Array<ThirdPartyLocationResult>>
+    parseUser             (userid: string)                                                                   : Promise<Array<ThirdPartyUserResult>>
 
   }
 
@@ -218,18 +214,18 @@ declare module 'matrix-appservice-bridge' {
     }>
     getClient       ()                                                                    : MatrixClient
     getEvent        (roomId: string, eventId: string, useCache?: boolean)                 : Promise<any>
-    getProfileInfo  (userId: string, info: string, useCache?: boolean)                    : Promise<any>
+    getProfileInfo  (userId: string, info?: string, useCache?: boolean)                   : Promise<any>
     getStateEvent   (roomId: string, eventType: EventType, stateKey?: string)             : Promise<any>
     invite          (roomId: string, target: string)                                      : Promise<void>
-    join            (roomId: string, viaServers: string[])                                : Promise<void>
+    join            (roomId: string, viaServers?: string[])                               : Promise<void>
     kick            (roomId: string, target: string, reason: string)                      : Promise<void>
     leave           (roomId: string)                                                      : Promise<void>
     onEvent         (event: object)                                                       : void
-    roomState       (roomId: string, useCache?: boolean)                                  : Promise<any>
-    sendEvent       (roomId: string, type: StateEventType, content: object)               : Promise<void>
+    roomState       (roomId: string, useCache = false)                                    : Promise<any>
+    sendEvent       (roomId: string, type: EventType, content: object)                    : Promise<void>
     sendMessage     (roomId: string, content: object)                                     : Promise<void>
-    sendReadReceipt()                                                                     : Promise<void>
-    sendStateEvent  (roomId: string, type: StateEventType, skey: string, content: object) : Promise<void>
+    sendReadReceipt ()                                                                     : Promise<void>
+    sendStateEvent  (roomId: string, type: EventType, skey: string, content: object)      : Promise<void>
     sendText        (roomId: string, text: string)                                        : Promise<void>
     sendTyping      (roomId: string, isTyping: boolean)                                   : Promise<void>
     setAvatarUrl    (url: string)                                                         : Promise<void>
@@ -249,10 +245,10 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (roomId: string)
     deserialize(data: object): void
-    get(key: string): undefined | object
+    get(key: string): undefined | any
     getId(): string
     serialize(): object
-    set(key: string, val: object): void
+    set(key: string, val: any): void
 
   }
 
@@ -301,13 +297,13 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (db: Datastore, ops: RoomBridgeStoreOptions)
     batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : RemoteRoomMap
-    getEntriesByLinkData          (data: object)                : Array<RoomBridgeStoreEntry>
-    getEntriesByMatrixId          (matrixId: string)            : Array<RoomBridgeStoreEntry>
-    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<RoomBridgeStoreEntryMap>
-    getEntriesByMatrixRoomData    (data: object)                : Array<RoomBridgeStoreEntry>
-    getEntriesByRemoteId          (remoteId: string)            : Array<RoomBridgeStoreEntry>
-    getEntriesByRemoteRoomData    (data: object)                : Array<RoomBridgeStoreEntry>
-    getEntryById                  (id: string)                  : Promise<null | RoomBridgeStoreEntry>
+    getEntriesByLinkData          (data: object)                : Array<Entry>
+    getEntriesByMatrixId          (matrixId: string)            : Array<Entry>
+    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<EntryMap>
+    getEntriesByMatrixRoomData    (data: object)                : Array<Entry>
+    getEntriesByRemoteId          (remoteId: string)            : Array<Entry>
+    getEntriesByRemoteRoomData    (data: object)                : Array<Entry>
+    getEntryById                  (id: string)                  : Promise<null | Entry>
     getLinkedMatrixRooms          (remoteId: string)            : Array<MatrixRoom>
     getLinkedRemoteRooms          (matrixId: string)            : Array<RemoteRoom>
     getMatrixRoom                 (roomId: string)              : null | MatrixRoom
@@ -317,7 +313,7 @@ declare module 'matrix-appservice-bridge' {
     removeEntriesByRemoteRoomData(data: object)                 : Promise<void>
     removeEntriesByRemoteRoomId   (remoteId: string)            : Promise<void>
     setMatrixRoom                 (matrixRoom: MatrixRoom)      : Promise<void>
-    upsertEntry                   (entry: RoomBridgeStoreEntry) : Promise<void>
+    upsertEntry                   (entry: Entry) : Promise<void>
     linkRooms                    (
       matrixRoom : MatrixRoom,
       remoteRoom : RemoteRoom,
@@ -330,8 +326,8 @@ declare module 'matrix-appservice-bridge' {
   export class MembershipCache {
 
     constructor ()
-    getMemberEntry(roomId: string, userId: string): MembershipState
-    setMemberEntry(roomId: string, userId: string, membership: MembershipState)
+    getMemberEntry(roomId: string, userId: string): MembershipType
+    setMemberEntry(roomId: string, userId: string, membership: MembershipType)
 
   }
 
@@ -377,23 +373,55 @@ declare module 'matrix-appservice-bridge' {
 
   }
 
+  /*
+  { age: 80,
+    content:
+     { avatar_url: null,
+       displayname: 'wechaty_xxx',
+       is_direct: true,
+       membership: 'invite' },
+    event_id: '$156164754730XRMfy:aka.cn',
+    origin_server_ts: 1561647547234,
+    room_id: '!XDxZYEqhdGdPHVmxmP:aka.cn',
+    sender: '@huan:aka.cn',
+    state_key: '@wechaty_xxx:aka.cn',
+    type: 'm.room.member',
+    unsigned: { age: 80 },
+    user_id: '@huan:aka.cn' }
+  */
+
+  export interface EventContent {
+    avatar_url   : null | string
+    body?        : string
+    displayname? : string
+    info?        : unknown
+    is_direct    : boolean
+    membership?  : MembershipType
+    msgtype?     : MsgType
+    name?        : string
+    reason?      : string
+    topic?       : string
+    url?         : string
+    // m.relates_to? : unknown
+  }
+
   export interface Event {
-    age              : number,
+    age              : number
     event_id         : string
-    origin_server_ts : number
+    origin_server_ts?: number
     room_id          : string
+    redacts?         : string
+    replaces_state?  : string
     sender           : string
+    state_key        : string
     type             : EventType
     user_id          : string
 
-    content: {
-      body    : string
-      msgtype : MsgType
-    },
+    content?: EventContent
 
     unsigned: {
       age: number
-    },
+    }
   }
 
   export interface BridgeContext {
@@ -412,33 +440,6 @@ declare module 'matrix-appservice-bridge' {
       remote  : null | RemoteRoom
       remotes : RemoteRoom[]
     }
-  }
-
-  // TODO: add all methods for Room class from matrix-js-sdk
-  class MatrixClientRoom {
-
-    public getDMInviter (): undefined | string
-
-  }
-
-  /**
-   * Only part of the MatrixClient methods was put here
-   * because they are too many.
-   * @huan 14 June 2019
-   */
-  class MatrixClient {
-
-    acceptGroupInvite(groupId: string, opts: object): Promise<void>
-    addListener(event: string, listener: () => void): EventEmitter
-    addPushRule(scope: string, kind: string, ruleId: string, body: object, callback?: () => void): Promise<void>
-
-    getDomain(): null | string
-    getUserId(): null | string
-    getUserIdLocalpart(): null | string
-
-    getRoom(roomId: string): null | MatrixClientRoom
-    getRooms (): MatrixClientRoom[]
-
   }
 
 }

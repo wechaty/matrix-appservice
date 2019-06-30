@@ -49,7 +49,7 @@ export class BridgeUser {
     this.matrixUserLocalPart = split[0].substring(1)
     this.matrixUserDomain    = split[1]
 
-    this.matrixBotIntent     = bridge.getIntent(null)
+    this.matrixBotIntent     = bridge.getIntent()
     this.matrixUserIntent    = bridge.getIntent(matrixUserId)
 
     // FIXME: query, or create it if not exists

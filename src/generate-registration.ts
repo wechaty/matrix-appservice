@@ -17,9 +17,9 @@ export function generateRegistration (
   reg.setId(WECHATY_LOCALPART)
   reg.setSenderLocalpart(WECHATY_LOCALPART)
   reg.setProtocols([WECHATY_LOCALPART])
+  reg.setRateLimited(false)
 
   reg.addRegexPattern('aliases', `^#${WECHATY_LOCALPART}_.+`, true)
-  reg.addRegexPattern('rooms', `^!${WECHATY_LOCALPART}_.+`, true)
   reg.addRegexPattern('users', `^@${WECHATY_LOCALPART}_.+`, true)
 
   callback(reg)

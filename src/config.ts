@@ -9,3 +9,12 @@ export const DEFAULT_PORT = 8788  // W:87 X:88
 export const WECHATY_LOCALPART = 'wechaty'
 export const REGISTRATION_FILE = 'wechaty-registration.yaml'
 export const SCHEMA_FILE       = path.join(__dirname, '../config/schema.yaml')
+
+/**
+ * This interface should be sync with ../config/schema.yaml
+ */
+export interface BridgeConfig {
+  domain        : string
+  homeserverUrl : string
+  registration  : string
+}
