@@ -51,7 +51,7 @@ export async function onNonBridgeUserEvent (
   // const matrixUserId = event.sender
   // const userId = event.user_id
 
-  if (isDirectRoom(this.bridge!, matrixRoomId)) {
+  if (await isDirectRoom(this.bridge!, matrixRoomId)) {
     console.info('is direct')
   } else {
     console.info('not direct')
@@ -59,33 +59,44 @@ export async function onNonBridgeUserEvent (
   console.info(event)
 }
 
-function isDirectRoom (
+async function isDirectRoom (
   bridge: Bridge,
   matrixRoomId: string,
-): boolean {
+): Promise<boolean> {
   log.verbose('appservice-manager', 'on-non-bridge-user-event isDriectRoom(%s)', matrixRoomId)
 
-  // const matrixRoom = this.bridge.getRoomStore()!.getMatrixRoom(matrixRoomId)
-  // matrixRoom!.get('is_direct')
+  const roomStore = bridge.getRoomStore()
+  if (!roomStore) {
+    throw new Error('no room store')
+  }
 
-  // TODO(huan): continue to work on this part...
+  const matrixRoom = roomStore.getMatrixRoom(matrixRoomId)
+  if (!matrixRoom) {
+    throw new Error('no matrix room')
+  }
 
-  // const client = bridge.getClientFactory().getClientAs('@huan:aka.cn')
-  // console.info('client', client)
-  // console.info('client.store', (client as any).store)
+  let isDirect: boolean = matrixRoom.get('isDirect')
+  if (typeof isDirect === 'boolean') {
+    log.silly('appservice-manager', 'on-non-bridge-user-event isDriectRoom(%s): %s (cache hit)',
+      matrixRoomId, isDirect)
+    return isDirect
+  }
 
-  // const roomList = client.getRooms()
-  // console.info('roomList', roomList)
+  const memberMap = await bridge.getBot().getJoinedMembers(matrixRoomId)
+  const memberNum = Object.keys(memberMap).length
 
-  // const matrixClientRoom = client.getRoom(matrixRoomId)
-  // console.info('matrixClientRoom', matrixClientRoom)
-  // if (!matrixClientRoom) {
-  //   return false
-  // }
+  if (memberNum === 2) {
+    isDirect = true
+  } else {
+    isDirect = false
+  }
+  log.silly('appservice-manager', 'on-non-bridge-user-event isDriectRoom(%s): %s (cache miss)',
+    matrixRoomId, isDirect)
 
-  // const dmInviter = matrixClientRoom.getDMInviter()
-  // console.info('dmInviter', dmInviter)
+  matrixRoom.set('isDirect', isDirect)
+  await roomStore.setMatrixRoom(matrixRoom)
 
-  // return !!dmInviter
-  return !!bridge
+  console.info('isDirect', isDirect)
+
+  return isDirect
 }

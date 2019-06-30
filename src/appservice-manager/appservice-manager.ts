@@ -10,7 +10,7 @@ import {
 
 import {
   log,
-  REGISTRATION_FILE,
+  BridgeConfig,
 }                       from '../config'
 import {
   WechatyManager,
@@ -44,7 +44,7 @@ export class AppServiceManager {
 
   public async start (
     port   : number,
-    config : object,
+    config : BridgeConfig,
   ): Promise<void> {
     log.verbose('AppServiceManager', 'start(%s, "%s")', port, JSON.stringify(config))
 
@@ -52,7 +52,7 @@ export class AppServiceManager {
       throw new Error(`there's no wechatyManager yet. call connect() first`)
     }
 
-    const bridge = this.createBridge()
+    const bridge = this.createBridge(config)
     await bridge.run(port, config)
 
     const botIntent = bridge.getIntent()
@@ -76,16 +76,22 @@ export class AppServiceManager {
    * Private methods *
    *******************/
 
-  private createBridge (): Bridge {
-    log.verbose('AppServiceManager', 'createBridge()')
+  private createBridge (bridgeConfig: BridgeConfig): Bridge {
+    log.verbose('AppServiceManager', 'createBridge("%s")', JSON.stringify(bridgeConfig))
 
     if (this.bridge) {
       throw new Error('bridge had already exist!')
     }
 
-    const domain        = 'aka.cn'
-    const homeserverUrl = 'http://matrix.aka.cn:8008'
-    const registration  = REGISTRATION_FILE
+    const {
+      domain,
+      homeserverUrl,
+      registration,
+    }                 = bridgeConfig
+
+    // const domain        = 'aka.cn'
+    // const homeServerUrl = 'http://matrix.aka.cn:8008'
+    // const registrationFile  = REGISTRATION_FILE
 
     const controller = {
       onEvent     : onEvent.bind(this),

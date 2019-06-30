@@ -126,6 +126,7 @@ declare module 'matrix-js-sdk' {
 
   export type EventType = never
                         |'m.room.canonical_alias'
+                        |'m.room.encryption'
                         |'m.room.guest_access'
                         |'m.room.history_visibility'
                         |'m.room.join_rules'
@@ -133,19 +134,23 @@ declare module 'matrix-js-sdk' {
                         |'m.room.message'
                         |'m.room.name'
                         |'m.room.power_levels'
+                        |'m.room.redaction'
                         |'m.room.tombstone'
                         |'m.room.topic'
                         |'m.sticker'
 
   export type MsgType = never
                       |'m.audio'
+                      |'m.bad.encrypted'
+                      |'m.emote'
                       |'m.file'
                       |'m.image'
-                      |'m.sticker'
+                      |'m.notice'
                       |'m.text'
                       |'m.video'
 
   export type MembershipType = never
+                            |'ban'
                             |'invite'
                             |'joined'
                             |'join'
@@ -254,7 +259,7 @@ declare module 'matrix-js-sdk' {
     getScheduler(): null | MatrixScheduler
     getSsoLoginUrl(redirectUrl: string, loginType: string): string
     getStateEvent(
-      roomId: string, eventType: EventType, stateKey: string, callback?: MatrixCallback
+      roomId: string, eventType: EventType, stateKey?: string, callback?: MatrixCallback
     ): Promise<object>
     getStoredDevice(userId: string, deviceId: string): Promise<CryptoDeviceInfo>
     getStoredDevicesForUser(userId: string): Promise<Array<CryptoDeviceInfo>>
@@ -414,7 +419,7 @@ declare module 'matrix-js-sdk' {
     sendReadReceipt(event: MatrixEvent, callback?: MatrixCallback): Promise<void>
     sendReceipt(event: MatrixEvent, receiptType: string, callback?: MatrixCallback): Promise<void>
     sendStateEvent(
-      roomId: string, eventType: EventType, content: object, stateKey: string, callback?: MatrixCallback,
+      roomId: string, eventType: EventType, content: object, stateKey?: string, callback?: MatrixCallback,
     ): Promise<void>
     sendStickerMessage(
       roomId: string, url: string, info: object, text: string, callback?: MatrixCallback,
@@ -502,14 +507,14 @@ declare module 'matrix-js-sdk' {
     unban(roomId: string, userId: string, callback?: MatrixCallback): Promise<void>
     updateGroupRoomVisibility(groupId: string, roomId: string, isPublic: boolean): Promise<void>
     upgradeRoom(roomId: string, newVersion: string): Promise<{ replacement_room: object }>
-    uploadContent(file: object, opts: {
+    uploadContent(file: Buffer, opts: {
       includeFilename: boolean  // <optional> if false will not send the filename, e.g for encrypted file uploads where filename leaks are undesirable. Defaults to true.
       type: string  // <optional> Content-type for the upload. Defaults to file.type, or applicaton/octet-stream.
       rawResponse: boolean  // <optional> Return the raw body, rather than parsing the JSON. Defaults to false (except on node.js, where it defaults to true for backwards compatibility).
       onlyContentUri: boolean // <optional> Just return the content URI, rather than the whole body. Defaults to false (except on browsers, where it defaults to true for backwards compatibility). Ignored if opts.rawResponse is true.
       callback: function  // <optional> Deprecated. Optional. The callback to invoke on success/failure. See the promise return values for more information.
       progressHandler: function // <optional> Optional. Called when a chunk of data has been uploaded, with an object containing the fields `loaded` (number of bytes transferred) and `total` (total size, if known).
-    }): Promise<object>
+    }): Promise<string>
     uploadKeys(): object
     uploadKeysRequest(content: object, opts?: object, callback?: MatrixCallback): Promise<object>
 

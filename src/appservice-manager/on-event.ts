@@ -26,6 +26,8 @@ import {
   onNonBridgeUserEvent,
 }                         from './on-non-bridge-user-event'
 
+const AGE_LIMIT = 60 * 1000 // 60 seconds
+
 export async function onEvent (
   this: AppServiceManager,
   request: Request,
@@ -37,8 +39,14 @@ export async function onEvent (
 
   const event = request.getData()
 
-  if (isFromWechatyGhost(event)) {
-    log.verbose('appservice-manager', 'on-event onEvent() isFromWechatyGhost() is true, skipped')
+  if (event.unsigned.age > AGE_LIMIT) {
+    log.info('appservice-manager', 'on-event onEvent() skipping event due to age %s > %s',
+      event.unsigned.age, AGE_LIMIT)
+    return
+  }
+
+  if (this.bridge!.getBot().isRemoteUser(event.user_id)) {
+    log.verbose('appservice-manager', 'on-event onEvent() isRemoteUser(%s) is true, skipped', event.user_id)
     return
   }
 
@@ -148,7 +156,9 @@ async function replyUnknownRoom (
 
   const memberMap = await bridge.getBot().getJoinedMembers(event.room_id)
 
-  const wechatyGhostIdList = Object.keys(memberMap).filter(id => id.match(/^@wechaty/i))
+  const wechatyGhostIdList = Object.keys(memberMap)
+    .filter(id => bridge.getBot().isRemoteUser(id))
+
   if (wechatyGhostIdList.length <= 0) {
     throw new Error('no wechaty ghost in the room')
   }
@@ -163,10 +173,4 @@ async function replyUnknownRoom (
 
   const intent = bridge.getIntent(ghostId)
   await intent.sendText(event.room_id, 'replyUnknownRoom: ' + event.content!.body)
-}
-
-function isFromWechatyGhost (event: Event) {
-  log.verbose('appservice-manager', 'on-event isFromWechatyGhost({user_id:"%s"})', event.user_id)
-
-  return event.user_id.match(/^@wechaty/i)
 }

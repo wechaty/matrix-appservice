@@ -1,7 +1,13 @@
 "$schema": "http://json-schema.org/draft-04/schema#"
 type: object
+required:
+  - domain
+  - homeserverUrl
+  - registration
 properties:
-  name:
+  domain:
     type: string
-  puppet:
+  homeserverUrl:
+    type: string
+  registration:
     type: string

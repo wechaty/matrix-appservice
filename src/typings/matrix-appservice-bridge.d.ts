@@ -26,6 +26,7 @@ declare module 'matrix-appservice-bridge' {
     domain        : string
     homeserverUrl : string
     registration  : string
+    suppressEcho? : boolean     // True to stop receiving onEvent callbacks for events which were sent by a bridge user. Default: true.
   }
 
   export interface BridgeConfig {
@@ -53,8 +54,8 @@ declare module 'matrix-appservice-bridge' {
   interface RemoteRoomMap {
     [id: string]: RemoteRoom
   }
-  interface RoomBridgeStoreEntryMap {
-    [id: string]: Array<RoomBridgeStoreEntry>
+  interface EntryMap {
+    [id: string]: Array<Entry>
   }
   // FIXME: END
   /* ****************** */
@@ -66,7 +67,7 @@ declare module 'matrix-appservice-bridge' {
     remoteJoinedUsers : Array<string>  //  A list of
   }
 
-  export interface RoomBridgeStoreEntry {
+  export interface Entry {
     id        : string             //  The unique ID for this entry.
     matrix_id : string             // "room_id",
     remote_id : string             // "remote_room_id",
@@ -143,7 +144,8 @@ declare module 'matrix-appservice-bridge' {
       room_alias_name : string
       name?           : string,
       topic?          : string
-    }
+    },
+    remote?: RemoteRoom,
   }
 
   export class Bridge {
@@ -243,10 +245,10 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (roomId: string)
     deserialize(data: object): void
-    get(key: string): undefined | object
+    get(key: string): undefined | any
     getId(): string
     serialize(): object
-    set(key: string, val: object): void
+    set(key: string, val: any): void
 
   }
 
@@ -295,13 +297,13 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (db: Datastore, ops: RoomBridgeStoreOptions)
     batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : RemoteRoomMap
-    getEntriesByLinkData          (data: object)                : Array<RoomBridgeStoreEntry>
-    getEntriesByMatrixId          (matrixId: string)            : Array<RoomBridgeStoreEntry>
-    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<RoomBridgeStoreEntryMap>
-    getEntriesByMatrixRoomData    (data: object)                : Array<RoomBridgeStoreEntry>
-    getEntriesByRemoteId          (remoteId: string)            : Array<RoomBridgeStoreEntry>
-    getEntriesByRemoteRoomData    (data: object)                : Array<RoomBridgeStoreEntry>
-    getEntryById                  (id: string)                  : Promise<null | RoomBridgeStoreEntry>
+    getEntriesByLinkData          (data: object)                : Array<Entry>
+    getEntriesByMatrixId          (matrixId: string)            : Array<Entry>
+    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<EntryMap>
+    getEntriesByMatrixRoomData    (data: object)                : Array<Entry>
+    getEntriesByRemoteId          (remoteId: string)            : Array<Entry>
+    getEntriesByRemoteRoomData    (data: object)                : Array<Entry>
+    getEntryById                  (id: string)                  : Promise<null | Entry>
     getLinkedMatrixRooms          (remoteId: string)            : Array<MatrixRoom>
     getLinkedRemoteRooms          (matrixId: string)            : Array<RemoteRoom>
     getMatrixRoom                 (roomId: string)              : null | MatrixRoom
@@ -311,7 +313,7 @@ declare module 'matrix-appservice-bridge' {
     removeEntriesByRemoteRoomData(data: object)                 : Promise<void>
     removeEntriesByRemoteRoomId   (remoteId: string)            : Promise<void>
     setMatrixRoom                 (matrixRoom: MatrixRoom)      : Promise<void>
-    upsertEntry                   (entry: RoomBridgeStoreEntry) : Promise<void>
+    upsertEntry                   (entry: Entry) : Promise<void>
     linkRooms                    (
       matrixRoom : MatrixRoom,
       remoteRoom : RemoteRoom,
@@ -417,7 +419,7 @@ declare module 'matrix-appservice-bridge' {
 
     content?: EventContent
 
-    unsigned?: {
+    unsigned: {
       age: number
     }
   }

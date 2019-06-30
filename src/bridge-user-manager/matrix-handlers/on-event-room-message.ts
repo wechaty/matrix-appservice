@@ -49,14 +49,14 @@ export async function onEventRoomMessage (
       matrixUserId : senderId,
       matrixRoomId : roomId,
       toGhostId    : userId,
-      text         : contentBody,
+      text         : contentBody || '',
     })
   } else {
     await onGroupMessage.call(this, {
       matrixRoomId : roomId,
       matrixUserId : senderId,
       toGhostId    : userId,
-      text         : contentBody,
+      text         : contentBody || '',
     })
   }
 
@@ -98,7 +98,7 @@ async function onDirectMessage (
   // move the enable wechaty dialog code to upper
   const wechatyEnabled = await isEnabledWechaty.call(this, args.matrixUserId)
 
-  if (isWechatyBotId.call(this, args.toGhostId)) {
+  if (this.bridge.getBot().isRemoteUser(args.toGhostId)) {
     if (wechatyEnabled) {
       await gotoSetupDialog(args.matrixUserId)
     } else {
@@ -170,30 +170,6 @@ async function isEnabledWechaty (
   }
 
   return true
-}
-
-// function localPart (matrixUserId: string): string {
-//   const match = matrixUserId.match(/:(.+)$/)
-//   if (!match) {
-//     throw new Error('no local part match for matrix user id: ' + matrixUserId)
-//   }
-//   return match[1]
-// }
-
-function isWechatyBotId (
-  this: BridgeUser,
-  matrixUserId: string,
-): boolean {
-  const domain = this.bridge.getClientFactory().getClientAs().getDomain()
-
-  const REGEX_TEXT  = `^@?${WECHATY_LOCALPART}(:${domain})?$`
-  const MATCH_REGEX = new RegExp(REGEX_TEXT, 'i')
-
-  if (MATCH_REGEX.test(matrixUserId)) {
-    return true
-  }
-
-  return false
 }
 
 async function onGroupMessage (
@@ -311,3 +287,5 @@ async function test (
   }
 
 }
+
+// const rooms = await this.bridge.getRoomStore().getEntriesByRemoteRoomData({
