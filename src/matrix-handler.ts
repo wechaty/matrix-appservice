@@ -15,11 +15,19 @@ const AGE_LIMIT = 60 * 1000 // 60 seconds
 
 export class MatrixHandler {
 
-  constructor (
-    public appserviceManager: AppserviceManager,
-    public wechatyManager: WechatyManager,
-  ) {
+  public appserviceManager!: AppserviceManager
+  public wechatyManager!: WechatyManager
+
+  constructor () {
     log.verbose('MatrixHandler', 'constructor()')
+  }
+
+  public setManager (
+    appserviceManager: AppserviceManager,
+    wechatyManager: WechatyManager,
+  ): void {
+    this.appserviceManager = appserviceManager
+    this.wechatyManager = wechatyManager
   }
 
   public async onEvent (

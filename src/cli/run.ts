@@ -6,7 +6,7 @@ import {
 
 import {
   MatrixHandler,
-}                                     from '../matrix-handler/'
+}                                     from '../matrix-handler'
 
 import {
   log,
@@ -28,22 +28,27 @@ export async function run (
   const appserviceManager = new AppserviceManager()
   const wechatyManager    = new WechatyManager(appserviceManager)
 
+  const matrixHandler = new MatrixHandler()
+
   const matrixBridge = createBridge(
     bridgeConfig,
+    matrixHandler,
+  )
+
+  await matrixBridge.run(port, bridgeConfig)
+
+  appserviceManager.setBridge(matrixBridge)
+  matrixHandler.setManager(
     appserviceManager,
     wechatyManager,
   )
-
-  appserviceManager.setBridge(matrixBridge)
-
-  await matrixBridge.run(port, bridgeConfig)
 
   const bridgeMatrixUserList = await appserviceManager.matrixUserList()
 
   const wechatyStartFutureList = bridgeMatrixUserList.map(
     matrixUser => {
       const wechatyOptions = appserviceManager.wechatyOptions(matrixUser)
-      const wechaty = wechatyManager.wechaty(matrixUser.userId, wechatyOptions)
+      const wechaty = wechatyManager.create(matrixUser.userId, wechatyOptions)
       return wechaty.start()
     }
   )
@@ -56,8 +61,7 @@ export async function run (
 
 function createBridge (
   bridgeConfig   : BridgeConfig,
-  appserviceManager: AppserviceManager,
-  wechatyManager : WechatyManager,
+  matrixHandler: MatrixHandler,
 ): Bridge {
   log.verbose('AppServiceManager', 'createBridge("%s")', JSON.stringify(bridgeConfig))
 
@@ -70,11 +74,6 @@ function createBridge (
   // const domain        = 'aka.cn'
   // const homeServerUrl = 'http://matrix.aka.cn:8008'
   // const registrationFile  = REGISTRATION_FILE
-
-  const matrixHandler = new MatrixHandler(
-    appserviceManager,
-    wechatyManager,
-  )
 
   const onEvent = (
     request: Request,

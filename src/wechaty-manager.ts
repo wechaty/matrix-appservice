@@ -50,7 +50,14 @@ export class WechatyManager {
     log.verbose('WechatyManager', 'create(%s, "%s")',
       matrixUserId, JSON.stringify(wechatyOptions))
 
-    const wechaty = new Wechaty(wechatyOptions)
+    if (this.matrixWechatyDict.has(matrixUserId)) {
+      throw new Error('can not create twice for one user id: ' + matrixUserId)
+    }
+
+    const wechaty = new Wechaty({
+      ...wechatyOptions,
+      name: matrixUserId,
+    })
 
     const onScan = (qrcode: string, status: ScanStatus) => wechatyOnScan.call(
       wechaty,
@@ -111,7 +118,7 @@ export class WechatyManager {
     log.verbose('WechatyManager', 'destroy(%s)', matrixUserIdOrWechaty)
 
     let matrixUserId: undefined | string
-    let wechaty: undefined | Wechaty
+    let wechaty: null | Wechaty
 
     if (matrixUserIdOrWechaty instanceof Wechaty) {
       wechaty = matrixUserIdOrWechaty
@@ -119,6 +126,11 @@ export class WechatyManager {
     } else {
       matrixUserId = matrixUserIdOrWechaty
       wechaty = this.wechaty(matrixUserId)
+    }
+
+    if (!wechaty) {
+      log.error('WechatyManager', 'destroy() can not get wechaty for id: ' + matrixUserId)
+      return
     }
 
     try {

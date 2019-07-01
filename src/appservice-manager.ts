@@ -84,7 +84,7 @@ export class AppserviceManager {
 
       wechatyOptions = matrixUser.get('wechaty.options') as undefined | object
 
-      log.silly('AppserviceManager', 'wechatyOptions(%s, "%s") get',
+      log.silly('AppserviceManager', 'wechatyOptions(%s) GOT "%s"',
         matrixUser.userId, JSON.stringify(wechatyOptions))
 
       return { ...wechatyOptions }
