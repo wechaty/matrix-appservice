@@ -16,11 +16,11 @@ import {
 import {
   onEvent as onBridgeUserEvent,
   // onUserQuery as onBridgeUserUserQuery,
-}                                       from '../bridge-user-manager/matrix-handlers'
+}                                       from '../matrix-handlers'
 
 import {
-  AppServiceManager,
-}                         from './appservice-manager'
+  AppserviceManager,
+}                         from '../appservice-manager'
 
 import {
   onNonBridgeUserEvent,
@@ -29,7 +29,7 @@ import {
 const AGE_LIMIT = 60 * 1000 // 60 seconds
 
 export async function onEvent (
-  this: AppServiceManager,
+  this: AppserviceManager,
   request: Request,
   context: BridgeContext,
 ): Promise<void> {
@@ -64,7 +64,7 @@ export async function onEvent (
   const matrixUserId = matrixUser.userId
 
   if (wechatyEnabled(matrixUser)) {
-    const wechaty = this.wechatyManager!.load(matrixUserId)
+    const wechaty = this.wechatyManager!.wechaty(matrixUserId)
     const bridgeUser = new BridgeUser(matrixUserId, this.bridge!, wechaty)
 
     onBridgeUserEvent.call(bridgeUser, request, context)

@@ -4,7 +4,7 @@ import {
 
 import {
   WECHATY_LOCALPART,
-}                             from './config'
+}                             from '../config'
 
 export function generateRegistration (
   reg      : any,

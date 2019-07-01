@@ -6,7 +6,7 @@ import {
   DEFAULT_PORT,
   REGISTRATION_FILE,
   SCHEMA_FILE,
-}                           from './config'
+}                           from '../config'
 import {
   generateRegistration,
 }                           from './generate-registration'

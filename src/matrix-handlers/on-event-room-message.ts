@@ -7,21 +7,21 @@ import {
 import {
   log,
   // WECHATY_LOCALPART,
-}                       from '../../config'
+}                       from '../config'
 // import {
 //   AppServiceManager,
 // }                       from '../../appservice-manager/'
 import {
   createDirectRoom,
   // createRoom,
-}                       from '../../appservice-manager/create-room'
+}                       from '../appservice-manager/create-room'
 
 import {
-  BridgeUser,
-}                 from '../bridge-user'
+  AppserviceUser,
+}                 from '../appservice-user'
 
 export async function onEventRoomMessage (
-  this  : BridgeUser,
+  this  : AppserviceUser,
   event : Event,
 ): Promise<void> {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message onEventRoomMessage()')
@@ -64,7 +64,7 @@ export async function onEventRoomMessage (
 }
 
 function isDirectRoom (
-  this: BridgeUser,
+  this: AppserviceUser,
   matrixRoomId: string,
 ): boolean {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event-room-message isDriectRoom(%s)', matrixRoomId)
@@ -84,7 +84,7 @@ function isDirectRoom (
 }
 
 async function onDirectMessage (
-  this: BridgeUser,
+  this: AppserviceUser,
   args: {
     matrixUserId : string,
     matrixRoomId : string,
@@ -148,7 +148,7 @@ async function bridgeToWechatIndividual (
 }
 
 async function isEnabledWechaty (
-  this: BridgeUser,
+  this: AppserviceUser,
   matrixUserId: string,
 ): Promise<boolean> {
   const userStore = this.bridge.getUserStore()
@@ -173,7 +173,7 @@ async function isEnabledWechaty (
 }
 
 async function onGroupMessage (
-  this: BridgeUser,
+  this: AppserviceUser,
   args: {
     matrixRoomId : string,
     matrixUserId : string,
@@ -202,7 +202,7 @@ async function onGroupMessage (
 }
 
 async function getRoomPair (
-  this: BridgeUser,
+  this: AppserviceUser,
   matrixRoomId: string,
 ): Promise<{
   matrixRoom: MatrixRoom,
@@ -236,7 +236,7 @@ async function getRoomPair (
 }
 
 async function bridgeToWechatyRoom (
-  this: BridgeUser,
+  this: AppserviceUser,
   args: {
     matrixRoom : MatrixRoom,
     remoteRoom : RemoteRoom,
@@ -266,7 +266,7 @@ async function bridgeToWechatyRoom (
 }
 
 async function test (
-  this: BridgeUser,
+  this: AppserviceUser,
   userId: string,
   roomId: string,
   text: string,

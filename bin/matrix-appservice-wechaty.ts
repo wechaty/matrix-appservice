@@ -8,7 +8,9 @@ import {
 }                     from '../src/'
 
 async function main () {
-  log.level('silly')
+  if (process.env['LOG_LEVEL']) {
+    log.level(process.env['LOG_LEVEL'] as any)
+  }
 
   log.info('matrix-appservice-wechaty', `v${VERSION}`)
 

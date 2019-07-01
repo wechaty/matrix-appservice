@@ -1,11 +1,9 @@
 export {
   createCli,
-}               from './create-cli'
+  checkUpdate,
+}               from './cli/'
+
 export {
   log,
   VERSION,
 }               from './config'
-
-export {
-  checkUpdate,
-}               from './check-update'

@@ -8,7 +8,7 @@ import {
   log,
 }             from '../config'
 
-import { AppServiceManager } from './appservice-manager'
+import { AppserviceManager } from '../appservice-manager'
 
 /*
 { age: 64,
@@ -39,7 +39,7 @@ import { AppServiceManager } from './appservice-manager'
 
   */
 export async function onNonBridgeUserEvent (
-  this: AppServiceManager,
+  this: AppserviceManager,
   request: Request,
   context: BridgeContext,
 ): Promise<void> {

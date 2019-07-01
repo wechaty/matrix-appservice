@@ -1,12 +1,13 @@
 import {
   log,
 }                   from '../config'
-
-import { AppServiceManager } from './appservice-manager'
+import { WechatyManager } from '../wechaty-manager'
+import { AppserviceManager } from '../appservice-manager'
 
 export async function onUserQuery (
-  this: AppServiceManager,
-  queriedUser: any,
+  queriedUser       : any,
+  appServiceManager : AppserviceManager,
+  wechatyManager    : WechatyManager,
 ): Promise<object> {
   log.verbose('appservice-manager', 'on-user-query onUserQuery("%s")', JSON.stringify(queriedUser))
 

@@ -6,20 +6,24 @@ import {
 
 import {
   log,
-}         from '../../config'
+}         from '../config'
 
 import {
-  BridgeUser,
-}               from '../bridge-user'
+  AppserviceUser,
+}               from '../appservice-user'
+
+import { AppserviceManager } from '../appservice-manager'
+import { WechatyManager } from '../wechaty-manager'
 
 import {
   onEventRoomMessage,
 }                       from './on-event-room-message'
 
 export async function onEvent (
-  this    : BridgeUser,
   request : Request,
   context : BridgeContext,
+  appserviceManager: AppserviceManager,
+  wechatymanager    : WechatyManager,
 ): Promise<void> {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event onEvent() ({type: "%s"}, {userId: "%s"})',
     request.data.type,
@@ -29,14 +33,14 @@ export async function onEvent (
   const event = request.getData()
 
   try {
-    await dispatchEvent.call(this, event)
+    await dispatchEvent(event)
   } catch (e) {
     log.error('bridge-user-manager', 'matrix-handlers/on-event onEvent() exception: %s', e && e.message)
   }
 }
 
 async function dispatchEvent (
-  this  : BridgeUser,
+  this  : WechatyManager,
   event : Event,
 ): Promise<void> {
   log.verbose('bridge-user-manager', 'matrix-handlers/on-event dispatchEvent() dispatcher()')
@@ -52,4 +56,42 @@ async function dispatchEvent (
       break
 
   }
+}
+
+
+function presudoMatrixMessage () {
+
+  if (sendFromRemoteUser()) {
+    return
+  }
+
+  if (linkedRoom()) {
+    forwardMessage()
+    return
+  }
+
+  if (isDirect()) {
+    if (enabledWechaty()) {
+      setupDialog()
+    } else {
+      enableDialog()
+    }
+    return
+  }
+
+  // Group, not direct
+  log.warn()
+  return
+
+}
+
+
+function presudoWechatMessage () {
+  if (self()) {
+    return
+  }
+
+    forwardWechatMessage()
+    return
+
 }
