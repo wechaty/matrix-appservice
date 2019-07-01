@@ -17,11 +17,9 @@ export async function onLogin (
 ): Promise<void> {
   log.verbose('wechaty-handlers', 'on-login onLogin(%s, %s)', user, matrixUserId)
 
-  const intent = appserviceManager.bridge().getIntent()
-
   const matrixRoomId = await appserviceManager.directMessageRoomId(matrixUserId)
 
-  await intent.sendText(
+  await appserviceManager.botIntent.sendText(
     matrixRoomId,
     `${user} logout`,
   )

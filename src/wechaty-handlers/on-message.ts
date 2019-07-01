@@ -7,8 +7,7 @@ import {
   log,
 }             from '../config'
 
-
-import { AppserviceManager } from '../appservice-manager';
+import { AppserviceManager } from '../appservice-manager'
 
 export async function onMessage (
   this: Wechaty,
@@ -18,11 +17,13 @@ export async function onMessage (
 ) {
   log.verbose('wechaty-handlers', 'on-message onMessage(%s, %s)', msg, matrixUserId)
 
-  const intent = appserviceManager.bridge().getIntent()
+  if (msg.self()) {
+    return
+  }
 
   const matrixRoomId = await appserviceManager.directMessageRoomId(matrixUserId)
 
-  await intent.sendText(
+  await appserviceManager.botIntent.sendText(
     matrixRoomId,
     `recv message: ${msg}`,
   )

@@ -5,9 +5,8 @@ import {
 }                   from 'matrix-appservice-bridge'
 
 import {
-  onUserQuery as matrixOnUserQuery,
-  onEvent     as matrixOnEvent,
-}                                     from '../matrix-handlers/'
+  MatrixHandler,
+}                                     from '../matrix-handler/'
 
 import {
   log,
@@ -26,8 +25,8 @@ export async function run (
 ): Promise<void> {
   log.info('cli', 'run(port=%s,)', port)
 
-  const wechatyManager    = new WechatyManager()
   const appserviceManager = new AppserviceManager()
+  const wechatyManager    = new WechatyManager(appserviceManager)
 
   const matrixBridge = createBridge(
     bridgeConfig,
@@ -35,8 +34,7 @@ export async function run (
     wechatyManager,
   )
 
-  appserviceManager.bridge(matrixBridge)
-  wechatyManager.bridge(matrixBridge)
+  appserviceManager.setBridge(matrixBridge)
 
   await matrixBridge.run(port, bridgeConfig)
 
@@ -73,22 +71,23 @@ function createBridge (
   // const homeServerUrl = 'http://matrix.aka.cn:8008'
   // const registrationFile  = REGISTRATION_FILE
 
-  const onEvent = (
-    request: Request,
-    context: BridgeContext
-  ) => matrixOnEvent(
-    request,
-    context,
+  const matrixHandler = new MatrixHandler(
     appserviceManager,
     wechatyManager,
   )
 
+  const onEvent = (
+    request: Request,
+    context: BridgeContext
+  ) => matrixHandler.onEvent(
+    request,
+    context,
+  )
+
   const onUserQuery = (
     user: any
-  ) => matrixOnUserQuery(
+  ) => matrixHandler.onUserQuery(
     user,
-    appserviceManager,
-    wechatyManager,
   )
 
   const controller = {

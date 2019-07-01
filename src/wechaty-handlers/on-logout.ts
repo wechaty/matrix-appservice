@@ -16,11 +16,9 @@ export async function onLogout (
 ) {
   log.verbose('wechaty-handlers', 'on-logout onLogout(%s, %s)', user, matrixUserId)
 
-  const intent = appserviceManager.bridge().getIntent()
-
   const matrixRoomId = await appserviceManager.directMessageRoomId(matrixUserId)
 
-  await intent.sendText(
+  await appserviceManager.botIntent.sendText(
     matrixRoomId,
     `${user} logout`,
   )

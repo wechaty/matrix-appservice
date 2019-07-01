@@ -28,11 +28,9 @@ export async function onScan (
   log.verbose('wechaty-handlers', 'on-scan onScan(%s,%s(%s), %s)',
     qrcodeImageUrl, statusName, status, matrixUserId)
 
-  const intent = appserviceManager.bridge().getIntent()
-
   const matrixRoomId = await appserviceManager.directMessageRoomId(matrixUserId)
 
-  await intent.sendText(
+  await appserviceManager.botIntent.sendText(
     matrixRoomId,
     `Scan to login: ${qrcodeImageUrl}`,
   )

@@ -1,7 +1,4 @@
 import {
-  Bridge,
-}                   from 'matrix-appservice-bridge'
-import {
   Wechaty,
   WechatyOptions,
   ScanStatus,
@@ -17,55 +14,77 @@ import {
   onMessage as wechatyOnMessage,
   onScan    as wechatyOnScan,
 }                                   from './wechaty-handlers'
+import { AppserviceManager }        from './appservice-manager'
 
 export class WechatyManager {
 
   private matrixWechatyDict: Map<string, Wechaty>
   private wechatyMatrixDict: WeakMap<Wechaty, string>
 
-  private matrixBridge?: Bridge
-
   constructor (
+    public appserviceManager: AppserviceManager,
   ) {
     log.verbose('WechatyManager', 'constructor()')
     this.matrixWechatyDict = new Map<string, Wechaty>()
     this.wechatyMatrixDict = new WeakMap<Wechaty, string>()
   }
 
-  public bridge (): Bridge
-  public bridge (bridge: Bridge): void
-
-  public bridge (bridge?: Bridge): void | Bridge {
-
-    if (bridge) {   // Set
-      log.verbose('WechatyManager', 'bridge(bridge) set')
-      if (this.matrixBridge) {
-        throw new Error('can not set bridge twice')
-      }
-      this.matrixBridge = bridge
-    } else {        // Get
-      log.silly('WechatyManager', 'bridge() get')
-      if (!this.matrixBridge) {
-        throw new Error('no bridge')
-      }
-      return bridge
-    }
-
-  }
-
   public wechaty (
-    matrixUserId    : string,
-    wechatyOptions? : WechatyOptions,
-  ): Wechaty {
-    log.verbose('WechatyManager', 'wechaty(%s,"%s")', matrixUserId, JSON.stringify(wechatyOptions))
+    matrixUserId: string,
+  ): null | Wechaty {
+    log.verbose('WechatyManager', 'wechaty(%s)', matrixUserId)
     log.silly('WechatyManager', 'wechaty() currently wechatyStore has %s wechaty instances.', this.matrixWechatyDict.size)
 
     let wechaty = this.matrixWechatyDict.get(matrixUserId)
-    if (wechaty) {
-      return wechaty
+    if (!wechaty) {
+      return null
     }
 
-    wechaty = this.create(matrixUserId, wechatyOptions)
+    return wechaty
+  }
+
+  public create (
+    matrixUserId    : string,
+    wechatyOptions? : WechatyOptions,
+  ): Wechaty {
+    log.verbose('WechatyManager', 'create(%s, "%s")',
+      matrixUserId, JSON.stringify(wechatyOptions))
+
+    const wechaty = new Wechaty(wechatyOptions)
+
+    const onScan = (qrcode: string, status: ScanStatus) => wechatyOnScan.call(
+      wechaty,
+      qrcode,
+      status,
+      matrixUserId,
+      this.appserviceManager,
+    )
+
+    const onLogin = (user: Contact) => wechatyOnLogin.call(
+      wechaty,
+      user,
+      matrixUserId,
+      this.appserviceManager,
+    )
+
+    const onLogout = (user: Contact) => wechatyOnLogout.call(
+      wechaty,
+      user,
+      matrixUserId,
+      this.appserviceManager,
+    )
+
+    const onMessage = (msg: Message) => wechatyOnMessage.call(
+      wechaty,
+      msg,
+      matrixUserId,
+      this.appserviceManager,
+    )
+
+    wechaty.on('login',   onLogin)
+    wechaty.on('logout',  onLogout)
+    wechaty.on('message', onMessage)
+    wechaty.on('scan',    onScan)
 
     this.matrixWechatyDict.set(matrixUserId, wechaty)
     this.wechatyMatrixDict.set(wechaty, matrixUserId)
@@ -115,55 +134,5 @@ export class WechatyManager {
   /*******************
    * Private methods *
    *******************/
-
-  private create (
-    matrixUserId    : string,
-    wechatyOptions? : WechatyOptions,
-  ): Wechaty {
-    log.verbose('WechatyManager', 'create(%s, "%s")',
-      matrixUserId, JSON.stringify(wechatyOptions))
-
-    const wechaty = new Wechaty(wechatyOptions)
-
-    const onScan = (qrcode: string, status: ScanStatus) => wechatyOnScan.call(
-      wechaty,
-      qrcode,
-      status,
-      matrixUserId,
-      appserviceManager,
-      wechatyManager,
-    )
-
-    const onLogin = (user: Contact) => wechatyOnLogin.call(
-      wechaty,
-      user,
-      matrixUserId,
-      appserviceManager,
-      wechatyManager,
-    )
-
-    const onLogout = (user: Contact) => wechatyOnLogout.call(
-      wechaty,
-      user,
-      matrixUserId,
-      appserviceManager,
-      wechatyManager,
-    )
-
-    const onMessage = (msg: Message) => wechatyOnMessage.call(
-      wechaty,
-      msg,
-      matrixUserId,
-      appserviceManager,
-      wechatyManager,
-    )
-
-    wechaty.on('scan', onScan)
-    wechaty.on('login',  onLogin)
-    wechaty.on('logout',  onLogout)
-    wechaty.on('message', onMessage)
-
-    return wechaty
-  }
 
 }
