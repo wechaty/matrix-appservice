@@ -1,3 +1,12 @@
+/**
+ * Author: Huan LI <zixia@zixia.net>
+ * https://github.com/huan
+ * June 2019
+ *
+ * generated for project matrix-appservice-wechaty
+ * https://github.com/huan/matrix-appservice-wechaty
+ */
+
 /* eslint camelcase: off */
 
 declare module 'matrix-appservice-bridge' {
