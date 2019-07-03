@@ -8,12 +8,6 @@ import {
 
 import { log } from './config'
 
-import {
-  onLogin   as wechatyOnLogin,
-  onLogout  as wechatyOnLogout,
-  onMessage as wechatyOnMessage,
-  onScan    as wechatyOnScan,
-}                                   from './wechaty-handlers'
 import { AppserviceManager }        from './appservice-manager'
 
 export class WechatyManager {
@@ -59,33 +53,25 @@ export class WechatyManager {
       name: matrixUserId,
     })
 
-    const onScan = (qrcode: string, status: ScanStatus) => wechatyOnScan.call(
-      wechaty,
+    const onScan = (qrcode: string, status: ScanStatus) => this.onScan(
       qrcode,
       status,
       matrixUserId,
-      this.appserviceManager,
     )
 
-    const onLogin = (user: Contact) => wechatyOnLogin.call(
-      wechaty,
+    const onLogin = (user: Contact) => this.onLogin(
       user,
       matrixUserId,
-      this.appserviceManager,
     )
 
-    const onLogout = (user: Contact) => wechatyOnLogout.call(
-      wechaty,
+    const onLogout = (user: Contact) => this.onLogout(
       user,
       matrixUserId,
-      this.appserviceManager,
     )
 
-    const onMessage = (msg: Message) => wechatyOnMessage.call(
-      wechaty,
+    const onMessage = (msg: Message) => this.onMessage(
       msg,
       matrixUserId,
-      this.appserviceManager,
     )
 
     wechaty.on('login',   onLogin)
@@ -143,8 +129,81 @@ export class WechatyManager {
     this.wechatyMatrixDict.delete(wechaty)
   }
 
-  /*******************
-   * Private methods *
-   *******************/
+  /****************************************************************************
+   * Private Methods                                                         *
+   ****************************************************************************/
 
+  async onLogin (
+    user         : Contact,
+    matrixUserId : string,
+  ): Promise<void> {
+    log.verbose('wechaty-handlers', 'on-login onLogin(%s, %s)', user, matrixUserId)
+
+    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+
+    await this.appserviceManager.botIntent.sendText(
+      matrixRoomId,
+      `${user} logout`,
+    )
+
+  }
+
+  async onLogout (
+    user         : Contact,
+    matrixUserId : string,
+  ) {
+    log.verbose('wechaty-handlers', 'on-logout onLogout(%s, %s)', user, matrixUserId)
+
+    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+
+    await this.appserviceManager.botIntent.sendText(
+      matrixRoomId,
+      `${user} logout`,
+    )
+
+  }
+
+  async onMessage (
+    msg               : Message,
+    matrixUserId      : string,
+  ) {
+    log.verbose('wechaty-handlers', 'on-message onMessage(%s, %s)', msg, matrixUserId)
+
+    if (msg.self()) {
+      return
+    }
+
+    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+
+    await this.appserviceManager.botIntent.sendText(
+      matrixRoomId,
+      `recv message: ${msg}`,
+    )
+  }
+
+  async onScan (
+    qrcode            : string,
+    status            : ScanStatus,
+    matrixUserId      : string,
+  ): Promise<void> {
+    require('qrcode-terminal').generate(qrcode)  // show qrcode on console
+
+    const qrcodeImageUrl = [
+      'https://api.qrserver.com/v1/create-qr-code/?data=',
+      encodeURIComponent(qrcode),
+    ].join('')
+
+    const statusName = ScanStatus[status]
+
+    log.verbose('wechaty-handlers', 'on-scan onScan(%s,%s(%s), %s)',
+      qrcodeImageUrl, statusName, status, matrixUserId)
+
+    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+
+    await this.appserviceManager.botIntent.sendText(
+      matrixRoomId,
+      `Scan to login: ${qrcodeImageUrl}`,
+    )
+
+  }
 }
