@@ -47,8 +47,6 @@ export async function run (
 
   // wait all wechaty to be started
   await Promise.all(wechatyStartFutureList)
-
-  // await bootstrap()
 }
 
 function createBridge (

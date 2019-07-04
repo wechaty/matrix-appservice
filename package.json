@@ -15,6 +15,7 @@
     "dev": "LOG_LEVEL=silly ts-node bin/matrix-appservice-wechaty.ts",
     "dev:watch": "LOG_LEVEL=silly npx nodemon --watch '{bin,src,tests}/**/*.ts' --exec './node_modules/.bin/ts-node' bin/matrix-appservice-wechaty.ts",
     "pack": "npm pack",
+    "sloc": "sloc bin scripts src tests --details --format cli-table --keys total,source,comment && sloc bin scripts src tests",
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
     "test:unit": "blue-tape -r ts-node/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
     "test": "npm run lint && npm run test:unit"
@@ -55,6 +56,7 @@
     "pkg-jq": "^0.2.2",
     "qrcode-terminal": "^0.12.0",
     "shx": "^0.3.2",
+    "sloc": "^0.2.1",
     "tstest": "^0.4.1"
   },
   "bin": {

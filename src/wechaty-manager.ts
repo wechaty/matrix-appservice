@@ -26,6 +26,10 @@ export class WechatyManager {
     this.wechatyMatrixDict = new WeakMap<Wechaty, string>()
   }
 
+  public size (): number {
+    return this.matrixWechatyDict.size
+  }
+
   public create (
     matrixUserId    : string,
     wechatyOptions? : WechatyOptions,
