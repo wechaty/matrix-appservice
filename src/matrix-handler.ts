@@ -6,28 +6,29 @@ import {
   RemoteRoom,
 }                   from 'matrix-appservice-bridge'
 
-import { log } from './config'
+import {
+  AGE_LIMIT,
+  log,
+}             from './config'
 
-import { WechatyManager } from './wechaty-manager'
-import { AppserviceManager } from './appservice-manager'
-
-const AGE_LIMIT = 60 * 1000 // 60 seconds
+import { WechatyManager }     from './wechaty-manager'
+import { AppserviceManager }  from './appservice-manager'
 
 export class MatrixHandler {
 
-  public appserviceManager!: AppserviceManager
-  public wechatyManager!: WechatyManager
+  public appserviceManager! : AppserviceManager
+  public wechatyManager!    : WechatyManager
 
   constructor () {
     log.verbose('MatrixHandler', 'constructor()')
   }
 
   public setManager (
-    appserviceManager: AppserviceManager,
-    wechatyManager: WechatyManager,
+    appserviceManager : AppserviceManager,
+    wechatyManager    : WechatyManager,
   ): void {
     this.appserviceManager = appserviceManager
-    this.wechatyManager = wechatyManager
+    this.wechatyManager    = wechatyManager
   }
 
   public async onEvent (
@@ -41,9 +42,12 @@ export class MatrixHandler {
 
     const event = request.getData()
 
-    if (event.unsigned.age > AGE_LIMIT) {
+    /**
+     * Matrix age is millisecond, convert second by multiple 1000
+     */
+    if (event.unsigned.age > AGE_LIMIT * 1000) {
       log.verbose('MatrixHandler', 'onEvent() skipping event due to age %s > %s',
-        event.unsigned.age, AGE_LIMIT)
+        event.unsigned.age, AGE_LIMIT * 1000)
       return
     }
 
@@ -83,9 +87,9 @@ export class MatrixHandler {
     return {}
   }
 
-  /*******************
-   * Private Methods *
-   *******************/
+  /****************************************************************************
+   * Private Methods                                                         *
+   ****************************************************************************/
 
   private async processEvent (
     event : Event,

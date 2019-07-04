@@ -4,20 +4,12 @@ import {
   BridgeContext,
 }                   from 'matrix-appservice-bridge'
 
-import {
-  MatrixHandler,
-}                                     from '../matrix-handler'
-
-import {
-  log,
-}               from '../config'
-
 import { AppserviceManager }  from '../appservice-manager'
+import { log }                from '../config'
+import { MatrixHandler }      from '../matrix-handler'
 import { WechatyManager }     from '../wechaty-manager'
 
-import {
-  BridgeConfig,
-}                         from './bridge-config-schema'
+import { BridgeConfig }     from './bridge-config-schema'
 
 export async function run (
   port         : number,

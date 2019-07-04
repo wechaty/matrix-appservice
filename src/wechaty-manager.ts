@@ -6,7 +6,10 @@ import {
   Message,
 }                   from 'wechaty'
 
-import { log } from './config'
+import {
+  AGE_LIMIT,
+  log,
+}             from './config'
 
 import { AppserviceManager }        from './appservice-manager'
 
@@ -21,20 +24,6 @@ export class WechatyManager {
     log.verbose('WechatyManager', 'constructor()')
     this.matrixWechatyDict = new Map<string, Wechaty>()
     this.wechatyMatrixDict = new WeakMap<Wechaty, string>()
-  }
-
-  public wechaty (
-    matrixUserId: string,
-  ): null | Wechaty {
-    log.verbose('WechatyManager', 'wechaty(%s)', matrixUserId)
-    log.silly('WechatyManager', 'wechaty() currently wechatyStore has %s wechaty instances.', this.matrixWechatyDict.size)
-
-    let wechaty = this.matrixWechatyDict.get(matrixUserId)
-    if (!wechaty) {
-      return null
-    }
-
-    return wechaty
   }
 
   public create (
@@ -95,8 +84,22 @@ export class WechatyManager {
     return matrixUserId
   }
 
-  public async destroy(matrixUserId: string): Promise<void>
-  public async destroy(wechaty: Wechaty): Promise<void>
+  public wechaty (
+    matrixUserId: string,
+  ): null | Wechaty {
+    log.verbose('WechatyManager', 'wechaty(%s)', matrixUserId)
+    log.silly('WechatyManager', 'wechaty() currently wechatyStore has %s wechaty instances.', this.matrixWechatyDict.size)
+
+    let wechaty = this.matrixWechatyDict.get(matrixUserId)
+    if (!wechaty) {
+      return null
+    }
+
+    return wechaty
+  }
+
+  public async destroy(matrixUserId:  string):  Promise<void>
+  public async destroy(wechaty:       Wechaty): Promise<void>
 
   public async destroy (
     matrixUserIdOrWechaty: string | Wechaty,
@@ -114,19 +117,26 @@ export class WechatyManager {
       wechaty = this.wechaty(matrixUserId)
     }
 
-    if (!wechaty) {
+    if (wechaty) {
+      try {
+        await wechaty.stop()
+      } catch (e) {
+        log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
+      }
+
+      /**
+       * 1. Delete wechaty if exist
+       */
+      this.wechatyMatrixDict.delete(wechaty)
+
+    } else {
       log.error('WechatyManager', 'destroy() can not get wechaty for id: ' + matrixUserId)
-      return
     }
 
-    try {
-      await wechaty.stop()
-    } catch (e) {
-      log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
-    }
-
+    /**
+     * 2. Delete matrixUserId
+     */
     this.matrixWechatyDict.delete(matrixUserId)
-    this.wechatyMatrixDict.delete(wechaty)
   }
 
   /****************************************************************************
@@ -137,7 +147,7 @@ export class WechatyManager {
     user         : Contact,
     matrixUserId : string,
   ): Promise<void> {
-    log.verbose('wechaty-handlers', 'on-login onLogin(%s, %s)', user, matrixUserId)
+    log.verbose('WechatyManager', 'onLogin(%s, %s)', user, matrixUserId)
 
     const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
 
@@ -152,7 +162,7 @@ export class WechatyManager {
     user         : Contact,
     matrixUserId : string,
   ) {
-    log.verbose('wechaty-handlers', 'on-logout onLogout(%s, %s)', user, matrixUserId)
+    log.verbose('WechatyManager', 'onLogout(%s, %s)', user, matrixUserId)
 
     const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
 
@@ -167,9 +177,16 @@ export class WechatyManager {
     msg               : Message,
     matrixUserId      : string,
   ) {
-    log.verbose('wechaty-handlers', 'on-message onMessage(%s, %s)', msg, matrixUserId)
+    log.verbose('WechatyManager', 'onMessage(%s, %s)', msg, matrixUserId)
+
+    if (msg.age() > AGE_LIMIT) {
+      log.silly('WechatyManager', 'onMessage(%s, %s)', msg, matrixUserId)
+      return
+    }
 
     if (msg.self()) {
+      log.silly('WechatyManager', 'onMessage(%s, %s)', msg, matrixUserId)
+
       return
     }
 
@@ -195,7 +212,7 @@ export class WechatyManager {
 
     const statusName = ScanStatus[status]
 
-    log.verbose('wechaty-handlers', 'on-scan onScan(%s,%s(%s), %s)',
+    log.verbose('WechatyManager', 'onScan(%s,%s(%s), %s)',
       qrcodeImageUrl, statusName, status, matrixUserId)
 
     const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
@@ -206,4 +223,5 @@ export class WechatyManager {
     )
 
   }
+
 }
