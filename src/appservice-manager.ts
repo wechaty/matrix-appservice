@@ -54,6 +54,7 @@ export class AppserviceManager {
 
     const filter = {
       wechaty: {
+        $exists: true,
         $ne: null,
       },
     }
@@ -75,19 +76,25 @@ export class AppserviceManager {
       // SET
       log.verbose('AppserviceManager', 'wechatyOptions(%s, "%s") SET',
         matrixUser.userId, JSON.stringify(wechatyOptions))
-      matrixUser.set('wechaty.options', wechatyOptions)
+      const data = matrixUser.get('wechaty')
+      matrixUser.set('wechaty', {
+        ...data,
+        options: wechatyOptions,
+      })
       return this.userStore.setMatrixUser(matrixUser)
 
     } else {
       // GET
       log.verbose('AppserviceManager', 'wechatyOptions(%s) GET', matrixUser.userId)
 
-      wechatyOptions = matrixUser.get('wechaty.options') as undefined | object
+      const data = matrixUser.get('wechaty') as undefined | any
 
       log.silly('AppserviceManager', 'wechatyOptions(%s) GOT "%s"',
-        matrixUser.userId, JSON.stringify(wechatyOptions))
+        matrixUser.userId, JSON.stringify(data && data.options))
 
-      return { ...wechatyOptions }
+      return {
+        ...(data && data.options),
+      }
     }
   }
 

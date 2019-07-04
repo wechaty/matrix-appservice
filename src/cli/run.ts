@@ -52,8 +52,8 @@ export async function run (
 }
 
 function createBridge (
-  bridgeConfig   : BridgeConfig,
-  matrixHandler: MatrixHandler,
+  bridgeConfig  : BridgeConfig,
+  matrixHandler : MatrixHandler,
 ): Bridge {
   log.verbose('AppServiceManager', 'createBridge("%s")', JSON.stringify(bridgeConfig))
 

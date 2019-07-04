@@ -304,7 +304,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class RoomBridgeStore {
 
-    constructor (db: Datastore, ops: RoomBridgeStoreOptions)
+    constructor (db: Datastore, ops?: RoomBridgeStoreOptions)
     batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : RemoteRoomMap
     getEntriesByLinkData          (data: object)                : Array<Entry>
     getEntriesByMatrixId          (matrixId: string)            : Array<Entry>
@@ -342,7 +342,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class UserBridgeStore {
 
-    constructor (db: Datastore, opts: object)
+    constructor (db: Datastore, opts?: object)
 
     getByMatrixData           (dataQuery: object)                              : Promise<Array<MatrixUser>>
     getByMatrixLocalpart      (localpart: string)                              : Promise<null | MatrixUser>
