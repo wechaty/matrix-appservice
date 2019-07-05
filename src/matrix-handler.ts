@@ -381,7 +381,7 @@ export class MatrixHandler {
   private async isKnownRoom (
     superEvent: SuperEvent,
   ): Promise<boolean> {
-    log.verbose('appservice-manager', 'on-event isKnownRoom()')
+    log.verbose('MatrixHandler', 'isKnownRoom()')
 
     const roomStore = await this.appserviceManager.bridge.getRoomStore()
     if (!roomStore) {
@@ -409,7 +409,7 @@ export class MatrixHandler {
   private async replyUnknownRoom (
     superEvent: SuperEvent,
   ): Promise<void> {
-    log.verbose('appservice-manager', 'on-event replyUnnownRoom()')
+    log.verbose('MatrixHandler', 'replyUnnownRoom()')
 
     // const client = bridge.getClientFactory().getClientAs()
     // console.info('peeking')

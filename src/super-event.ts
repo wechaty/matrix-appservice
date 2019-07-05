@@ -1,17 +1,21 @@
 import {
-  Request,
+  AppServiceBot,
   BridgeContext,
   Event,
   Intent,
-  AppServiceBot,
-  MatrixUser,
   MatrixRoom,
-  Bridge,
+  MatrixUser,
+  RemoteUser,
+  Request,
 }                   from 'matrix-appservice-bridge'
 import { EventType } from 'matrix-js-sdk'
 
-import { log, WECHATY_LOCALPART } from './config'
+import {
+  log,
+  WECHATY_LOCALPART,
+}                          from './config'
 
+import { AppserviceManager }  from './appservice-manager'
 import { WechatyManager }     from './wechaty-manager'
 
 export class SuperEvent {
@@ -21,7 +25,7 @@ export class SuperEvent {
   constructor (
     public request           : Request,
     public context           : BridgeContext,
-    public bridge            : Bridge,
+    public appserviceManager : AppserviceManager,
     public wechatyManager    : WechatyManager,
   ) {
     log.verbose('SuperEvent', 'constructor(request[event_id]="%s", context[sender]="%s", wechatyManager.size=%s)',
@@ -38,11 +42,13 @@ export class SuperEvent {
 
   public appserviceBot (): AppServiceBot {
     log.verbose('SuperEvent', 'appserviceBot()')
-    return this.bridge.getBot()
+    return this.appserviceManager.bridge
+      .getBot()
   }
 
   public intent (matrixUserId?: string): Intent {
-    return this.bridge.getIntent(matrixUserId)
+    return this.appserviceManager.bridge
+      .getIntent(matrixUserId)
   }
 
   public sender (): MatrixUser {
@@ -80,7 +86,7 @@ export class SuperEvent {
     if (!target) {
       return false
     }
-    return this.bridge.getBot()
+    return this.appserviceManager.bridge.getBot()
       .isRemoteUser(target.userId)
   }
 
@@ -91,7 +97,7 @@ export class SuperEvent {
   public isRemoteSender (): boolean {
     const sender = this.sender()
 
-    return this.bridge.getBot()
+    return this.appserviceManager.bridge.getBot()
       .isRemoteUser(sender.userId)
   }
 
@@ -118,23 +124,121 @@ export class SuperEvent {
       throw new Error('no event.state_key')
     }
 
-    const intent = this.bridge.getIntent(inviteeMatrixUserId)
+    const intent = this.appserviceManager.bridge.getIntent(inviteeMatrixUserId)
 
     await intent.join(matrixRoomId)
   }
 
-  public isDirectRoom (): boolean {
+  public directMessageUserPair (): DirectMessageUserPair {
     const matrixRoom = this.room()
-    const matrixRoomId = matrixRoom.roomId
-    log.verbose('AppserviceManager', 'isDriectRoom() for room id: %s', matrixRoomId)
+    log.verbose('SuperEvent', 'directMesageTo(): room id: "%s"', matrixRoom.roomId)
 
-    // const matrixRoom = this.bridge.getRoomStore()!.getMatrixRoom(matrixRoomId)
+    const data = matrixRoom.get('wechaty') as MatrixRoomWechatyData
+    if (!data) {
+      throw new Error('no data')
+    }
+
+    const directMessage = data.directMessage
+    if (!directMessage) {
+      throw new Error('direct message data is undefined(unknown) or null(not a direct message)')
+    }
+
+    // FIXME: ??? await without async ?
+    const matrixUser = await this.appserviceManager.userStore.getMatrixUser(directMessage.matrixUserId)
+    if (!matrixUser) {
+      throw new Error('no matrix user for id ' + directMessage.matrixUserId)
+    }
+
+    const remoteUser = await this.appserviceManager.userStore.getRemoteUser(directMessage.remoteUserId)
+    if (!remoteUser) {
+      throw new Error('no remote user for id ' + directMessage.remoteUserId)
+    }
+
+    return {
+      matrix: matrixUser,
+      remote: remoteUser,
+    }
+  }
+
+  public async directMessage (): Promise<boolean> {
+    const matrixRoom = this.room()
+    log.verbose('SuperEvent', 'directMesageTo(): room id: "%s"', matrixRoom.roomId)
+
+    let isDM: null | boolean
+
+    isDM = this.directMessageFromData(matrixRoom)
+    if (isDM !== null) {
+      return isDM
+    }
+
+    isDM = this.directMessageFromDMInviter(matrixRoom)
+    if (isDM !== null) {
+      return isDM
+    }
+
+    isDM = await this.directMessageUserFromMember(matrixRoom)
+    if (isDM !== null) {
+      return isDM
+    }
+
+    matrixRoom.set('isDirectRoom', isDM)
+    await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
+
+    console.info('isDirectRoom', isDM)
+
+    return isDM
+
+  }
+
+  /****************************************************************************
+   * Private Methods                                                         *
+   ****************************************************************************/
+
+  private directMessageFromData (
+    matrixRoom: MatrixRoom,
+  ): null | string {
+    log.verbose('AppserviceManager', 'directMessageFromData() for room id: %s', matrixRoom.roomId)
+
+    let data = matrixRoom.get('wechaty') as MatrixRoomWechatyData
+
+    if (!data) {
+      return null
+    }
+
+    switch (data.directMessageUser) {
+      case 'undefined':
+        break
+
+      case null:
+        break
+
+      default:  // string of matrix user id
+        log.silly('SuperEvent', 'isDirectRoomFromData(): room id: %s (cache hit)',
+          matrixRoom.roomId, data.isDirect)
+        return data.isDirect
+        break
+    }
+
+    if ( === 'undefined') {
+    } else if (data)
+
+    }
+
+    return null
+  }
+
+  private directMessageFromDMInviter (
+    matrixRoom: MatrixRoom,
+  ): null | boolean {
+    log.verbose('AppserviceManager', 'isDriectRoomByDMInviter() for room id: %s', matrixRoom.roomId)
+
+    // const matrixRoom = this.appserviceManager.bridge.getRoomStore()!.getMatrixRoom(matrixRoomId)
     // matrixRoom!.get('is_direct')
 
-    const client = this.bridge.getClientFactory().getClientAs()
-    const matrixClientRoom = client.getRoom(matrixRoomId)
+    const client = this.appserviceManager.bridge.getClientFactory().getClientAs()
+    const matrixClientRoom = client.getRoom(matrixRoom.roomId)
     if (!matrixClientRoom) {
-      return false
+      return null
     }
 
     const dmInviter = matrixClientRoom.getDMInviter()
@@ -142,40 +246,31 @@ export class SuperEvent {
     return !!dmInviter
   }
 
-  async isDirectRoom2 (): Promise<boolean> {
-    const matrixRoom = this.room()
-    const matrixRoomId = matrixRoom.roomId
-    log.verbose('appservice-manager', 'on-non-bridge-user-event isDriectRoom(%s)', matrixRoomId)
+  private async directMessageUserFromMember (
+    matrixRoom: MatrixRoom,
+  ): Promise<null | boolean> {
+    log.verbose('SuperEvent', 'isDirectRoomByMember() room id: "%s"', matrixRoom.roomId)
 
-    const roomStore = this.bridge.getRoomStore()
-    if (!roomStore) {
-      throw new Error('no room store')
-    }
-
-    let isDirect: boolean = matrixRoom.get('isDirect') as boolean
-    if (typeof isDirect === 'boolean') {
-      log.silly('appservice-manager', 'on-non-bridge-user-event isDriectRoom(%s): %s (cache hit)',
-        matrixRoomId, isDirect)
-      return isDirect
-    }
-
-    const memberMap = await this.bridge.getBot().getJoinedMembers(matrixRoomId)
+    const memberMap = await this.appserviceManager.bridge.getBot().getJoinedMembers(matrixRoom.roomId)
     const memberNum = Object.keys(memberMap).length
 
     if (memberNum === 2) {
-      isDirect = true
+      return true
     } else {
-      isDirect = false
+      return false
     }
-    log.silly('appservice-manager', 'on-non-bridge-user-event isDriectRoom(%s): %s (cache miss)',
-      matrixRoomId, isDirect)
-
-    matrixRoom.set('isDirect', isDirect)
-    await roomStore.setMatrixRoom(matrixRoom)
-
-    console.info('isDirect', isDirect)
-
-    return isDirect
   }
 
+}
+
+export interface MatrixRoomWechatyData {
+  directMessage?: false | {
+    matrixUserId : string
+    remoteUserId : string
+  }
+}
+
+export interface DirectMessageUserPair {
+  matrix : MatrixUser,
+  remote : RemoteUser,
 }
