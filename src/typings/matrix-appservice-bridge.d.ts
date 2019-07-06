@@ -30,12 +30,16 @@ declare module 'matrix-appservice-bridge' {
   }
   /* ********************* */
 
+  export interface AppServiceRegistration {
+    sender_localpart: string
+  }
+
   export interface BridgeOptions {
-    controller    : Controller
-    domain        : string
-    homeserverUrl : string
-    registration  : string
-    suppressEcho? : boolean     // True to stop receiving onEvent callbacks for events which were sent by a bridge user. Default: true.
+    controller       : Controller
+    domain           : string
+    homeserverUrl    : string
+    registration     : AppServiceRegistration
+    suppressEcho?    : boolean     // True to stop receiving onEvent callbacks for events which were sent by a bridge user. Default: true.
   }
 
   export interface BridgeConfig {
@@ -159,7 +163,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class Bridge {
 
-    constructor (options: BridgeOptions)
+    constructor (public opts: BridgeOptions)
     run                    (port: number, config: any)                                                       : Promise<void>
     getIntent              (id: string)                                                                      : Intent
     getBot                ()                                                                                 : AppServiceBot
@@ -250,7 +254,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class MatrixRoom {
 
-    public roomId: string
+    protected roomId: string
 
     constructor (roomId: string)
     deserialize(data: object): void
@@ -263,7 +267,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class MatrixUser {
 
-    public userId    : string
+    private userId    : string
     public localpart : string
     public host      : string
 
@@ -290,7 +294,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class RemoteUser {
 
-    constructor (identifier: string, dataopt?: object)
+    constructor (private id: string, protected data?: object)
     get(key: string): unknown
     getId(): string
     serialize(): object

@@ -100,8 +100,8 @@ Simply run the `logout` management command.
 
 ### v0.2 July 2019
 
-1. Talk to the bot user `@wechaty@your.domain` and you can get QR Code from Wechaty
-1. Scan QR Code will login Wechat
+1. Enable your matrix account to start using `matrix-appservice-wechaty` by talk to the bot `@wechaty:your.domain`
+1. After you talk to `@wechaty`, it will send you Wechat Login QR Code. Scan it to login Wechat
 1. All Wechat messages will be bridged to the Matrix system, in the room that you talk to the bot at the very first time.
 
 ### v0.0.1 May 2019

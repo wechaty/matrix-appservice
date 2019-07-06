@@ -5,6 +5,7 @@ import {
   RoomBridgeStore,
   UserBridgeStore,
   MatrixRoom,
+  RemoteUser,
 }                   from 'matrix-appservice-bridge'
 import {
   WechatyOptions,
@@ -14,7 +15,6 @@ import {
   log,
   MatrixUserWechatyData,
   WECHATY_DATA_KEY,
-  WECHATY_LOCALPART,
 }                       from './config'
 
 export class AppserviceManager {
@@ -52,6 +52,19 @@ export class AppserviceManager {
     this.userStore = userBridgeStore
   }
 
+  public appserviceUserId (): string {
+    const bridgeOpts = this.bridge.opts
+    const localpart  = bridgeOpts.registration.sender_localpart
+    const domain     = bridgeOpts.domain
+
+    return [
+      '@',
+      localpart,
+      ':',
+      domain,
+    ].join('')
+  }
+
   public async matrixUserList (): Promise<MatrixUser[]> {
     log.verbose('AppserviceManager', 'matrixUserList()')
 
@@ -78,7 +91,7 @@ export class AppserviceManager {
     if (wechatyOptions) {
       // SET
       log.verbose('AppserviceManager', 'wechatyOptions(%s, "%s") SET',
-        matrixUser.userId, JSON.stringify(wechatyOptions))
+        matrixUser.getId(), JSON.stringify(wechatyOptions))
       const data = matrixUser.get(WECHATY_DATA_KEY)
       matrixUser.set(WECHATY_DATA_KEY, {
         ...data,
@@ -88,12 +101,12 @@ export class AppserviceManager {
 
     } else {
       // GET
-      log.verbose('AppserviceManager', 'wechatyOptions(%s) GET', matrixUser.userId)
+      log.verbose('AppserviceManager', 'wechatyOptions(%s) GET', matrixUser.getId())
 
       const data = matrixUser.get(WECHATY_DATA_KEY) as undefined | any
 
       log.silly('AppserviceManager', 'wechatyOptions(%s) GOT "%s"',
-        matrixUser.userId, JSON.stringify(data && data.options))
+        matrixUser.getId(), JSON.stringify(data && data.options))
 
       return {
         ...(data && data.options),
@@ -102,30 +115,30 @@ export class AppserviceManager {
   }
 
   public isGhost (matrixUserId: string): boolean {
-    return this.bridge.getBot().isRemoteUser(matrixUserId)
+    return this.bridge.getBot()
+      .isRemoteUser(matrixUserId)
   }
 
   public isBot (matrixUserId: string): boolean {
-    const matrixUser = new MatrixUser(matrixUserId)
-    const localpart = matrixUser.localpart
-    return localpart === WECHATY_LOCALPART
+    const appserviceUserId = this.appserviceUserId()
+    return appserviceUserId === matrixUserId
   }
 
   public isEnabled (matrixUser: MatrixUser): boolean {
-    log.verbose('AppserviceManager', 'isEnable(%s)', matrixUser.userId)
+    log.verbose('AppserviceManager', 'isEnable(%s)', matrixUser.getId())
 
     const data = matrixUser.get(WECHATY_DATA_KEY)
 
     const ret = !!data
-    log.silly('AppserviceManager', 'isEnable(%s) -> %s', matrixUser.userId, ret)
+    log.silly('AppserviceManager', 'isEnable(%s) -> %s', matrixUser.getId(), ret)
     return ret
   }
 
   public async enable (matrixUser: MatrixUser): Promise<void> {
-    log.verbose('AppserviceManager', 'enable(%s)', matrixUser.userId)
+    log.verbose('AppserviceManager', 'enable(%s)', matrixUser.getId())
 
     if (this.isEnabled(matrixUser)) {
-      throw new Error(`matrixUserId ${matrixUser.userId} has already enabled`)
+      throw new Error(`matrixUserId ${matrixUser.getId()} has already enabled`)
     }
 
     const data = {} as MatrixUserWechatyData
@@ -135,46 +148,48 @@ export class AppserviceManager {
   }
 
   public async disable (matrixUser: MatrixUser): Promise<void> {
-    log.verbose('AppserviceManager', 'disable(%s)', matrixUser.userId)
+    log.verbose('AppserviceManager', 'disable(%s)', matrixUser.getId())
 
     matrixUser.set(WECHATY_DATA_KEY, null)
     await this.userStore.setMatrixUser(matrixUser)
   }
 
-  public async directMessageRoom (matrixUser: MatrixUser)                         : Promise<null | MatrixRoom>
-  public async directMessageRoom (matrixUser: MatrixUser, matrixRoom: MatrixRoom) : Promise<void>
+  public async directMessageRoom (remoteUser: RemoteUser)                         : Promise<null | MatrixRoom>
+  public async directMessageRoom (remoteUser: RemoteUser, matrixRoom: MatrixRoom) : Promise<void>
 
   public async directMessageRoom (
-    matrixUser  : MatrixUser,
+    remoteUser  : RemoteUser,
     matrixRoom? : MatrixRoom,
   ): Promise<void | null | MatrixRoom> {
     log.verbose('AppserviceManager', 'directMessageRoom(%s, %s)',
-      matrixUser.userId,
-      (matrixRoom && matrixRoom.roomId) || '',
+      remoteUser.getId(),
+      (matrixRoom && matrixRoom.getId()) || '',
     )
 
-    let data = { ...matrixUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
-
+    let data = { ...remoteUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
+    console.info('data', data)
     const directMessageRoomId = data.directMessageRoomId
 
     // SET
     if (matrixRoom) {
+      log.silly('AppserviceManager', 'directMessageRoom() SET')
+
       if (directMessageRoomId) {
-        throw new Error('direct message room id had already been set for ' + matrixUser.userId)
+        throw new Error('direct message room id had already been set for ' + remoteUser.getId())
       }
 
-      data = {
+      remoteUser.set(WECHATY_DATA_KEY, {
         ...data,
-        directMessageRoomId: matrixRoom.roomId,
-      }
+        directMessageRoomId: matrixRoom.getId(),
+      })
 
-      matrixUser.set(WECHATY_DATA_KEY, data)
-      await this.userStore.setMatrixUser(matrixUser)
-
+      await this.userStore.setRemoteUser(remoteUser)
       return
     }
 
     // GET
+    log.silly('AppserviceManager', 'directMessageRoom() GET')
+
     if (!directMessageRoomId) {
       return null
     }
@@ -185,7 +200,7 @@ export class AppserviceManager {
     }
 
     log.silly('AppserviceManager', 'directMessageRoom(%s) -> %s',
-      matrixUser.userId,
+      remoteUser.getId(),
       directMessageRoomId,
     )
 
