@@ -153,11 +153,22 @@ export class WechatyManager {
   ): Promise<void> {
     log.verbose('WechatyManager', 'onLogin(%s, %s)', user, matrixUserId)
 
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+    const matrixUser = await this.appserviceManager.userStore
+      .getMatrixUser(matrixUserId)
+    if (!matrixUser) {
+      throw new Error('matrix user not found for id ' + matrixUserId)
+    }
+
+    const matrixRoom = await this.appserviceManager.directMessageRoom(matrixUser)
+
+    if (!matrixRoom) {
+      log.error('WechatyManager', 'onLogin() matrixRoom not found')
+      return
+    }
 
     await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
-      `${user} logout`,
+      matrixRoom.roomId,
+      `${user} login`,
     )
 
   }
@@ -168,10 +179,21 @@ export class WechatyManager {
   ) {
     log.verbose('WechatyManager', 'onLogout(%s, %s)', user, matrixUserId)
 
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+    const matrixUser = await this.appserviceManager.userStore
+      .getMatrixUser(matrixUserId)
+    if (!matrixUser) {
+      throw new Error('matrix user not found for id ' + matrixUserId)
+    }
+
+    const matrixRoom = await this.appserviceManager.directMessageRoom(matrixUser)
+
+    if (!matrixRoom) {
+      log.error('WechatyManager', 'onLogout() matrixRoomId not found')
+      return
+    }
 
     await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
+      matrixRoom.roomId,
       `${user} logout`,
     )
 
@@ -194,10 +216,21 @@ export class WechatyManager {
       return
     }
 
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+    const matrixUser = await this.appserviceManager.userStore
+      .getMatrixUser(matrixUserId)
+    if (!matrixUser) {
+      throw new Error('matrix user not found for id ' + matrixUserId)
+    }
+
+    const matrixRoom = await this.appserviceManager.directMessageRoom(matrixUser)
+
+    if (!matrixRoom) {
+      log.error('WechatyManager', 'onMessage() matrixRoomId not found')
+      return
+    }
 
     await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
+      matrixRoom.roomId,
       `recv message: ${msg}`,
     )
   }
@@ -219,10 +252,21 @@ export class WechatyManager {
     log.verbose('WechatyManager', 'onScan(%s,%s(%s), %s)',
       qrcodeImageUrl, statusName, status, matrixUserId)
 
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+    const matrixUser = await this.appserviceManager.userStore
+      .getMatrixUser(matrixUserId)
+    if (!matrixUser) {
+      throw new Error('matrix user not found for id ' + matrixUserId)
+    }
+
+    const matrixRoom = await this.appserviceManager.directMessageRoom(matrixUser)
+
+    if (!matrixRoom) {
+      log.error('WechatyManager', 'onScan() matrixRoomId not found')
+      return
+    }
 
     await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
+      matrixRoom.roomId,
       `Scan to login: ${qrcodeImageUrl}`,
     )
 

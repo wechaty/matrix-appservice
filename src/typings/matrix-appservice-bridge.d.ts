@@ -54,16 +54,16 @@ declare module 'matrix-appservice-bridge' {
 
   /* *********************************************** */
   // FIXME: find the official name for this structure
-  interface RoomMemberMap {
+  interface RoomMemberDict {
     [id: string]: {
       display_name: string,
       avatar_url: string,
     }
   }
-  interface RemoteRoomMap {
+  interface RemoteRoomDict {
     [id: string]: RemoteRoom
   }
-  interface EntryMap {
+  interface EntryDict {
     [id: string]: Array<Entry>
   }
   // FIXME: END
@@ -94,9 +94,9 @@ declare module 'matrix-appservice-bridge' {
       registration: AppServiceRegistration,
       memberCache: MembershipCache,
     )
-    getJoinedMembers(roomId: string): Promise<RoomMemberMap>
-    getJoinedRooms(): Promise<Array<string>>
-    isRemoteUser(userId: string): boolean
+    getJoinedMembers(roomId: string) : Promise<RoomMemberDict>
+    getJoinedRooms  ()               : Promise<Array<string>>
+    isRemoteUser    (userId: string) : boolean
 
   }
 
@@ -305,17 +305,17 @@ declare module 'matrix-appservice-bridge' {
   export class RoomBridgeStore {
 
     constructor (db: Datastore, ops?: RoomBridgeStoreOptions)
-    batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : RemoteRoomMap
-    getEntriesByLinkData          (data: object)                : Array<Entry>
-    getEntriesByMatrixId          (matrixId: string)            : Array<Entry>
-    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<EntryMap>
-    getEntriesByMatrixRoomData    (data: object)                : Array<Entry>
-    getEntriesByRemoteId          (remoteId: string)            : Array<Entry>
-    getEntriesByRemoteRoomData    (data: object)                : Array<Entry>
-    getEntryById                  (id: string)                  : Promise<null | Entry>
-    getLinkedMatrixRooms          (remoteId: string)            : Array<MatrixRoom>
-    getLinkedRemoteRooms          (matrixId: string)            : Array<RemoteRoom>
-    getMatrixRoom                 (roomId: string)              : null | MatrixRoom
+    batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : Promise<RemoteRoomDict>
+    getEntriesByLinkData          (data: object)                : Promise<Array<Entry>>
+    getEntriesByMatrixId          (matrixId: string)            : Promise<Array<Entry>>
+    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<Promise<EntryDict>>
+    getEntriesByMatrixRoomData    (data: object)                : Promise<Array<Entry>>
+    getEntriesByRemoteId          (remoteId: string)            : Promise<Array<Entry>>
+    getEntriesByRemoteRoomData    (data: object)                : Promise<Array<Entry>>
+    getEntryById                  (id: string)                  : Promise<Promise<null | Entry>>
+    getLinkedMatrixRooms          (remoteId: string)            : Promise<Array<MatrixRoom>>
+    getLinkedRemoteRooms          (matrixId: string)            : Promise<Array<RemoteRoom>>
+    getMatrixRoom                 (roomId: string)              : Promise<null | MatrixRoom>
     removeEntriesByLinkData       (data: object)                : Promise<void>
     removeEntriesByMatrixRoomData(data: object)                 : Promise<void>
     removeEntriesByMatrixRoomId   (matrixId: string)            : Promise<void>

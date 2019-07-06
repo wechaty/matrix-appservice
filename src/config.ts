@@ -6,6 +6,7 @@
 /// <reference path="./typings/matrix-js-sdk.d.ts" />
 
 import path from 'path'
+import { WechatyOptions } from 'wechaty'
 
 /**
  * Export
@@ -18,6 +19,19 @@ export { VERSION }        from './version'
 export const AGE_LIMIT    = 60      // 60 seconds
 export const DEFAULT_PORT = 8788    // W:87 X:88
 
+export const WECHATY_DATA_KEY  = 'wechaty'
 export const WECHATY_LOCALPART = 'wechaty'
 export const REGISTRATION_FILE = 'wechaty-registration.yaml'
 export const SCHEMA_FILE       = path.join(__dirname, '../config/schema.yaml')
+
+export interface MatrixRoomWechatyData {
+  directMessage?: false | {
+    matrixUserId : string
+    remoteUserId : string
+  }
+}
+
+export interface MatrixUserWechatyData {
+  directMessageRoomId? : string,
+  options?             : WechatyOptions,
+}
