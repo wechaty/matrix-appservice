@@ -1,6 +1,7 @@
 import {
   RemoteUser,
   MatrixUser,
+  MatrixRoom,
 }                   from 'matrix-appservice-bridge'
 import {
   Wechaty,
@@ -206,19 +207,18 @@ export class WechatyManager {
   }
 
   private async onMessage (
-    msg               : Message,
-    matrixAdminId     : string,
-  ) {
-    log.verbose('WechatyManager', 'onMessage(%s, %s)', msg, matrixAdminId)
+    message       : Message,
+    matrixAdminId : string,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'onMessage(%s, %s)', message, matrixAdminId)
 
-    if (msg.age() > AGE_LIMIT) {
-      log.silly('WechatyManager', 'onMessage(%s, %s)', msg, matrixAdminId)
+    if (message.age() > AGE_LIMIT) {
+      log.silly('WechatyManager', 'onMessage(%s, %s)', message, matrixAdminId)
       return
     }
 
-    if (msg.self()) {
-      log.silly('WechatyManager', 'onMessage(%s, %s)', msg, matrixAdminId)
-
+    if (message.self()) {
+      log.silly('WechatyManager', 'onMessage(%s, %s)', message, matrixAdminId)
       return
     }
 
@@ -228,25 +228,39 @@ export class WechatyManager {
       throw new Error('matrix user not found for id ' + matrixAdminId)
     }
 
-    const from = msg.from()
+    const from = message.from()
     if (!from) {
       throw new Error('can not found from contact for wechat message')
     }
 
-    const remoteUser = await this.contactToRemoteUser(from, matrixAdmin)
-    const matrix
+    const remoteUser     = await this.contactToRemoteUser(from, matrixAdmin)
+    const matrixUserList = await this.appserviceManager.userStore.getMatrixUsersFromRemoteId(remoteUser.getId())
+    if (matrixUserList.length === 0) {
+      throw new Error('no matrix user linked to remote ' + remoteUser.getId())
+    }
+    const matrixUser = matrixUserList[0]
 
     let matrixRoom = await this.appserviceManager.directMessageRoom(remoteUser)
 
     if (!matrixRoom) {
-      log.silly('WechatyManager', 'onMessage() creating direct chat room from "%s"' + remoteUser.getId())
-      await this.appserviceManager.createDirectRoom()
-      return
+      log.silly('WechatyManager', 'onMessage() creating direct chat room for remote user "%s"', remoteUser.getId())
+
+      const matrixRoomId = await this.appserviceManager.createDirectRoom(
+        matrixUser.getId(),
+        matrixAdminId,
+        from.name(),
+      )
+      matrixRoom = new MatrixRoom(matrixRoomId)
+      await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
     }
 
-    await this.appserviceManager.botIntent.sendText(
+    const intent = this.appserviceManager.bridge
+      .getIntent(matrixUser.getId())
+    console.info('intent', intent)
+
+    await intent.sendText(
       matrixRoom.getId(),
-      `recv message: ${msg}`,
+      message.toString(),
     )
   }
 
@@ -280,14 +294,32 @@ export class WechatyManager {
       return
     }
 
+    let text: string
+
+    switch (status) {
+      case ScanStatus.Waiting:
+        text = `Scan to login: ${qrcodeImageUrl}`
+        break
+      case ScanStatus.Scanned:
+        text = 'Please confirm on your phone.'
+        break
+      case ScanStatus.Confirmed:
+        text = 'Confirmed. Please waitting for Wechaty logging in.'
+        break
+      default:
+        text = `Scan Status: ${ScanStatus[status]}`
+        break
+    }
+
     await this.appserviceManager.botIntent.sendText(
       matrixRoom.getId(),
-      `Scan to login: ${qrcodeImageUrl}`,
+      text,
     )
 
   }
 
-  private async remoteUserToContact (
+  // TODO: call it from somewhere
+  public async remoteUserToContact (
     remoteUser  : RemoteUser,
     matrixAdmin : MatrixUser,
   ): Promise<Contact> {
@@ -329,13 +361,13 @@ export class WechatyManager {
     }
 
     let matrixGhostUserList = await this.appserviceManager.userStore.getMatrixUsersFromRemoteId(remoteUserId)
-    if (matrixGhostUserList.length <= 0) {
+    if (matrixGhostUserList.length === 0) {
       const ghostUserId     = this.appserviceManager.generateGhostUserId()
       const matrixGhostUser = new MatrixUser(ghostUserId)
       await this.appserviceManager.userStore.linkUsers(matrixGhostUser, remoteUser)
-      log.silly('WechatyManager', 'contactToRemoteUser() remote "%s" had no linked ghost. linked to "%s".',
-        remoteUserId,
+      log.silly('WechatyManager', 'contactToRemoteUser() created new ghost "%s" linked to remote "%s"',
         ghostUserId,
+        remoteUserId,
       )
     }
 

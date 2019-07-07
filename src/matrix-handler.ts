@@ -79,18 +79,18 @@ export class MatrixHandler {
    * promise / return a {@link Bridge~ProvisionedUser} object to provision the user.
    * @example
    * new Bridge({
-    *   controller: {
-    *     onUserQuery: function(matrixUser) {
-    *       var remoteUser = new RemoteUser("some_remote_id");
-    *       return {
-    *         name: matrixUser.localpart + " (Bridged)",
-    *         url: "http://someurl.com/pic.jpg",
-    *         user: remoteUser
-    *       };
-    *     }
-    *   }
-    * });
-    */
+   *   controller: {
+   *     onUserQuery: function(matrixUser) {
+   *       var remoteUser = new RemoteUser("some_remote_id");
+   *       return {
+   *         name: matrixUser.localpart + " (Bridged)",
+   *         url: "http://someurl.com/pic.jpg",
+   *         user: remoteUser
+   *       };
+   *     }
+   *   }
+   * });
+   */
   public async onUserQuery (
     queriedUser: any,
   ): Promise<object> {
@@ -176,6 +176,8 @@ export class MatrixHandler {
 
       default:
         log.silly('MatrixHandler', 'process() default for type: ' + superEvent.type())
+        console.info('DEBUG request', superEvent.request)
+        console.info('DEBUG context', superEvent.context)
         break
 
     }
@@ -372,7 +374,28 @@ export class MatrixHandler {
     superEvent: SuperEvent,
   ): Promise<void> {
     log.verbose('MatrixHandler', 'bridgeToWechatIndividual(%s, %s, %s)', superEvent.sender().getId())
-    // TODO
+
+    const { user, service } = await superEvent.directMessageUserPair()
+
+    const remoteUserList = await this.appserviceManager.userStore.getRemoteUsersFromMatrixId(service.getId())
+    if (remoteUserList.length === 0) {
+      throw new Error('no remote in store for service id ' + service.getId())
+    }
+    const remoteUser = remoteUserList[0]
+
+    const wechaty = this.wechatyManager.wechaty(user.getId())
+    if (!wechaty) {
+      throw new Error('no wechaty for matrix user id ' + user.getId())
+    }
+
+    const contactId = this.appserviceManager.remoteToContactId(remoteUser)
+
+    const contact = await wechaty.Contact.find({ id: contactId })
+    if (!contact) {
+      throw new Error('no contact for id ' + contactId)
+    }
+    const text = superEvent.event.content!.body
+    await contact.say(text + '')
   }
 
   // private async bridgeToWechatyRoom (args: {
