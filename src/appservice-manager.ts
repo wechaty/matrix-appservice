@@ -1,6 +1,5 @@
 import {
   Bridge,
-  Intent,
   MatrixUser,
   RoomBridgeStore,
   UserBridgeStore,
@@ -24,7 +23,6 @@ const REMOTE_CONTACT_SEPARATOR = '<->'
 
 export class AppserviceManager {
 
-  public botIntent! : Intent
   public bridge!    : Bridge
   public roomStore! : RoomBridgeStore
   public userStore! : UserBridgeStore
@@ -42,8 +40,6 @@ export class AppserviceManager {
 
     this.bridge = matrixBridge
 
-    this.botIntent       = matrixBridge.getIntent()
-
     const userBridgeStore = matrixBridge.getUserStore()
     const roomBridgeStore = matrixBridge.getRoomStore()
 
@@ -57,7 +53,7 @@ export class AppserviceManager {
     this.userStore = userBridgeStore
   }
 
-  public botUserId (): string {
+  public appserviceUserId (): string {
     const bridgeOpts = this.bridge.opts
     const localpart  = bridgeOpts.registration.sender_localpart
     const domain     = bridgeOpts.domain
@@ -70,9 +66,8 @@ export class AppserviceManager {
     ].join('')
   }
 
-  // FIXME: name conflict with bridge.getBot ?
-  public async botUser (): Promise<MatrixUser> {
-    const matrixUserId = this.botUserId()
+  public async appserviceUser (): Promise<MatrixUser> {
+    const matrixUserId = this.appserviceUserId()
     const matrixUser = await this.userStore.getMatrixUser(matrixUserId)
     if (!matrixUser) {
       throw new Error('no matrix user from store for id ' + matrixUserId)
@@ -87,7 +82,7 @@ export class AppserviceManager {
     // `${adminIdEscaped}${REMOTE_CONTACT_SEPARATOR}${contactId}`
 
     const list = remoteId.split(REMOTE_CONTACT_SEPARATOR)
-    if (list.length < 2 || list[1].length <= 0) {
+    if (list.length !== 2 || list[1].length === 0) {
       throw new Error('fail to extract contact id from remote id ' + remoteId)
     }
     return list[1]
@@ -108,6 +103,7 @@ export class AppserviceManager {
   public async matrixUserList (): Promise<MatrixUser[]> {
     log.verbose('AppserviceManager', 'matrixUserList()')
 
+    // TODO: use wechaty.enabled(?) to identify whether its a registered user
     const filter = {
       wechaty: {
         $exists: true,
@@ -124,8 +120,8 @@ export class AppserviceManager {
   public wechatyOptions (matrixUser: MatrixUser): WechatyOptions
 
   public wechatyOptions (
-    matrixUser: MatrixUser,
-    wechatyOptions?: WechatyOptions,
+    matrixUser      : MatrixUser,
+    wechatyOptions? : WechatyOptions,
   ): Promise<void> | WechatyOptions {
 
     if (wechatyOptions) {
@@ -152,6 +148,7 @@ export class AppserviceManager {
         ...(data && data.options),
       }
     }
+
   }
 
   public isGhost (matrixUserId: string): boolean {
@@ -160,7 +157,7 @@ export class AppserviceManager {
   }
 
   public isBot (matrixUserId: string): boolean {
-    const appserviceUserId = this.botUserId()
+    const appserviceUserId = this.appserviceUserId()
     return appserviceUserId === matrixUserId
   }
 
@@ -176,11 +173,13 @@ export class AppserviceManager {
 
     const data = matrixUser.get(WECHATY_DATA_KEY)
 
+    // TODO: use explict variable to save enabled status
     const ret = !!data
     log.silly('AppserviceManager', 'isEnable(%s) -> %s', matrixUser.getId(), ret)
     return ret
   }
 
+  // TODO: use explict var to store enable status
   public async enable (matrixUser: MatrixUser): Promise<void> {
     log.verbose('AppserviceManager', 'enable(%s)', matrixUser.getId())
 
@@ -197,6 +196,7 @@ export class AppserviceManager {
   public async disable (matrixUser: MatrixUser): Promise<void> {
     log.verbose('AppserviceManager', 'disable(%s)', matrixUser.getId())
 
+    // TODO
     matrixUser.set(WECHATY_DATA_KEY, null)
     await this.userStore.setMatrixUser(matrixUser)
   }
@@ -222,9 +222,9 @@ export class AppserviceManager {
       (matrixRoom && matrixRoom.getId()) || '',
     )
 
-    let data = { ...matrixOrRemoteUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
-    console.info('DEBUG: data', data)
-    const directMessageRoomId = data.directMessageRoomId
+    let userData = { ...matrixOrRemoteUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
+    console.info('DEBUG: data', userData)
+    const directMessageRoomId = userData.directMessageRoomId
 
     // GET
     if (!matrixRoom) {
@@ -254,10 +254,8 @@ export class AppserviceManager {
       throw new Error('direct message room id had already been set for ' + matrixOrRemoteUser.getId())
     }
 
-    matrixOrRemoteUser.set(WECHATY_DATA_KEY, {
-      ...data,
-      directMessageRoomId: matrixRoom.getId(),
-    })
+    userData.directMessageRoomId = matrixRoom.getId()
+    matrixOrRemoteUser.set(WECHATY_DATA_KEY, userData)
 
     if (matrixOrRemoteUser instanceof MatrixUser) {
       await this.userStore.setMatrixUser(matrixOrRemoteUser)

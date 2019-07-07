@@ -5,7 +5,7 @@ import {
 }                   from 'matrix-appservice-bridge'
 
 import {
-  AGE_LIMIT,
+  AGE_LIMIT as AGE_LIMIT_SECONDS,
   log,
 }                     from './config'
 
@@ -95,6 +95,7 @@ export class MatrixHandler {
     queriedUser: any,
   ): Promise<object> {
     log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser))
+    console.info('queriedUser', queriedUser)
 
     // if (isBridgeUser(matrixUserId)) {
     //   const wechaty = this.wechatyManager!.get(matrixUserId)
@@ -127,23 +128,23 @@ export class MatrixHandler {
     /**
      * Matrix age is millisecond, convert second by multiple 1000
      */
-    if (superEvent.age() > AGE_LIMIT * 1000) {
+    if (superEvent.age() > AGE_LIMIT_SECONDS * 1000) {
       log.verbose('MatrixHandler', 'process() skipping event due to age %s > %s',
-        superEvent.age(), AGE_LIMIT * 1000)
+        superEvent.age(), AGE_LIMIT_SECONDS * 1000)
       return
     }
 
     if (superEvent.isBotSender() || superEvent.isGhostSender()) {
-      log.verbose('MatrixHandler', 'process() ghost or bot sender "%s" found, skipped.', superEvent.sender().getId())
+      log.verbose('MatrixHandler', 'process() ghost or appservice sender "%s" found, skipped.', superEvent.sender().getId())
       return
     }
 
     if (superEvent.isRoomInvitation()) {
       if (superEvent.isBotTarget()) {
-        log.verbose('MatrixHandler', 'process() isRoomInvitation() bot accepted')
+        log.verbose('MatrixHandler', 'process() isRoomInvitation() appservice accepted')
         await superEvent.acceptRoomInvitation()
 
-        const room = superEvent.room()
+        const room   = superEvent.room()
         const sender = superEvent.sender()
 
         const memberIdDict = await this.appserviceManager.bridge.getBot()
@@ -199,18 +200,21 @@ export class MatrixHandler {
 
     const wechaty = await this.wechatyManager.wechaty(matrixUser.getId())
 
-    if (wechaty && wechaty.logonoff()) {
+    if (wechaty) {
 
-      const filehelper = await wechaty.Contact.find('filehelper')
-
-      if (filehelper) {
-        await filehelper.say(`Matrix user ${matrixUser.getId()} in room ${matrixRoom.getId()} said: ${superEvent.event.content}`)
+      if (wechaty.logonoff()) {
+        const filehelper = await wechaty.Contact.find('filehelper')
+        if (filehelper) {
+          await filehelper.say(`Matrix user ${matrixUser.getId()} in room ${matrixRoom.getId()} said: ${superEvent.event.content}`)
+        } else {
+          log.error('MatrixHandler', 'processMatrixRoomMessage() filehelper not found from wechaty')
+        }
       } else {
-        log.error('MatrixHandler', 'processMatrixRoomMessage() filehelper not found from wechaty')
+        log.silly('MatrixHandler', 'processMatrixRoomMessage() wechaty not logined for user id: %s', matrixUser.getId())
       }
 
     } else {
-      log.silly('MatrixHandler', 'processMatrixRoomMessage() wechaty not found for user id: %s', matrixUser.getId())
+      log.silly('MatrixHandler', 'processMatrixRoomMessage() no wechaty for user id: %s', matrixUser.getId())
     }
 
     const remoteRoom = superEvent.remoteRoom()
@@ -229,6 +233,9 @@ export class MatrixHandler {
   private async forwardToRemoteRoom (
     superEvent: SuperEvent,
   ): Promise<void> {
+
+    // FIXME: not right here
+
     const wechatyRoomId = superEvent.remoteRoom()!.getId()
     const matrixUserId = superEvent.sender().getId()
     const wechaty = this.wechatyManager.wechaty(matrixUserId)
@@ -260,22 +267,27 @@ export class MatrixHandler {
     const { user, service }       = await superEvent.directMessageUserPair()
     const wechatyEnabled = await this.appserviceManager.isEnabled(user)
 
-    if (wechatyEnabled) {
-      if (this.appserviceManager.isBot(service.getId())) {
+    if (!wechatyEnabled) {
+      await this.gotoEnableWechatyDialog(superEvent)
+      return
+    }
 
-        await this.gotoSetupDialog(superEvent)
+    /**
+     * Enabled
+     */
 
-      } else if (this.appserviceManager.isGhost(service.getId())) {
+    if (this.appserviceManager.isBot(service.getId())) {
 
-        await this.bridgeToWechatIndividual(superEvent)
+      await this.gotoSetupDialog(superEvent)
 
-      } else {
-        throw new Error('unknown service id ' + service.getId())
-      }
+    } else if (this.appserviceManager.isGhost(service.getId())) {
+
+      await this.bridgeToWechatIndividual(superEvent)
 
     } else {
-      await this.gotoEnableWechatyDialog(superEvent)
+      throw new Error('unknown service id ' + service.getId())
     }
+
   }
 
   private async processGroupMessage (

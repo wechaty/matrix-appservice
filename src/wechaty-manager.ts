@@ -171,10 +171,15 @@ export class WechatyManager {
       return
     }
 
-    await this.appserviceManager.botIntent.sendText(
-      matrixRoom.getId(),
-      `${user} login`,
-    )
+    try {
+      await this.appserviceManager.bridge.getIntent().sendText(
+        matrixRoom.getId(),
+        `${user} login`,
+      )
+    } catch (e) {
+      log.error('WechatyManager', 'onLogin() rejection for room ' + matrixRoom.getId())
+      throw e
+    }
 
   }
 
@@ -199,7 +204,7 @@ export class WechatyManager {
       return
     }
 
-    await this.appserviceManager.botIntent.sendText(
+    await this.appserviceManager.bridge.getIntent().sendText(
       matrixRoom.getId(),
       `${user} logout`,
     )
@@ -311,7 +316,7 @@ export class WechatyManager {
         break
     }
 
-    await this.appserviceManager.botIntent.sendText(
+    await this.appserviceManager.bridge.getIntent().sendText(
       matrixRoom.getId(),
       text,
     )
