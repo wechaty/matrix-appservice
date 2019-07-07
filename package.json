@@ -38,6 +38,7 @@
   },
   "homepage": "https://github.com/huan/matrix-appservice-wechaty#readme",
   "dependencies": {
+    "cuid": "^2.1.6",
     "matrix-appservice-bridge": "^1.8.1",
     "read-pkg-up": "^6.0.0",
     "update-notifier": "^3.0.0",

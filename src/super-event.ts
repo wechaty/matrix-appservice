@@ -3,7 +3,6 @@ import {
   Event,
   MatrixRoom,
   MatrixUser,
-  RemoteUser,
   Request,
   RemoteRoom,
 }                   from 'matrix-appservice-bridge'
@@ -13,14 +12,15 @@ import {
   log,
   MatrixRoomWechatyData,
   WECHATY_DATA_KEY,
+  MatrixUserWechatyData,
 }                          from './config'
 
 import { AppserviceManager }  from './appservice-manager'
 import { WechatyManager }     from './wechaty-manager'
 
 export interface DirectMessageUserPair {
-  matrix : MatrixUser,
-  remote : RemoteUser,
+  user    : MatrixUser,
+  service : MatrixUser,
 }
 
 export interface RoomPair {
@@ -49,17 +49,6 @@ export class SuperEvent {
   public age () {
     return this.event.unsigned.age
   }
-
-  // public appserviceBot (): AppServiceBot {
-  //   log.verbose('SuperEvent', 'appserviceBot()')
-  //   return this.appserviceManager.bridge
-  //     .getBot()
-  // }
-
-  // public intent (matrixUserId?: string): Intent {
-  //   return this.appserviceManager.bridge
-  //     .getIntent(matrixUserId)
-  // }
 
   public sender (): MatrixUser {
     return this.context.senders.matrix
@@ -152,7 +141,7 @@ export class SuperEvent {
 
   public async directMessageUserPair (): Promise<DirectMessageUserPair> {
     const matrixRoom = this.room()
-    log.verbose('SuperEvent', 'directMessageUserPair() room id "%s"', matrixRoom.getId())
+    log.verbose('SuperEvent', 'directMessageUserPair() in room "%s"', matrixRoom.getId())
 
     const data = matrixRoom.get(WECHATY_DATA_KEY) as MatrixRoomWechatyData
     if (!data) {
@@ -165,27 +154,27 @@ export class SuperEvent {
     }
 
     const matrixUser = await this.appserviceManager.userStore
-      .getMatrixUser(directMessage.matrixUserId)
+      .getMatrixUser(directMessage.userId)
 
     if (!matrixUser) {
-      throw new Error('no matrix user for id ' + directMessage.matrixUserId)
+      throw new Error('no matrix user for id ' + directMessage.userId)
     }
 
-    const remoteUser = await this.appserviceManager.userStore
-      .getRemoteUser(directMessage.remoteUserId)
-    if (!remoteUser) {
-      throw new Error('no remote user for id ' + directMessage.remoteUserId)
+    const serviceUser = await this.appserviceManager.userStore
+      .getMatrixUser(directMessage.serviceId)
+    if (!serviceUser) {
+      throw new Error('no remote user for id ' + directMessage.serviceId)
     }
 
-    log.silly('SuperEvent', 'directMessageUserPair() room id "%s" -> {matrix: "%s", remote: "%s"}',
+    log.silly('SuperEvent', 'directMessageUserPair() in room "%s" -> {user: "%s", service: "%s"}',
       matrixRoom.getId(),
       matrixUser.getId(),
-      remoteUser.getId(),
+      serviceUser.getId(),
     )
 
     return {
-      matrix: matrixUser,
-      remote: remoteUser,
+      user    : matrixUser,
+      service : serviceUser,
     }
   }
 
@@ -214,7 +203,7 @@ export class SuperEvent {
 
   public async isDirectMessage (): Promise<boolean> {
     const matrixRoom = this.room()
-    log.verbose('SuperEvent', 'isDirectMessage(): room id: "%s"', matrixRoom.getId())
+    log.verbose('SuperEvent', 'isDirectMessage() room "%s"', matrixRoom.getId())
 
     let isDM: null | boolean
 
@@ -223,7 +212,7 @@ export class SuperEvent {
       isDM = await this.isDirectMessageUserByMember(matrixRoom)
     }
 
-    log.silly('SuperEvent', 'isDirectMessage(): room id: "%s" -> %s', matrixRoom.getId(), isDM)
+    log.silly('SuperEvent', 'isDirectMessage() room "%s" -> %s', matrixRoom.getId(), isDM)
     return isDM
   }
 
@@ -293,59 +282,75 @@ export class SuperEvent {
 
     const memberDict = await this.appserviceManager.bridge.getBot()
       .getJoinedMembers(matrixRoom.getId())
-
     const memberIdList = Object.keys(memberDict)
-    const memberNum    = memberIdList.length
-    const data         = { ...matrixRoom.get(WECHATY_DATA_KEY) } as MatrixRoomWechatyData
 
+    const roomData = { ...matrixRoom.get(WECHATY_DATA_KEY) } as MatrixRoomWechatyData
+
+    const memberNum = memberIdList.length
     if (memberNum !== 2) {
-
-      data.directMessage = false
-      matrixRoom.set(WECHATY_DATA_KEY, data)
+      roomData.directMessage = false
+      matrixRoom.set(WECHATY_DATA_KEY, roomData)
       await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
 
       return false
-
     }
 
-    let matrixUserId: string
-    let remoteUserId: string
+    const memberId0 = memberIdList[0]
+    const memberId1 = memberIdList[1]
 
-    if (this.appserviceManager.isGhost(memberIdList[0])
-      || this.appserviceManager.isBot(memberIdList[0])
+    let userId    : string
+    let serviceId : string
+
+    if (this.appserviceManager.isUser(memberId0)
+      && !this.appserviceManager.isUser(memberId1)
     ) {
-      matrixUserId = memberIdList[1]
-    } else if (this.appserviceManager.isGhost(memberIdList[1])
-      || this.appserviceManager.isBot(memberIdList[1])
+      userId    = memberId0
+      serviceId = memberId1
+    } else if (this.appserviceManager.isUser(memberId1)
+      && !this.appserviceManager.isUser(memberId0)
     ) {
-      matrixUserId = memberIdList[0]
+      userId    = memberId1
+      serviceId = memberId0
     } else {
-      throw new Error('two member in the room are not paired')
+      throw new Error('memberIdList state unknown: ' + JSON.stringify(memberIdList))
     }
 
-    let matrixUser = await this.appserviceManager.userStore.getMatrixUser(matrixUserId)
+    let matrixUser = await this.appserviceManager.userStore.getMatrixUser(userId)
     if (!matrixUser) {
-      matrixUser = new MatrixUser(matrixUserId)
+      log.verbose('SuperEvent', 'isDirectRoomByMember() creating matrix user "%s" in store', userId)
+      matrixUser = new MatrixUser(userId)
+
       await this.appserviceManager.userStore
         .setMatrixUser(matrixUser)
     }
 
-    remoteUserId = this.wechatyManager.remoteUserId(matrixUser)
+    let serviceUser = await this.appserviceManager.userStore.getMatrixUser(serviceId)
+    if (!serviceUser) {
+      log.verbose('SuperEvent', 'isDirectRoomByMember() creating matrix user "%s" in store', serviceId)
+      serviceUser = new MatrixUser(serviceId)
 
-    data.directMessage = {
-      matrixUserId,
-      remoteUserId,
-    }
-
-    let remoteUser = await this.appserviceManager.userStore.getRemoteUser(remoteUserId)
-    if (!remoteUser) {
-      remoteUser = new RemoteUser(remoteUserId)
       await this.appserviceManager.userStore
-        .setRemoteUser(remoteUser)
+        .setMatrixUser(serviceUser)
     }
 
-    matrixRoom.set(WECHATY_DATA_KEY, data)
+    /**
+     * Set directMessage to matrix room
+     */
+    roomData.directMessage = {
+      userId,
+      serviceId,
+    }
+
+    matrixRoom.set(WECHATY_DATA_KEY, roomData)
     await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
+
+    /**
+     * Set directMessageRoomId for matrix user
+     */
+    const userData = { ...matrixUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
+    userData.directMessageRoomId = matrixRoom.getId()
+    matrixUser.set(WECHATY_DATA_KEY, userData)
+    await this.appserviceManager.userStore.setMatrixUser(matrixUser)
 
     return true
   }

@@ -1,7 +1,7 @@
 import {
   BridgeContext,
   Request,
-  RemoteUser,
+  // RemoteUser,
 }                   from 'matrix-appservice-bridge'
 
 import {
@@ -42,8 +42,8 @@ export class MatrixHandler {
     //   JSON.stringify(request),
     //   JSON.stringify(context),
     // )
-    console.info('request', request)
-    console.info('context', context)
+    // console.info('request', request)
+    // console.info('context', context)
 
     const superEvent = new SuperEvent(
       request,
@@ -68,6 +68,29 @@ export class MatrixHandler {
     }
   }
 
+  /**
+   * Invoked when the bridge receives a user query from the homeserver. Supports
+   * both sync return values and async return values via promises.
+   * @callback Bridge~onUserQuery
+   * @param {MatrixUser} matrixUser The matrix user queried. Use <code>getId()</code>
+   * to get the user ID.
+   * @return {?Bridge~ProvisionedUser|Promise<Bridge~ProvisionedUser, Error>}
+   * Reject the promise / return null to not provision the user. Resolve the
+   * promise / return a {@link Bridge~ProvisionedUser} object to provision the user.
+   * @example
+   * new Bridge({
+    *   controller: {
+    *     onUserQuery: function(matrixUser) {
+    *       var remoteUser = new RemoteUser("some_remote_id");
+    *       return {
+    *         name: matrixUser.localpart + " (Bridged)",
+    *         url: "http://someurl.com/pic.jpg",
+    *         user: remoteUser
+    *       };
+    *     }
+    *   }
+    * });
+    */
   public async onUserQuery (
     queriedUser: any,
   ): Promise<object> {
@@ -110,8 +133,8 @@ export class MatrixHandler {
       return
     }
 
-    if (superEvent.isGhostSender()) {
-      log.verbose('MatrixHandler', 'process() isRemoteUser(%s) is true, skipped', superEvent.sender().getId())
+    if (superEvent.isBotSender() || superEvent.isGhostSender()) {
+      log.verbose('MatrixHandler', 'process() ghost or bot sender "%s" found, skipped.', superEvent.sender().getId())
       return
     }
 
@@ -121,6 +144,8 @@ export class MatrixHandler {
         await superEvent.acceptRoomInvitation()
 
         const room = superEvent.room()
+        const sender = superEvent.sender()
+
         const memberIdDict = await this.appserviceManager.bridge.getBot()
           .getJoinedMembers(room.getId())
 
@@ -128,19 +153,10 @@ export class MatrixHandler {
 
         if (memberNum === 2) {
           log.silly('MatrixHandler', 'process() room has 2 members, treat it as a direct room')
-          const matrixUser = superEvent.sender()
-          const botRemoteUserId = this.wechatyManager.remoteUserId(matrixUser)
-
-          let botRemoteUser = await this.appserviceManager.userStore.getRemoteUser(botRemoteUserId)
-          if (!botRemoteUser) {
-            botRemoteUser = new RemoteUser(botRemoteUserId)
-            await this.appserviceManager.userStore.setRemoteUser(botRemoteUser)
-          }
-
-          const directMessageRoom = await this.appserviceManager.directMessageRoom(botRemoteUser)
+          const directMessageRoom = await this.appserviceManager.directMessageRoom(sender)
 
           if (!directMessageRoom) {
-            await this.appserviceManager.directMessageRoom(botRemoteUser, room)
+            await this.appserviceManager.directMessageRoom(sender, room)
           }
         } else {
           log.silly('MatrixHandler', 'process() room has %s(!=2) members, it is not a direct room', memberNum)
@@ -171,16 +187,13 @@ export class MatrixHandler {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'processMatrixRoomMessage(superEvent)')
 
-    if (superEvent.isBotSender() || superEvent.isGhostSender()) {
-      log.silly('MatrixHandler', 'processMatrixRoomMessage(superEvent) Bot or Ghost message, skipped')
-      return
-    }
-
     const matrixUser = superEvent.sender()
     const matrixRoom = superEvent.room()
 
-    console.info('matrixUser', matrixUser)
-    console.info('matrixRoom', matrixRoom)
+    console.info('DEBUG: matrixUser', matrixUser)
+    // console.info('DEBUG: matrixUser.getId()', matrixUser.getId())
+    // console.info('DEBUG: matrixUser.userId', (matrixUser as any).userId)
+    console.info('DEBUG: matrixRoom', matrixRoom)
 
     const wechaty = await this.wechatyManager.wechaty(matrixUser.getId())
 
@@ -195,7 +208,7 @@ export class MatrixHandler {
       }
 
     } else {
-      log.silly('MatrixHandler', 'processMatrixRoomMessage() wechaty not found for user id: ', matrixUser.getId())
+      log.silly('MatrixHandler', 'processMatrixRoomMessage() wechaty not found for user id: %s', matrixUser.getId())
     }
 
     const remoteRoom = superEvent.remoteRoom()
@@ -208,33 +221,6 @@ export class MatrixHandler {
     } else {
       await this.processGroupMessage(superEvent)
     }
-
-    // if (!await this.isKnownRoom(superEvent)) {
-    //   await this.replyUnknownRoom(superEvent)
-    //   return
-    // }
-
-    // if (sendFromRemoteUser()) {
-    //   return
-    // }
-
-    // if (linkedRoom()) {
-    //   forwardMessage()
-    //   return
-    // }
-
-    // if (isDirect()) {
-    //   if (enabledWechaty()) {
-    //     setupDialog()
-    //   } else {
-    //     enableDialog()
-    //   }
-    //   return
-    // }
-
-    // // Group, not direct
-    // log.warn()
-    // return
 
   }
 
@@ -269,22 +255,20 @@ export class MatrixHandler {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'processDirectMessage()')
 
-    const userPair       = await superEvent.directMessageUserPair()
-    const wechatyEnabled = await this.appserviceManager.isEnabled(userPair.matrix)
+    const { user, service }       = await superEvent.directMessageUserPair()
+    const wechatyEnabled = await this.appserviceManager.isEnabled(user)
 
     if (wechatyEnabled) {
-      const remoteUserId = userPair.remote.getId()
-
-      if (this.appserviceManager.isBot(remoteUserId)) {
+      if (this.appserviceManager.isBot(service.getId())) {
 
         await this.gotoSetupDialog(superEvent)
 
-      } else if (this.appserviceManager.isGhost(remoteUserId)) {
+      } else if (this.appserviceManager.isGhost(service.getId())) {
 
         await this.bridgeToWechatIndividual(superEvent)
 
       } else {
-        throw new Error('unknown remote user id')
+        throw new Error('unknown service id ' + service.getId())
       }
 
     } else {
@@ -335,25 +319,26 @@ export class MatrixHandler {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'gotoEnableDialog()')
 
-    const userPair = await superEvent.directMessageUserPair()
+    // const userPair = await superEvent.directMessageUserPair()
     const room = superEvent.room()
+    const matrixUser = superEvent.sender()
 
-    const matrixUserList = await this.appserviceManager.userStore
-      .getMatrixUsersFromRemoteId(userPair.remote.getId())
+    // console.info('DEBUG userPair', userPair)
 
-    if (matrixUserList.length !== 1) {
-      throw new Error(`get ${matrixUserList.length} matrix user from remote user id ${userPair.remote.getId()}`)
-    }
+    // const matrixUserList = await this.appserviceManager.userStore
+    //   .getMatrixUsersFromRemoteId(userPair.remote.getId())
 
-    const matrixUser = matrixUserList[0]
+    // if (matrixUserList.length !== 1) {
+    //   throw new Error(`get ${matrixUserList.length} matrix user from remote user id ${userPair.remote.getId()}`)
+    // }
+
+    // const matrixUser = matrixUserList[0]
 
     const intent = this.appserviceManager.bridge
-      .getIntent(matrixUser.getId())
+      .getIntent()
 
-    console.info('faint 1', room.getId())
     await intent.sendText(room.getId(), 'You are not enable `matrix-appservice-wechaty` yet. Please talk to the `wechaty` bot to check you in.')
-    console.info('faint 2')
-    await this.appserviceManager.enable(userPair.matrix)
+    await this.appserviceManager.enable(matrixUser)
     await intent.sendText(room.getId(), 'I had enabled it for you ;-)')
   }
 
@@ -367,6 +352,7 @@ export class MatrixHandler {
     let wechaty = this.wechatyManager.wechaty(matrixUser.getId())
     if (!wechaty) {
       wechaty = this.wechatyManager.create(matrixUser.getId())
+      await wechaty.start()
       // throw new Error('no wechaty for id: ' + matrixUser.getId())
     }
 

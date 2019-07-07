@@ -26,8 +26,8 @@ export const SCHEMA_FILE       = path.join(__dirname, '../config/schema.yaml')
 
 export interface MatrixRoomWechatyData {
   directMessage?: false | {
-    matrixUserId : string
-    remoteUserId : string
+    userId    : string
+    serviceId : string
   }
 }
 

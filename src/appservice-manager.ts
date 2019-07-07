@@ -11,11 +11,16 @@ import {
   WechatyOptions,
 }                   from 'wechaty'
 
+import cuid from 'cuid'
+
 import {
   log,
   MatrixUserWechatyData,
   WECHATY_DATA_KEY,
+  WECHATY_LOCALPART,
 }                       from './config'
+
+const REMOTE_CONTACT_SEPARATOR = '<->'
 
 export class AppserviceManager {
 
@@ -52,7 +57,7 @@ export class AppserviceManager {
     this.userStore = userBridgeStore
   }
 
-  public appserviceUserId (): string {
+  public botUserId (): string {
     const bridgeOpts = this.bridge.opts
     const localpart  = bridgeOpts.registration.sender_localpart
     const domain     = bridgeOpts.domain
@@ -62,6 +67,41 @@ export class AppserviceManager {
       localpart,
       ':',
       domain,
+    ].join('')
+  }
+
+  // FIXME: name conflict with bridge.getBot ?
+  public async botUser (): Promise<MatrixUser> {
+    const matrixUserId = this.botUserId()
+    const matrixUser = await this.userStore.getMatrixUser(matrixUserId)
+    if (!matrixUser) {
+      throw new Error('no matrix user from store for id ' + matrixUserId)
+    }
+    return matrixUser
+  }
+
+  public remoteToContactId (
+    remoteUser: RemoteUser,
+  ): string {
+    const remoteId = remoteUser.getId()
+    // `${adminIdEscaped}${REMOTE_CONTACT_SEPARATOR}${contactId}`
+
+    const list = remoteId.split(REMOTE_CONTACT_SEPARATOR)
+    if (list.length < 2 || list[1].length <= 0) {
+      throw new Error('fail to extract contact id from remote id ' + remoteId)
+    }
+    return list[1]
+  }
+
+  public contactToRemoteId (
+    contactId   : string,
+    matrixAdmin : MatrixUser
+  ): string {
+
+    return [
+      matrixAdmin.getId(),
+      REMOTE_CONTACT_SEPARATOR,
+      contactId,
     ].join('')
   }
 
@@ -120,8 +160,15 @@ export class AppserviceManager {
   }
 
   public isBot (matrixUserId: string): boolean {
-    const appserviceUserId = this.appserviceUserId()
+    const appserviceUserId = this.botUserId()
     return appserviceUserId === matrixUserId
+  }
+
+  public isUser (matrixUserId: string): boolean {
+    return !(
+      this.isBot(matrixUserId)
+        || this.isGhost(matrixUserId)
+    )
   }
 
   public isEnabled (matrixUser: MatrixUser): boolean {
@@ -154,57 +201,69 @@ export class AppserviceManager {
     await this.userStore.setMatrixUser(matrixUser)
   }
 
+  /**
+   * GET / SET direct message room between matrix user and the bot
+   */
+  public async directMessageRoom (matrixUser: MatrixUser)                         : Promise<null | MatrixRoom>
+  public async directMessageRoom (matrixUser: MatrixUser, matrixRoom: MatrixRoom) : Promise<void>
+
+  /**
+   * GET / SET direct message room between matrix user and the wechaty contacts
+   */
   public async directMessageRoom (remoteUser: RemoteUser)                         : Promise<null | MatrixRoom>
   public async directMessageRoom (remoteUser: RemoteUser, matrixRoom: MatrixRoom) : Promise<void>
 
   public async directMessageRoom (
-    remoteUser  : RemoteUser,
-    matrixRoom? : MatrixRoom,
+    matrixOrRemoteUser : MatrixUser | RemoteUser,
+    matrixRoom?        : MatrixRoom,
   ): Promise<void | null | MatrixRoom> {
     log.verbose('AppserviceManager', 'directMessageRoom(%s, %s)',
-      remoteUser.getId(),
+      matrixOrRemoteUser.getId(),
       (matrixRoom && matrixRoom.getId()) || '',
     )
 
-    let data = { ...remoteUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
-    console.info('data', data)
+    let data = { ...matrixOrRemoteUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
+    console.info('DEBUG: data', data)
     const directMessageRoomId = data.directMessageRoomId
 
-    // SET
-    if (matrixRoom) {
-      log.silly('AppserviceManager', 'directMessageRoom() SET')
+    // GET
+    if (!matrixRoom) {
+      log.silly('AppserviceManager', 'directMessageRoom() GET')
 
-      if (directMessageRoomId) {
-        throw new Error('direct message room id had already been set for ' + remoteUser.getId())
+      if (!directMessageRoomId) {
+        return null
       }
 
-      remoteUser.set(WECHATY_DATA_KEY, {
-        ...data,
-        directMessageRoomId: matrixRoom.getId(),
-      })
+      let directMessageRoom = await this.roomStore.getMatrixRoom(directMessageRoomId)
+      if (!directMessageRoom) {
+        throw new Error('no room found in store from id ' + directMessageRoomId)
+      }
 
-      await this.userStore.setRemoteUser(remoteUser)
-      return
+      log.silly('AppserviceManager', 'directMessageRoom(%s) -> %s',
+        matrixOrRemoteUser.getId(),
+        directMessageRoomId,
+      )
+
+      return directMessageRoom
     }
 
-    // GET
-    log.silly('AppserviceManager', 'directMessageRoom() GET')
+    // SET
+    log.silly('AppserviceManager', 'directMessageRoom() SET')
 
-    if (!directMessageRoomId) {
-      return null
+    if (directMessageRoomId) {
+      throw new Error('direct message room id had already been set for ' + matrixOrRemoteUser.getId())
     }
 
-    let directMessageRoom = await this.roomStore.getMatrixRoom(directMessageRoomId)
-    if (!directMessageRoom) {
-      throw new Error('no room found in store from id ' + directMessageRoomId)
+    matrixOrRemoteUser.set(WECHATY_DATA_KEY, {
+      ...data,
+      directMessageRoomId: matrixRoom.getId(),
+    })
+
+    if (matrixOrRemoteUser instanceof MatrixUser) {
+      await this.userStore.setMatrixUser(matrixOrRemoteUser)
+    } else {
+      await this.userStore.setRemoteUser(matrixOrRemoteUser)
     }
-
-    log.silly('AppserviceManager', 'directMessageRoom(%s) -> %s',
-      remoteUser.getId(),
-      directMessageRoomId,
-    )
-
-    return directMessageRoom
   }
 
   async createDirectRoom (
@@ -262,6 +321,17 @@ export class AppserviceManager {
     })
 
     return roomInfo.room_id
+  }
+
+  public generateGhostUserId () {
+    return [
+      '@',
+      WECHATY_LOCALPART,
+      '_',
+      cuid(),
+      ':',
+      this.bridge.opts.domain,
+    ].join('')
   }
 
   /*******************

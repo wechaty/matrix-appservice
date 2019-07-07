@@ -272,7 +272,7 @@ declare module 'matrix-appservice-bridge' {
     public host      : string
 
     constructor (userId: string, dataopt?: object, escape = true)
-    escapeUserId()
+    escapeUserId(): void
     get(key: string): unknown
     getDisplayName(): null | string
     getId(): string
@@ -348,20 +348,20 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (db: Datastore, opts?: object)
 
-    getByMatrixData           (dataQuery: object)                              : Promise<Array<MatrixUser>>
-    getByMatrixLocalpart      (localpart: string)                              : Promise<null | MatrixUser>
-    getByRemoteData           (dataQuery: object)                              : Promise<Array<RemoteUser>>
-    getMatrixLinks            (remoteId: string)                               : Promise<Array<String>>
-    getMatrixUser             (userId: string)                                 : Promise<null | MatrixUser>
-    getMatrixUsersFromRemoteId(remoteId: string)                               : Promise<Array<MatrixUser>>
-    getRemoteLinks            (matrixId: string)                               : Promise<Array<String>>
-    getRemoteUser             (id: string)                                     : Promise<null | RemoteUser>
-    getRemoteUsersFromMatrixId(userId: string)                                 : Promise<Array<RemoteUser>>
-    linkUsers                 (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<void>
-    setMatrixUser             (matrixUser: MatrixUser)                         : Promise<void>
-    setRemoteUser             (remoteUser: RemoteUser)                         : Promise<void>
-    unlinkUserIds             (matrixUserId: string, remoteUserId: string)     : Promise<number>
-    unlinkUsers               (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<number>
+    getByMatrixData            (dataQuery: object)                              : Promise<Array<MatrixUser>>
+    getByMatrixLocalpart       (localpart: string)                              : Promise<null | MatrixUser>
+    getByRemoteData            (dataQuery: object)                              : Promise<Array<RemoteUser>>
+    getMatrixLinks             (remoteId: string)                               : Promise<Array<String>>
+    getMatrixUser              (userId: string)                                 : Promise<null | MatrixUser>
+    getMatrixUsersFromRemoteId (remoteId: string)                               : Promise<Array<MatrixUser>>
+    getRemoteLinks             (matrixId: string)                               : Promise<Array<String>>
+    getRemoteUser              (id: string)                                     : Promise<null | RemoteUser>
+    getRemoteUsersFromMatrixId (userId: string)                                 : Promise<Array<RemoteUser>>
+    linkUsers                  (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<void>
+    setMatrixUser              (matrixUser: MatrixUser)                         : Promise<void>
+    setRemoteUser              (remoteUser: RemoteUser)                         : Promise<void>
+    unlinkUserIds              (matrixUserId: string, remoteUserId: string)     : Promise<number>
+    unlinkUsers                (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<number>
 
   }
 
