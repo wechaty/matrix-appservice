@@ -173,8 +173,8 @@ export class SuperEvent {
     )
 
     return {
-      user    : matrixUser,
       service : serviceUser,
+      user    : matrixUser,
     }
   }
 
@@ -337,8 +337,8 @@ export class SuperEvent {
      * Set directMessage to matrix room
      */
     roomData.directMessage = {
-      userId,
       serviceId,
+      userId,
     }
 
     matrixRoom.set(WECHATY_DATA_KEY, roomData)

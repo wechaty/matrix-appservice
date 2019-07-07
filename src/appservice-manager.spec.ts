@@ -23,12 +23,12 @@ function getMockAppserviceManager () {
   const appserviceManager = new AppserviceManager()
 
   const mockBridge = {
+    getIntent: Sinon.spy(),
+    getRoomStore: () => new RoomBridgeStore(new Nedb()),
+    getUserStore: () => new UserBridgeStore(new Nedb()),
     opts: {
       domain: MOCK_DOMAIN,
     },
-    getIntent: Sinon.spy(),
-    getUserStore: () => new UserBridgeStore(new Nedb()),
-    getRoomStore: () => new RoomBridgeStore(new Nedb()),
   } as any
 
   appserviceManager.setBridge(mockBridge)

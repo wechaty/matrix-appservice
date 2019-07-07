@@ -282,13 +282,13 @@ export class AppserviceManager {
     const roomInfo = await intent.createRoom({
       createAsClient: true,
       options: {
-        preset: 'trusted_private_chat',
-        is_direct: true,
-        visibility: 'private',
         invite: [
           inviteeId,
         ],
+        is_direct  : true,
         name,
+        preset     : 'trusted_private_chat',
+        visibility : 'private',
       },
     })
 
@@ -313,10 +313,10 @@ export class AppserviceManager {
     const roomInfo = await intent.createRoom({
       createAsClient: true,
       options: {
-        visibility: 'private',
         invite: inviteeIdList,
         name,
         topic,
+        visibility: 'private',
       },
     })
 
