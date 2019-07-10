@@ -10,6 +10,7 @@ import { MatrixHandler }      from '../matrix-handler'
 import { WechatyManager }     from '../wechaty-manager'
 
 import { BridgeConfig }     from './bridge-config-schema'
+import { DialogManager } from '../dialog-manager'
 
 export async function run (
   port         : number,
@@ -20,7 +21,12 @@ export async function run (
   const appserviceManager = new AppserviceManager()
   const wechatyManager    = new WechatyManager(appserviceManager)
 
-  const matrixHandler = new MatrixHandler()
+  const dialogManager = new DialogManager(
+    appserviceManager,
+    wechatyManager,
+  )
+
+  const matrixHandler = new MatrixHandler(dialogManager)
 
   const matrixBridge = createBridge(
     bridgeConfig,

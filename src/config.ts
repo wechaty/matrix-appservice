@@ -16,8 +16,8 @@ export { log } from 'wechaty'
 
 export { VERSION }        from './version'
 
-export const AGE_LIMIT    = 60      // 60 seconds
-export const DEFAULT_PORT = 8788    // W:87 X:88
+export const AGE_LIMIT_SECONDS = 60    // 60 seconds
+export const DEFAULT_PORT      = 8788  // W:87 X:88
 
 export const WECHATY_DATA_KEY  = 'wechaty'
 export const WECHATY_LOCALPART = 'wechaty'

@@ -38,10 +38,10 @@ export class SuperEvent {
     public appserviceManager : AppserviceManager,
     public wechatyManager    : WechatyManager,
   ) {
-    log.verbose('SuperEvent', 'constructor(request[event_id]="%s", context[sender]="%s", wechatyManager.size=%s)',
+    log.verbose('SuperEvent', 'constructor(request[event_id]="%s", context[sender]="%s", wechatyManager.count()=%s)',
       request.getData().event_id,
       context.senders.matrix.getId(),
-      wechatyManager.size(),
+      wechatyManager.count(),
     )
     this.event = request.getData()
   }

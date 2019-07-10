@@ -309,38 +309,31 @@ declare module 'matrix-appservice-bridge' {
   export class RoomBridgeStore {
 
     constructor (db: Datastore, ops?: RoomBridgeStoreOptions)
+
     batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : Promise<RemoteRoomDict>
     getEntriesByLinkData          (data: object)                : Promise<Array<Entry>>
     getEntriesByMatrixId          (matrixId: string)            : Promise<Array<Entry>>
-    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<Promise<EntryDict>>
+    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<EntryDict>
     getEntriesByMatrixRoomData    (data: object)                : Promise<Array<Entry>>
     getEntriesByRemoteId          (remoteId: string)            : Promise<Array<Entry>>
     getEntriesByRemoteRoomData    (data: object)                : Promise<Array<Entry>>
-    getEntryById                  (id: string)                  : Promise<Promise<null | Entry>>
+    getEntryById                  (id: string)                  : Promise<null | Entry>
     getLinkedMatrixRooms          (remoteId: string)            : Promise<Array<MatrixRoom>>
     getLinkedRemoteRooms          (matrixId: string)            : Promise<Array<RemoteRoom>>
     getMatrixRoom                 (roomId: string)              : Promise<null | MatrixRoom>
     removeEntriesByLinkData       (data: object)                : Promise<void>
-    removeEntriesByMatrixRoomData(data: object)                 : Promise<void>
+    removeEntriesByMatrixRoomData (data: object)                : Promise<void>
     removeEntriesByMatrixRoomId   (matrixId: string)            : Promise<void>
-    removeEntriesByRemoteRoomData(data: object)                 : Promise<void>
+    removeEntriesByRemoteRoomData (data: object)                : Promise<void>
     removeEntriesByRemoteRoomId   (remoteId: string)            : Promise<void>
     setMatrixRoom                 (matrixRoom: MatrixRoom)      : Promise<void>
-    upsertEntry                   (entry: Entry) : Promise<void>
-    linkRooms                    (
+    upsertEntry                   (entry: Entry)                : Promise<void>
+    linkRooms                     (
       matrixRoom : MatrixRoom,
       remoteRoom : RemoteRoom,
       data?      : object,
       linkId?    : string,
     ): Promise<void>
-
-  }
-
-  export class MembershipCache {
-
-    constructor ()
-    getMemberEntry(roomId: string, userId: string): MembershipType
-    setMemberEntry(roomId: string, userId: string, membership: MembershipType)
 
   }
 
@@ -362,6 +355,14 @@ declare module 'matrix-appservice-bridge' {
     setRemoteUser              (remoteUser: RemoteUser)                         : Promise<void>
     unlinkUserIds              (matrixUserId: string, remoteUserId: string)     : Promise<number>
     unlinkUsers                (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<number>
+
+  }
+
+  export class MembershipCache {
+
+    constructor ()
+    getMemberEntry(roomId: string, userId: string): MembershipType
+    setMemberEntry(roomId: string, userId: string, membership: MembershipType)
 
   }
 

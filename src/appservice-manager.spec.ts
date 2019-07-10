@@ -104,7 +104,7 @@ test('contactToRemoteId()', async t => {
 
   const appserviceManager = getMockAppserviceManager()
 
-  const remoteId = appserviceManager.contactToRemoteId(CONTACT_ID, matrixAdmin)
+  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixAdmin)
   t.equal(remoteId, EXPECT_REMOTE_ID, 'should get remote id right')
 })
 
@@ -116,7 +116,7 @@ test('remoteToContactId()',  async t => {
 
   const appserviceManager = getMockAppserviceManager()
 
-  const contactId = appserviceManager.remoteToContactId(remoteUser)
+  const contactId = appserviceManager.wechatyIdOf(remoteUser)
   t.equal(contactId, EXPECT_CONTACT_ID, 'should get contact id right')
 })
 
@@ -128,9 +128,9 @@ test('contactToGhostId() v.s. ghostToContactId()', async t => {
 
   const appserviceManager = getMockAppserviceManager()
 
-  const remoteId = appserviceManager.contactToRemoteId(CONTACT_ID, matrixAdmin)
+  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixAdmin)
   const remoteUser = new RemoteUser(remoteId)
-  const contactId = appserviceManager.remoteToContactId(remoteUser)
+  const contactId = appserviceManager.wechatyIdOf(remoteUser)
 
   t.equal(contactId, CONTACT_ID, 'should get contact id to remote id and get back')
 })

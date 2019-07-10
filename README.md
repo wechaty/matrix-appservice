@@ -73,6 +73,7 @@ Simply run the `logout` management command.
 
 ## SEE ALSO
 
+- [Matrix Application Services](https://matrix.org/docs/guides/application-services)
 - [Matrix Javascript SDK v2.0](https://matrix-org.github.io/matrix-js-sdk/2.0.1/index.html)
 - [Bridging infrastructure for Application Services - HOWTO](https://github.com/matrix-org/matrix-appservice-bridge/blob/master/HOWTO.md)
 - [Matrix Application Service Bridge Node.js SDK](http://matrix-org.github.io/matrix-appservice-bridge/)
