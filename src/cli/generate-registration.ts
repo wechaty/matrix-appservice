@@ -19,8 +19,8 @@ export function generateRegistration (
   reg.setProtocols([WECHATY_LOCALPART])
   reg.setRateLimited(false)
 
-  reg.addRegexPattern('aliases', `^#${WECHATY_LOCALPART}_.+`, true)
-  reg.addRegexPattern('users', `^@${WECHATY_LOCALPART}_.+`, true)
+  reg.addRegexPattern('aliases', `#${WECHATY_LOCALPART}_.*`, true)
+  reg.addRegexPattern('users', `@${WECHATY_LOCALPART}_.*`, true)
 
   callback(reg)
 }
