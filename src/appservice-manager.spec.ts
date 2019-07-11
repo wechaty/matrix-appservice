@@ -96,15 +96,15 @@ test('wechatyOptions()', async (t) => {
 })
 
 test('contactToRemoteId()', async t => {
-  const ADMIN_ID         = `@admin_id:${MOCK_DOMAIN}`
+  const CONSUMER_ID      = `@admin_id:${MOCK_DOMAIN}`
   const CONTACT_ID       = 'contact_id'
-  const EXPECT_REMOTE_ID = `@admin_id:${MOCK_DOMAIN}<->contact_id`
+  const EXPECT_REMOTE_ID = `${CONSUMER_ID}<->${CONTACT_ID}`
 
-  const matrixAdmin = new MatrixUser(ADMIN_ID)
+  const matrixConsumer = new MatrixUser(CONSUMER_ID)
 
   const appserviceManager = getMockAppserviceManager()
 
-  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixAdmin)
+  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixConsumer)
   t.equal(remoteId, EXPECT_REMOTE_ID, 'should get remote id right')
 })
 
@@ -124,11 +124,11 @@ test('contactToGhostId() v.s. ghostToContactId()', async t => {
   const ADMIN_ID         = '@admin_id:domain.tld'
   const CONTACT_ID       = 'contact_id'
 
-  const matrixAdmin = new MatrixUser(ADMIN_ID)
+  const matrixConsumer = new MatrixUser(ADMIN_ID)
 
   const appserviceManager = getMockAppserviceManager()
 
-  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixAdmin)
+  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixConsumer)
   const remoteUser = new RemoteUser(remoteId)
   const contactId = appserviceManager.wechatyIdOf(remoteUser)
 

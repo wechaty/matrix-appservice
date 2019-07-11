@@ -91,11 +91,11 @@ export class AppserviceManager {
 
   public remoteIdOf (
     contactOrRoomId : string,
-    matrixAdmin     : MatrixUser,
+    matrixConsumer  : MatrixUser,
   ): string {
 
     return [
-      matrixAdmin.getId(),
+      matrixConsumer.getId(),
       REMOTE_CONTACT_DELIMITER,
       contactOrRoomId,
     ].join('')
@@ -246,11 +246,11 @@ export class AppserviceManager {
     )
 
     const roomData = { ...matrixRoom.get(WECHATY_DATA_KEY) } as MatrixRoomWechatyData
-    if (!roomData.directMessage) {
+    if (!roomData.direct) {
       throw new Error(`room ${matrixRoom.getId()} is not a direct message room set by manager`)
     }
 
-    const { serviceId } = roomData.directMessage
+    const { serviceId } = roomData.direct
 
     try {
       await this.bridge.getIntent(serviceId).sendText(
@@ -363,9 +363,9 @@ export class AppserviceManager {
 
     const matrixRoom = new MatrixRoom(roomInfo.room_id)
     const roomData = {} as MatrixRoomWechatyData
-    roomData.directMessage = {
-      userId,
+    roomData.direct = {
       serviceId,
+      userId,
     }
     matrixRoom.set(WECHATY_DATA_KEY, roomData)
     await this.roomStore.setMatrixRoom(matrixRoom)

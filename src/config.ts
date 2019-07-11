@@ -25,9 +25,13 @@ export const REGISTRATION_FILE = 'wechaty-registration.yaml'
 export const SCHEMA_FILE       = path.join(__dirname, '../config/schema.yaml')
 
 export interface MatrixRoomWechatyData {
-  directMessage?: false | {
-    userId    : string
-    serviceId : string
+  direct?: {
+    userId    : null | string
+    serviceId : null | string
+  }
+  group?: {
+    wechatyRoomId    : string
+    matrixConsumerId : string
   }
 }
 

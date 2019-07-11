@@ -148,22 +148,22 @@ export class SuperEvent {
       throw new Error('no data')
     }
 
-    const directMessage = data.directMessage
-    if (!directMessage) {
+    const direct = data.direct
+    if (!direct) {
       throw new Error('direct message data is undefined(unknown) or null(not a direct message)')
     }
 
     const matrixUser = await this.appserviceManager.userStore
-      .getMatrixUser(directMessage.userId)
+      .getMatrixUser(direct.userId)
 
     if (!matrixUser) {
-      throw new Error('no matrix user for id ' + directMessage.userId)
+      throw new Error('no matrix user for id ' + direct.userId)
     }
 
     const serviceUser = await this.appserviceManager.userStore
-      .getMatrixUser(directMessage.serviceId)
+      .getMatrixUser(direct.serviceId)
     if (!serviceUser) {
-      throw new Error('no remote user for id ' + directMessage.serviceId)
+      throw new Error('no remote user for id ' + direct.serviceId)
     }
 
     log.silly('SuperEvent', 'directMessageUserPair() in room "%s" -> {user: "%s", service: "%s"}',
@@ -233,7 +233,7 @@ export class SuperEvent {
 
     let isDirect: null | boolean
 
-    switch (data.directMessage) {
+    switch (data.direct) {
       case undefined:
         // Unknown
         log.silly('SuperEvent', 'isDirectRoomFromData() room id "%s" UNKNOWN', matrixRoom.getId())
@@ -288,7 +288,7 @@ export class SuperEvent {
 
     const memberNum = memberIdList.length
     if (memberNum !== 2) {
-      roomData.directMessage = false
+      roomData.direct = false
       matrixRoom.set(WECHATY_DATA_KEY, roomData)
       await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
 
@@ -336,7 +336,7 @@ export class SuperEvent {
     /**
      * Set directMessage to matrix room
      */
-    roomData.directMessage = {
+    roomData.direct = {
       serviceId,
       userId,
     }
