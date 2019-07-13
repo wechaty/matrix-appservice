@@ -14,8 +14,6 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 - [Matrix Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
 - [Matrix Bridge List](https://matrix.org/bridges/#we-chat)
 
-## UNDER CONSTRUCTING
-
 ## INTRO
 
 - [Integrate Wechat with Matrix with the power of Wechaty #1737](https://github.com/Chatie/wechaty/issues/1737)
@@ -50,6 +48,17 @@ I'd like to recommend using Riot for using Matrix. Riot is a universal secure ch
 
 - <https://riot.im/app/>
 - <https://riot.chatie.io/>
+
+## INSTALL
+
+### NPM
+
+[![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
+[![npm (next)](https://img.shields.io/npm/v/matrix-appservice-wechaty/next.svg)](https://www.npmjs.com/package/matrix-appservice-wechaty?activeTab=versions)
+
+### Docker
+
+[![dockeri.co](https://dockeri.co/image/wechaty/matrix-appservice)](https://hub.docker.com/r/wechaty/matrix-appservice)
 
 ## USAGE
 
@@ -101,7 +110,7 @@ Simply run the `logout` management command.
 
 ### v0.4 (Alpha) July 14, 2019
 
-1. Support receive/send Wechat message from Matrix for both Individuals and Rooms.
+1. Support receive/send Wechat message in Matrix. (individuals and rooms)
 1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/Chatie/wechaty-puppet-puppeteer)) and Pad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
 
 #### Known Issues
