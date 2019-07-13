@@ -188,11 +188,15 @@ export class MatrixHandler {
     // console.info('DEBUG: matrixUser.userId', (matrixUser as any).userId)
     // console.info('DEBUG: matrixRoom', matrixRoom)
 
-    const filehelper = await this.wechatyManager
-      .filehelperOf(matrixUser.getId())
+    try {
+      const filehelper = await this.wechatyManager
+        .filehelperOf(matrixUser.getId())
 
-    if (filehelper) {
-      await filehelper.say(`Matrix user ${matrixUser.getId()} in room ${matrixRoom.getId()} said: ${superEvent.event.content!.body}`)
+      if (filehelper) {
+        await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!.body}"`)
+      }
+    } catch (e) {
+      log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', e.message)
     }
 
     if (await superEvent.isDirectMessage()) {

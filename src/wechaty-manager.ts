@@ -27,13 +27,15 @@ export class WechatyManager {
 
   protected matrixWechatyDict: Map<string, Wechaty>
   protected wechatyMatrixDict: WeakMap<Wechaty, string>
+  protected wechatyFilehelperDict: WeakMap<Wechaty, Contact>
 
   constructor (
     public readonly appserviceManager: AppserviceManager,
   ) {
     log.verbose('WechatyManager', 'constructor()')
-    this.matrixWechatyDict = new Map<string, Wechaty>()
-    this.wechatyMatrixDict = new WeakMap<Wechaty, string>()
+    this.matrixWechatyDict     = new Map<string,      Wechaty>()
+    this.wechatyMatrixDict     = new WeakMap<Wechaty, string>()
+    this.wechatyFilehelperDict = new WeakMap<Wechaty, Contact>()
   }
 
   public count (): number {
@@ -179,9 +181,16 @@ export class WechatyManager {
       wechaty = wechatyOrmatrixConsumerId
     }
 
-    const filehelper = await wechaty.Contact.find({ id: 'filehelper' })
+    let filehelper = this.wechatyFilehelperDict.get(wechaty) || null
+
     if (!filehelper) {
-      throw new Error('can not find filehelper from wechaty')
+      filehelper = await wechaty.Contact.find({ id: 'filehelper' })
+      if (filehelper) {
+        this.wechatyFilehelperDict.set(wechaty, filehelper)
+      }
+    }
+    if (!filehelper) {
+      throw new Error('filehelper can not be found. maybe the wechaty is not full loaded.')
     }
     return filehelper
   }
@@ -339,9 +348,11 @@ export class WechatyManager {
     message          : Message,
     matrixConsumerId : string,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'onMessage(%s, %s) with age %s (timestamp: %s)',
+    log.verbose('WechatyManager', 'onMessage(%s, %s) from %s to %s with age %s (timestamp: %s)',
       message,
       matrixConsumerId,
+      message.from()!.id,
+      message.to()!.id,
       message.age(),
       (message as any).payload.timestamp,
     )
