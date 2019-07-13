@@ -339,15 +339,20 @@ export class WechatyManager {
     message          : Message,
     matrixConsumerId : string,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'onMessage(%s, %s)', message, matrixConsumerId)
+    log.verbose('WechatyManager', 'onMessage(%s, %s) with age %s (timestamp: %s)',
+      message,
+      matrixConsumerId,
+      message.age(),
+      (message as any).payload.timestamp,
+    )
 
     if (message.age() > AGE_LIMIT_SECONDS) {
-      log.silly('WechatyManager', 'onMessage(%s, %s)', message, matrixConsumerId)
+      log.silly('WechatyManager', 'onMessage() age %s > %s seconds', message.age(), AGE_LIMIT_SECONDS)
       return
     }
 
     if (message.self()) {
-      log.silly('WechatyManager', 'onMessage(%s, %s)', message, matrixConsumerId)
+      log.silly('WechatyManager', 'onMessage() self() is true, skipped')
       return
     }
 
@@ -388,7 +393,11 @@ export class WechatyManager {
       )
     }
 
-    await this.appserviceManager.directMessage(matrixRoom, onWechatyMessage.toString())
+    await this.appserviceManager
+      .directMessage(
+        matrixRoom,
+        onWechatyMessage.text(),
+      )
   }
 
   async processRoomMessage (

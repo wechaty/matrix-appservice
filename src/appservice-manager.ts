@@ -350,17 +350,21 @@ export class AppserviceManager {
   async createDirectRoom (
     toConsumerMatrixUser   : MatrixUser,
     fromVirtualMatrixUser? : MatrixUser,
-    roomName = 'wechaty',
+    roomName?              : string,
   ): Promise<MatrixRoom> {
     log.verbose('AppserviceService', 'createDirectRoom(%s, %s, %s)',
       toConsumerMatrixUser.getId(),
       (fromVirtualMatrixUser && fromVirtualMatrixUser.getId()) || '',
-      roomName,
+      roomName || '',
     )
 
     const intent = this.bridge.getIntent(
       fromVirtualMatrixUser && fromVirtualMatrixUser.getId()
     )
+
+    roomName = roomName
+      ? roomName + APPSERVICE_NAME_POSTFIX
+      : 'Wechaty Appservice Bot'
 
     const roomInfo = await intent.createRoom({
       createAsClient: true,
@@ -369,7 +373,7 @@ export class AppserviceManager {
           toConsumerMatrixUser.getId(),
         ],
         is_direct  : true,
-        name       : roomName + APPSERVICE_NAME_POSTFIX,
+        name       : roomName,
         preset     : 'trusted_private_chat',
         visibility : 'private',
       },
