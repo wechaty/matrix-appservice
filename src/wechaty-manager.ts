@@ -390,30 +390,6 @@ export class WechatyManager {
 
   }
 
-  // TODO: call it from somewhere
-  // public async remoteUserToContact (
-  //   remoteUser  : RemoteUser,
-  //   matrixConsumer : MatrixUser,
-  // ): Promise<Contact> {
-  //   log.verbose('WechatyManager', 'remoteUserToContact(%s, %s)',
-  //     remoteUser.getId(),
-  //     matrixConsumer.getId(),
-  //   )
-
-  //   const wechaty = this.wechaty(matrixConsumer.getId())
-  //   const contactId = this.appserviceManager.wechatyIdOf(remoteUser)
-
-  //   if (!wechaty) {
-  //     throw new Error('no wechaty for id ' + matrixConsumer.getId())
-  //   }
-
-  //   const contact = await wechaty.Contact.find({ id: contactId })
-  //   if (!contact) {
-  //     throw new Error('no contact')
-  //   }
-  //   return contact
-  // }
-
   protected async matrixUser (
     ofWechatyContact  : Contact,
     forMatrixConsumer : null | MatrixUser,

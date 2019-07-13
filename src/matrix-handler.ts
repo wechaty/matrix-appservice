@@ -215,11 +215,6 @@ export class MatrixHandler {
       await filehelper.say(`Matrix user ${matrixUser.getId()} in room ${matrixRoom.getId()} said: ${superEvent.event.content!.body}`)
     }
 
-    // const remoteRoom = superEvent.remoteRoom()
-    // if (remoteRoom) {
-    //   return this.forwardToRemoteRoom(superEvent)
-    // }
-
     if (await superEvent.isDirectMessage()) {
       await this.processDirectMessage(superEvent)
     } else {
@@ -314,85 +309,10 @@ export class MatrixHandler {
 
     const { user, service } = await superEvent.directMessageUserPair()
 
-    // const remoteUserList = await this.appserviceManager.userStore
-    //   .getRemoteUsersFromMatrixId(service.getId())
-
-    // if (remoteUserList.length === 0) {
-    //   throw new Error('no remote in store for service id ' + service.getId())
-    // }
-    // const remoteUser = remoteUserList[0]
-
     const contact = await this.wechatyManager
       .wechatyContact(service, user)
     const text = superEvent.event.content!.body
     await contact.say(text + '')
   }
-
-  // private async isKnownRoom (
-  //   superEvent: SuperEvent,
-  // ): Promise<boolean> {
-  //   log.verbose('MatrixHandler', 'isKnownRoom()')
-
-  //   const roomStore = await this.appserviceManager.bridge.getRoomStore()
-  //   if (!roomStore) {
-  //     throw new Error('no room store')
-  //   }
-  //   const matrixRoomId = superEvent.room().roomId
-  //   const entrieList = roomStore.getEntriesByMatrixId(matrixRoomId)
-  //   if (entrieList.length >= 0) {
-  //     return true
-  //   }
-  //   return false
-  // }
-
-  /*
-  { age: 43,
-    content: { body: 'b', msgtype: 'm.text' },
-    event_id: '$156165443741OCgSZ:aka.cn',
-    origin_server_ts: 1561654437732,
-    room_id: '!iMkbIwAOkbvCQbRoMm:aka.cn',
-    sender: '@huan:aka.cn',
-    type: 'm.room.message',
-    unsigned: { age: 43 },
-    user_id: '@huan:aka.cn' }
-  */
-  // private async replyUnknownRoom (
-  //   superEvent: SuperEvent,
-  // ): Promise<void> {
-  //   log.verbose('MatrixHandler', 'replyUnnownRoom()')
-
-  //   // const client = bridge.getClientFactory().getClientAs()
-  //   // console.info('peeking')
-  //   // await client.peekInRoom(event.room_id)
-
-  //   // console.info('peeked')
-
-  //   // const room = client.getRoom(event.room_id)
-  //   // if (!room) {
-  //   //   throw new Error('no room')
-  //   // }
-  //   // const dmInviter = room.getDMInviter()
-  //   // console.info('dminviter', dmInviter)
-
-  //   const memberDict = await this.appserviceManager.bridge.getBot().getJoinedMembers(superEvent.room().roomId)
-
-  //   const wechatyVirtualIdList = Object.keys(memberDict)
-  //     .filter(id => this.appserviceManager.bridge.getBot().isRemoteUser(id))
-
-  //   if (wechatyVirtualIdList.length <= 0) {
-  //     throw new Error('no wechaty virtual in the room')
-  //   }
-
-  //   const virtualId = wechatyVirtualIdList[0]
-  //   console.info('virtualId', virtualId)
-
-  //   // for (const member of memberList) {
-  //   //   console.info('member', member)
-  //   //   console.info('member id', member.userId)
-  //   // }
-
-  //   const intent = this.appserviceManager.bridge.getIntent(virtualId)
-  //   await intent.sendText(superEvent.room().roomId, 'replyUnknownRoom: ' + superEvent.event.content!.body)
-  // }
 
 }

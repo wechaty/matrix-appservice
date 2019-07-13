@@ -80,31 +80,6 @@ export class AppserviceManager {
     return matrixUser
   }
 
-  // public wechatyIdOf (
-  //   remoteUser: RemoteUser,
-  // ): string {
-  //   const remoteId = remoteUser.getId()
-  //   // `${adminIdEscaped}${REMOTE_CONTACT_DELIMITER}${contactId}`
-
-  //   const list = remoteId.split(REMOTE_CONTACT_DELIMITER)
-  //   if (list.length !== 2 || list[1].length === 0) {
-  //     throw new Error('fail to extract contact id from remote id ' + remoteId)
-  //   }
-  //   return list[1]
-  // }
-
-  // public remoteIdOf (
-  //   contactOrRoomId : string,
-  //   matrixConsumer  : MatrixUser,
-  // ): string {
-
-  //   return [
-  //     matrixConsumer.getId(),
-  //     REMOTE_CONTACT_DELIMITER,
-  //     contactOrRoomId,
-  //   ].join('')
-  // }
-
   public async matrixUserList (): Promise<MatrixUser[]> {
     log.verbose('AppserviceManager', 'matrixUserList()')
 
@@ -113,14 +88,6 @@ export class AppserviceManager {
     } as AppserviceWechatyData
 
     const query = this.storeQuery(APPSERVICE_WECHATY_DATA_KEY, wechatyData)
-
-    // TODO: use wechaty.enabled(?) to identify whether its a registered user
-    // const filter = {
-    //   wechaty: {
-    //     $exists: true,
-    //     $ne: null,
-    //   },
-    // }
 
     const matrixUserList = await this.userStore.getByMatrixData(query)
     log.silly('AppserviceManager', 'matrixUserList() found %s users', matrixUserList.length)
@@ -197,7 +164,7 @@ export class AppserviceManager {
     } as AppserviceWechatyData
 
     log.silly('AppserviceManager', 'isEnable(%s) -> %s', matrixUser.getId(), wechatyData.enabled)
-    return wechatyData.enabled
+    return !!wechatyData.enabled
   }
 
   public async enable (matrixUser: MatrixUser): Promise<void> {
@@ -461,11 +428,6 @@ export class AppserviceManager {
         visibility: 'private',
       },
     })
-
-    // const matrixRoom = new MatrixRoom(roomInfo.room_id)
-    // const roomData = {} as AppserviceMatrixRoomData
-    // matrixRoom.set(APPSERVICE_ROOM_DATA_KEY, roomData)
-    // await this.roomStore.setMatrixRoom(matrixRoom)
 
     return roomInfo.room_id
   }

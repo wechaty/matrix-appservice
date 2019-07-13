@@ -38,15 +38,6 @@ export interface AppserviceMatrixRoomData {
    */
   directUserId?  : string   // for a direct message room (user to user private message)
   wechatyRoomId? : string   // for a group room (3+ people)
-
-  // direct?: {
-  //   userId    : string
-  //   virtualId : string
-  // }
-  // group?: {
-  //   wechatyRoomId    : string
-  //   matrixConsumerId : string
-  // }
 }
 
 export interface AppserviceMatrixUserData {
