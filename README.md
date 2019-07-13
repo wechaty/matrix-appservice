@@ -99,7 +99,11 @@ Simply run the `logout` management command.
 
 ### master
 
-### v0.2 July 2019
+### v0.4 (Alpha) July 14, 2019
+
+1. Support receive/send Wechat message from Matrix for both Individuals and Rooms.
+
+### v0.2 July 6,  2019
 
 1. Enable your matrix account to start using `matrix-appservice-wechaty` by talk to the bot `@wechaty:your.domain`
 1. After you talk to `@wechaty`, it will send you Wechat Login QR Code. Scan it to login Wechat
