@@ -171,29 +171,6 @@ export class SuperEvent {
     }
   }
 
-  public async roomPair (): Promise<null | RoomPair> {
-    log.verbose('SuperEvent', 'roomPair()')
-
-    const entryList = await this.appserviceManager.roomStore
-      .getEntriesByMatrixId(this.room().getId())
-
-    if (entryList.length <= 0) {
-      return null
-    }
-
-    const matrix = entryList[0].matrix
-    const remote = entryList[0].remote
-
-    if (!matrix || !remote) {
-      throw new Error('room not found!')
-    }
-
-    return {
-      matrix,
-      remote,
-    }
-  }
-
   public async isDirectMessage (): Promise<boolean> {
     const matrixRoom = this.room()
     log.verbose('SuperEvent', 'isDirectMessage() room "%s"', matrixRoom.getId())

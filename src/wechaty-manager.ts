@@ -215,6 +215,36 @@ export class WechatyManager {
     return wechatyContact
   }
 
+  public async wechatyRoom (
+    ofMatrixRoom      : MatrixRoom,
+    forMatrixConsumer : MatrixUser,
+  ): Promise<Room> {
+    log.verbose('WechatyManager', 'wechatyRoom(%s, %s)',
+      ofMatrixRoom.getId(),
+      forMatrixConsumer.getId(),
+    )
+
+    const {
+      wechatyRoomId,
+    } = {
+      ...ofMatrixRoom.get(
+        APPSERVICE_ROOM_DATA_KEY
+      ),
+    } as AppserviceMatrixRoomData
+
+    const wechaty = this.wechaty(forMatrixConsumer.getId())
+    if (!wechaty) {
+      throw new Error('no wechaty instance for matrix user id ' + forMatrixConsumer.getId())
+    }
+
+    const wechatyRoom = await wechaty.Room
+      .find({ id: wechatyRoomId })
+    if (!wechatyRoom) {
+      throw new Error('no wechaty room found for id: ' + wechatyRoomId)
+    }
+    return wechatyRoom
+  }
+
   /****************************************************************************
    * Protected Methods                                                       *
    ****************************************************************************/
@@ -417,18 +447,25 @@ export class WechatyManager {
 
     const matrixUser = matrixUserList.length > 0
       ? matrixUserList[0]
-      : this.generateMatrixUser(userData)
+      : this.generateMatrixUser(ofWechatyContact, userData)
 
     return matrixUser
   }
 
   protected async generateMatrixUser (
-    fromUserData: AppserviceMatrixUserData,
+    ofWechatyContact : Contact,
+    fromUserData     : AppserviceMatrixUserData,
   ): Promise<MatrixUser> {
-    log.verbose('WechatyManager', 'generateMatrixUser("%s")', JSON.stringify(fromUserData))
+    log.verbose('WechatyManager', 'generateMatrixUser(%s, "%s")',
+      ofWechatyContact.id,
+      JSON.stringify(fromUserData),
+    )
 
     const matrixUserId = this.appserviceManager.generateVirtualUserId()
     const matrixUser   = new MatrixUser(matrixUserId)
+
+    // fromUserData.avatar = ofWechatyContact.avatar()
+    fromUserData.name   = ofWechatyContact.name() + '(Wechaty Bridged)'
 
     matrixUser.set(APPSERVICE_USER_DATA_KEY, fromUserData)
     await this.appserviceManager.userStore.setMatrixUser(matrixUser)
@@ -476,8 +513,8 @@ export class WechatyManager {
   ): Promise<MatrixRoom> {
     const topic = await fromWechatyRoom.topic()
     log.verbose('WechatyManager', 'generateMatrixRoom(%s, %s)',
-      JSON.stringify(withRoomData),
       topic,
+      JSON.stringify(withRoomData),
     )
 
     const consumer = await this.appserviceManager
@@ -495,8 +532,8 @@ export class WechatyManager {
       inviteeIdList.push(matrixUser.getId())
     }
 
-    const matrixRoomId = await this.appserviceManager.createRoom(inviteeIdList, topic)
-    const matrixRoom   = new MatrixRoom(matrixRoomId)
+    const matrixRoom = await this.appserviceManager
+      .createRoom(inviteeIdList, topic)
 
     matrixRoom.set(APPSERVICE_ROOM_DATA_KEY, withRoomData)
     await this.appserviceManager.roomStore

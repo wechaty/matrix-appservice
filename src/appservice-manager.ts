@@ -411,7 +411,7 @@ export class AppserviceManager {
   async createRoom (
     withMatrixIdList : string[],
     withName         : string,
-  ): Promise<string> {
+  ): Promise<MatrixRoom> {
     log.verbose('AppserviceService', 'createRoom([%s], %s)',
       withMatrixIdList.join(','),
       withName,
@@ -429,7 +429,8 @@ export class AppserviceManager {
       },
     })
 
-    return roomInfo.room_id
+    const matrixRoom = new MatrixRoom(roomInfo.room_id)
+    return matrixRoom
   }
 
   public generateVirtualUserId () {

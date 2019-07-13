@@ -1,12 +1,16 @@
 import {
   BridgeContext,
   Request,
+  MatrixUser,
+  ProvisionedUser,
   // RemoteUser,
 }                   from 'matrix-appservice-bridge'
 
 import {
   AGE_LIMIT_SECONDS,
   log,
+  APPSERVICE_USER_DATA_KEY,
+  AppserviceMatrixUserData,
 }                     from './config'
 
 import { AppserviceManager }  from './appservice-manager'
@@ -72,51 +76,27 @@ export class MatrixHandler {
   }
 
   /**
-   * Invoked when the bridge receives a user query from the homeserver. Supports
-   * both sync return values and async return values via promises.
-   * @callback Bridge~onUserQuery
-   * @param {MatrixUser} matrixUser The matrix user queried. Use <code>getId()</code>
-   * to get the user ID.
-   * @return {?Bridge~ProvisionedUser|Promise<Bridge~ProvisionedUser, Error>}
-   * Reject the promise / return null to not provision the user. Resolve the
-   * promise / return a {@link Bridge~ProvisionedUser} object to provision the user.
-   * @example
-   * new Bridge({
-   *   controller: {
-   *     onUserQuery: function(matrixUser) {
-   *       var remoteUser = new RemoteUser("some_remote_id");
-   *       return {
-   *         name: matrixUser.localpart + " (Bridged)",
-   *         url: "http://someurl.com/pic.jpg",
-   *         user: remoteUser
-   *       };
-   *     }
-   *   }
-   * });
+   * Be aware that the queriedUser did not contains any data from userStore.
    */
   public async onUserQuery (
-    queriedUser: any,
-  ): Promise<object> {
+    queriedUser: MatrixUser,
+  ): Promise<ProvisionedUser> {
     log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser))
-    console.info('queriedUser', queriedUser)
 
-    // if (isBridgeUser(matrixUserId)) {
-    //   const wechaty = this.wechatyManager!.get(matrixUserId)
-    //   const bridgeUser = new BridgeUser(matrixUserId, this.bridge!, wechaty)
+    const storeMatrixUser = await this.appserviceManager.matrixUser(queriedUser.getId())
+    const userData = {
+      ...storeMatrixUser.get(
+        APPSERVICE_USER_DATA_KEY
+      ),
+    } as AppserviceMatrixUserData
 
-    //   onBridgeUserUserQuery.call(bridgeUser, queriedUser)
-    //     .catch(e => {
-    //       log.error('AppServiceManager', 'onUserQuery() onBridgeUserUserQuery() rejection: %s', e && e.message)
-    //     })
-    // try {
-    //   const provision = await onUserQuery.call(this, queriedUser)
-    //   return provision
-    // } catch (e) {
-    //   log.error('AppServiceManager', 'onUserQuery() rejection: %s', e && e.message)
-    // }
+    const provisionedUser = {
+      name : userData.name,
+      url  : userData.avatar,
+    } as ProvisionedUser
 
-    // auto-provision users with no additonal data
-    return {}
+    log.silly('MatrixHandler', 'onUserQuery() -> "%s"', JSON.stringify(provisionedUser))
+    return provisionedUser
   }
 
   /****************************************************************************
@@ -280,25 +260,16 @@ export class MatrixHandler {
     }
 
     try {
-      const roomPair = await superEvent.roomPair()
-      if (!roomPair) {
-        throw new Error('no room pair for super event')
-      }
+      const wechatyRoom = await this.wechatyManager.wechatyRoom(
+        superEvent.room(),
+        superEvent.sender(),    // FIXME: should be consumer
+      )
 
-      const wechaty = this.wechatyManager.wechaty(matrixUser.getId())
-      if (!wechaty) {
-        throw new Error('no wechaty')
-      }
-
-      const wechatyRoom = await wechaty.Room.find({ id: roomPair.remote.getId() })
-      if (!wechatyRoom) {
-        throw new Error('no wechaty room for id: ' + roomPair.remote.getId())
-      }
-
-      await wechatyRoom.say(superEvent.event.content!.body!)
+      await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
 
     } catch (e) {
-      log.silly('MatrixHandler', 'onGroupMessage() roomPair() rejection: %s', e.message)
+      log.silly('MatrixHandler', 'onGroupMessage() rejection: %s', e.message)
+      throw e
     }
   }
 

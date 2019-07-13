@@ -45,6 +45,9 @@ export interface AppserviceMatrixUserData {
   wechatyContactId : string  // the wechaty contact id that this user linked to
 
   directRoomId?    : string  // direct message betwen the virtual user with the matrix consumer
+
+  name?   : string
+  avatar? : string
 }
 
 export interface AppserviceWechatyData {
