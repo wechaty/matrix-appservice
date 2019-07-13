@@ -22,6 +22,7 @@ import {
   APPSERVICE_USER_DATA_KEY,
   AppserviceMatrixUserData,
   APPSERVICE_ROOM_DATA_KEY,
+  APPSERVICE_NAME_POSTFIX,
 }                               from './config'
 
 // const REMOTE_CONTACT_DELIMITER = '<->'
@@ -368,7 +369,7 @@ export class AppserviceManager {
           toConsumerMatrixUser.getId(),
         ],
         is_direct  : true,
-        name: roomName,
+        name       : roomName + APPSERVICE_NAME_POSTFIX,
         preset     : 'trusted_private_chat',
         visibility : 'private',
       },
@@ -424,7 +425,7 @@ export class AppserviceManager {
       createAsClient: false,
       options: {
         invite: withMatrixIdList,
-        name: withName,
+        name: withName + APPSERVICE_NAME_POSTFIX,
         visibility: 'private',
       },
     })

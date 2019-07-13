@@ -18,6 +18,7 @@ import {
   AppserviceMatrixUserData,
   APPSERVICE_USER_DATA_KEY,
   APPSERVICE_ROOM_DATA_KEY,
+  APPSERVICE_NAME_POSTFIX,
 }                             from './config'
 
 import { AppserviceManager }  from './appservice-manager'
@@ -231,6 +232,10 @@ export class WechatyManager {
         APPSERVICE_ROOM_DATA_KEY
       ),
     } as AppserviceMatrixRoomData
+
+    if (!wechatyRoomId) {
+      throw new Error('no wechaty room id for matrix room ' + ofMatrixRoom.getId())
+    }
 
     const wechaty = this.wechaty(forMatrixConsumer.getId())
     if (!wechaty) {
@@ -465,7 +470,7 @@ export class WechatyManager {
     const matrixUser   = new MatrixUser(matrixUserId)
 
     // fromUserData.avatar = ofWechatyContact.avatar()
-    fromUserData.name   = ofWechatyContact.name() + '(Wechaty Bridged)'
+    fromUserData.name   = ofWechatyContact.name() + APPSERVICE_NAME_POSTFIX
 
     matrixUser.set(APPSERVICE_USER_DATA_KEY, fromUserData)
     await this.appserviceManager.userStore.setMatrixUser(matrixUser)

@@ -23,6 +23,8 @@ export const APPSERVICE_WECHATY_DATA_KEY = 'wechatyAppservice'
 export const APPSERVICE_ROOM_DATA_KEY    = 'wechatyAppserviceRoom'
 export const APPSERVICE_USER_DATA_KEY    = 'wechatyAppserviceUser'
 
+export const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
+
 export const WECHATY_LOCALPART = 'wechaty'
 export const REGISTRATION_FILE = 'wechaty-registration.yaml'
 export const SCHEMA_FILE       = path.join(__dirname, '../config/schema.yaml')

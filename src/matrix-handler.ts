@@ -269,7 +269,14 @@ export class MatrixHandler {
 
     } catch (e) {
       log.silly('MatrixHandler', 'onGroupMessage() rejection: %s', e.message)
-      throw e
+
+      // FIXME: better way to deal with this error message
+      let dmRoom = await this.appserviceManager.directMessageRoom(superEvent.sender())
+      if (!dmRoom) {
+        dmRoom = await this.appserviceManager.createDirectRoom(superEvent.sender())
+      }
+      await this.appserviceManager.directMessage(dmRoom, e.message)
+
     }
   }
 
