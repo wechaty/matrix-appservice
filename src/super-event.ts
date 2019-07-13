@@ -9,10 +9,9 @@ import {
 import { EventType } from 'matrix-js-sdk'
 
 import {
+  APPSERVICE_ROOM_DATA_KEY,
+  AppserviceMatrixRoomData,
   log,
-  MatrixRoomWechatyData,
-  WECHATY_DATA_KEY,
-  MatrixUserWechatyData,
 }                          from './config'
 
 import { AppserviceManager }  from './appservice-manager'
@@ -80,7 +79,7 @@ export class SuperEvent {
     if (!target) {
       return false
     }
-    return this.appserviceManager.isGhost(target.getId())
+    return this.appserviceManager.isVirtual(target.getId())
   }
 
   public isMatrixTarget (): boolean {
@@ -98,14 +97,14 @@ export class SuperEvent {
   /**
    * from @wechaty_.*
    */
-  public isGhostSender (): boolean {
+  public isVirtualSender (): boolean {
     const sender = this.sender()
 
-    return this.appserviceManager.isGhost(sender.getId())
+    return this.appserviceManager.isVirtual(sender.getId())
   }
 
   public isMatrixSender (): boolean {
-    return !this.isGhostSender() && !this.isBotSender()
+    return !this.isVirtualSender() && !this.isBotSender()
   }
 
   public isRoomInvitation (): boolean {
@@ -143,38 +142,32 @@ export class SuperEvent {
     const matrixRoom = this.room()
     log.verbose('SuperEvent', 'directMessageUserPair() in room "%s"', matrixRoom.getId())
 
-    const data = matrixRoom.get(WECHATY_DATA_KEY) as MatrixRoomWechatyData
-    if (!data) {
-      throw new Error('no data')
+    const {
+      consumerId,
+      directUserId,
+    } = {
+      ...matrixRoom.get(
+        APPSERVICE_ROOM_DATA_KEY
+      ),
+    } as AppserviceMatrixRoomData
+    if (!directUserId) {
+      throw new Error('no directUserId found)')
     }
 
-    const direct = data.direct
-    if (!direct) {
-      throw new Error('direct message data is undefined(unknown) or null(not a direct message)')
-    }
-
-    const matrixUser = await this.appserviceManager.userStore
-      .getMatrixUser(direct.userId)
-
-    if (!matrixUser) {
-      throw new Error('no matrix user for id ' + direct.userId)
-    }
-
-    const serviceUser = await this.appserviceManager.userStore
-      .getMatrixUser(direct.serviceId)
-    if (!serviceUser) {
-      throw new Error('no remote user for id ' + direct.serviceId)
-    }
+    const consumerUser = await this.appserviceManager
+      .matrixUser(consumerId)
+    const serviceUser  = await this.appserviceManager
+      .matrixUser(directUserId)
 
     log.silly('SuperEvent', 'directMessageUserPair() in room "%s" -> {user: "%s", service: "%s"}',
       matrixRoom.getId(),
-      matrixUser.getId(),
+      consumerUser.getId(),
       serviceUser.getId(),
     )
 
     return {
       service : serviceUser,
-      user    : matrixUser,
+      user    : consumerUser,
     }
   }
 
@@ -205,12 +198,13 @@ export class SuperEvent {
     const matrixRoom = this.room()
     log.verbose('SuperEvent', 'isDirectMessage() room "%s"', matrixRoom.getId())
 
-    let isDM: null | boolean
+    const { directUserId } = {
+      ...matrixRoom.get(
+        APPSERVICE_ROOM_DATA_KEY
+      ),
+    } as AppserviceMatrixRoomData
 
-    isDM = this.isDirectMessageByData(matrixRoom)
-    if (isDM === null) {
-      isDM = await this.isDirectMessageUserByMember(matrixRoom)
-    }
+    const isDM = !!directUserId
 
     log.silly('SuperEvent', 'isDirectMessage() room "%s" -> %s', matrixRoom.getId(), isDM)
     return isDM
@@ -220,41 +214,14 @@ export class SuperEvent {
    * Private Methods                                                         *
    ****************************************************************************/
 
-  private isDirectMessageByData (
-    matrixRoom: MatrixRoom,
-  ): null | boolean {
-    log.verbose('AppserviceManager', 'directMessageFromData() for room id: %s', matrixRoom.getId())
+  // private isDirectMessageByData (
+  //   matrixRoom: MatrixRoom,
+  // ): null | boolean {
+  //   log.verbose('AppserviceManager', 'directMessageFromData() for room id: %s', matrixRoom.getId())
 
-    let data = matrixRoom.get(WECHATY_DATA_KEY) as MatrixRoomWechatyData
-
-    if (!data) {
-      return null
-    }
-
-    let isDirect: null | boolean
-
-    switch (data.direct) {
-      case undefined:
-        // Unknown
-        log.silly('SuperEvent', 'isDirectRoomFromData() room id "%s" UNKNOWN', matrixRoom.getId())
-        isDirect = null
-        break
-
-      case false:
-        // Not a direct message room
-        log.silly('SuperEvent', 'isDirectRoomFromData() room id "%s" NO', matrixRoom.getId())
-        isDirect = false
-        break
-
-      default:
-        // It is a direct message room because the data is set
-        log.silly('SuperEvent', 'isDirectRoomFromData() room id "%s" YES', matrixRoom.getId())
-        isDirect = true
-        break
-    }
-
-    return isDirect
-  }
+  //   const { directUserId } = matrixRoom.get(APPSERVICE_ROOM_DATA_KEY) as AppserviceMatrixRoomData
+  //   return !!directUserId
+  // }
 
   // private directMessageByDMInviter (
   //   matrixRoom: MatrixRoom,
@@ -275,84 +242,85 @@ export class SuperEvent {
   //   return !!dmInviter
   // }
 
-  private async isDirectMessageUserByMember (
-    matrixRoom: MatrixRoom,
-  ): Promise<boolean> {
-    log.verbose('SuperEvent', 'isDirectRoomByMember() room id: "%s"', matrixRoom.getId())
+  // TODO: to be deleted.
+  // public async isDirectMessageUserByMember (
+  //   matrixRoom: MatrixRoom,
+  // ): Promise<boolean> {
+  //   log.verbose('SuperEvent', 'isDirectRoomByMember() room id: "%s"', matrixRoom.getId())
 
-    const memberDict = await this.appserviceManager.bridge.getBot()
-      .getJoinedMembers(matrixRoom.getId())
-    const memberIdList = Object.keys(memberDict)
+  //   const memberDict = await this.appserviceManager.bridge.getBot()
+  //     .getJoinedMembers(matrixRoom.getId())
+  //   const memberIdList = Object.keys(memberDict)
 
-    const roomData = { ...matrixRoom.get(WECHATY_DATA_KEY) } as MatrixRoomWechatyData
+  //   const roomData = { ...matrixRoom.get(APPSERVICE_ROOM_DATA_KEY) } as AppserviceMatrixRoomData
 
-    const memberNum = memberIdList.length
-    if (memberNum !== 2) {
-      roomData.direct = false
-      matrixRoom.set(WECHATY_DATA_KEY, roomData)
-      await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
+  //   const memberNum = memberIdList.length
+  //   if (memberNum !== 2) {
+  //     roomData.direct = false
+  //     matrixRoom.set(APPSERVICE_ROOM_DATA_KEY, roomData)
+  //     await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
 
-      return false
-    }
+  //     return false
+  //   }
 
-    const memberId0 = memberIdList[0]
-    const memberId1 = memberIdList[1]
+  //   const memberId0 = memberIdList[0]
+  //   const memberId1 = memberIdList[1]
 
-    let userId    : string
-    let serviceId : string
+  //   let userId    : string
+  //   let serviceId : string
 
-    if (this.appserviceManager.isUser(memberId0)
-      && !this.appserviceManager.isUser(memberId1)
-    ) {
-      userId    = memberId0
-      serviceId = memberId1
-    } else if (this.appserviceManager.isUser(memberId1)
-      && !this.appserviceManager.isUser(memberId0)
-    ) {
-      userId    = memberId1
-      serviceId = memberId0
-    } else {
-      throw new Error('memberIdList state unknown: ' + JSON.stringify(memberIdList))
-    }
+  //   if (this.appserviceManager.isUser(memberId0)
+  //     && !this.appserviceManager.isUser(memberId1)
+  //   ) {
+  //     userId    = memberId0
+  //     serviceId = memberId1
+  //   } else if (this.appserviceManager.isUser(memberId1)
+  //     && !this.appserviceManager.isUser(memberId0)
+  //   ) {
+  //     userId    = memberId1
+  //     serviceId = memberId0
+  //   } else {
+  //     throw new Error('memberIdList state unknown: ' + JSON.stringify(memberIdList))
+  //   }
 
-    let matrixUser = await this.appserviceManager.userStore.getMatrixUser(userId)
-    if (!matrixUser) {
-      log.verbose('SuperEvent', 'isDirectRoomByMember() creating matrix user "%s" in store', userId)
-      matrixUser = new MatrixUser(userId)
+  //   let matrixUser = await this.appserviceManager.userStore.getMatrixUser(userId)
+  //   if (!matrixUser) {
+  //     log.verbose('SuperEvent', 'isDirectRoomByMember() creating matrix user "%s" in store', userId)
+  //     matrixUser = new MatrixUser(userId)
 
-      await this.appserviceManager.userStore
-        .setMatrixUser(matrixUser)
-    }
+  //     await this.appserviceManager.userStore
+  //       .setMatrixUser(matrixUser)
+  //   }
 
-    let serviceUser = await this.appserviceManager.userStore.getMatrixUser(serviceId)
-    if (!serviceUser) {
-      log.verbose('SuperEvent', 'isDirectRoomByMember() creating matrix user "%s" in store', serviceId)
-      serviceUser = new MatrixUser(serviceId)
+  //   let serviceUser = await this.appserviceManager.userStore.getMatrixUser(serviceId)
+  //   if (!serviceUser) {
+  //     log.verbose('SuperEvent', 'isDirectRoomByMember() creating matrix user "%s" in store', serviceId)
+  //     serviceUser = new MatrixUser(serviceId)
 
-      await this.appserviceManager.userStore
-        .setMatrixUser(serviceUser)
-    }
+  //     await this.appserviceManager.userStore
+  //       .setMatrixUser(serviceUser)
+  //   }
 
-    /**
-     * Set directMessage to matrix room
-     */
-    roomData.direct = {
-      serviceId,
-      userId,
-    }
+  //   /**
+  //    * Set directMessage to matrix room
+  //    */
+  //   roomData.direct = {
+  //     virtualId: serviceId,
+  //     userId,
+  //   }
 
-    matrixRoom.set(WECHATY_DATA_KEY, roomData)
-    await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
+  //   matrixRoom.set(APPSERVICE_ROOM_DATA_KEY, roomData)
+  //   await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
 
-    /**
-     * Set directMessageRoomId for matrix user
-     */
-    const userData = { ...matrixUser.get(WECHATY_DATA_KEY) } as MatrixUserWechatyData
-    userData.directMessageRoomId = matrixRoom.getId()
-    matrixUser.set(WECHATY_DATA_KEY, userData)
-    await this.appserviceManager.userStore.setMatrixUser(matrixUser)
+  //   /**
+  //    * Set directMessageRoomId for matrix user
+  //    */
+  //   const userData = { ...matrixUser.get(APPSERVICE_USER_DATA_KEY) } as AppserviceMatrixUserData
+  //   userData.directRoomId = matrixRoom.getId()
+  //   matrixUser.set(APPSERVICE_USER_DATA_KEY, userData)
+  //   await this.appserviceManager.userStore.setMatrixUser(matrixUser)
 
-    return true
-  }
+  //   return true
+  // }
 
 }

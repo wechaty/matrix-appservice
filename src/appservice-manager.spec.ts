@@ -95,49 +95,49 @@ test('wechatyOptions()', async (t) => {
   t.deepEqual(option, EXPECTED_OPTIONS, 'should get expected option after set')
 })
 
-test('contactToRemoteId()', async t => {
-  const CONSUMER_ID      = `@admin_id:${MOCK_DOMAIN}`
-  const CONTACT_ID       = 'contact_id'
-  const EXPECT_REMOTE_ID = `${CONSUMER_ID}<->${CONTACT_ID}`
+// test('contactToRemoteId()', async t => {
+//   const CONSUMER_ID      = `@admin_id:${MOCK_DOMAIN}`
+//   const CONTACT_ID       = 'contact_id'
+//   const EXPECT_REMOTE_ID = `${CONSUMER_ID}<->${CONTACT_ID}`
 
-  const matrixConsumer = new MatrixUser(CONSUMER_ID)
+//   const matrixConsumer = new MatrixUser(CONSUMER_ID)
 
+//   const appserviceManager = getMockAppserviceManager()
+
+//   const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixConsumer)
+//   t.equal(remoteId, EXPECT_REMOTE_ID, 'should get remote id right')
+// })
+
+// test('remoteToContactId()',  async t => {
+//   const REMOTE_ID         = 'admin_id<->contact_id'
+//   const EXPECT_CONTACT_ID = 'contact_id'
+
+//   const remoteUser = new RemoteUser(REMOTE_ID)
+
+//   const appserviceManager = getMockAppserviceManager()
+
+//   const contactId = appserviceManager.wechatyIdOf(remoteUser)
+//   t.equal(contactId, EXPECT_CONTACT_ID, 'should get contact id right')
+// })
+
+// test('contactToVirtualId() v.s. virtualToContactId()', async t => {
+//   const ADMIN_ID         = '@admin_id:domain.tld'
+//   const CONTACT_ID       = 'contact_id'
+
+//   const matrixConsumer = new MatrixUser(ADMIN_ID)
+
+//   const appserviceManager = getMockAppserviceManager()
+
+//   const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixConsumer)
+//   const remoteUser = new RemoteUser(remoteId)
+//   const contactId = appserviceManager.wechatyIdOf(remoteUser)
+
+//   t.equal(contactId, CONTACT_ID, 'should get contact id to remote id and get back')
+// })
+
+test('generateVirtualUserId()', async t => {
   const appserviceManager = getMockAppserviceManager()
 
-  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixConsumer)
-  t.equal(remoteId, EXPECT_REMOTE_ID, 'should get remote id right')
-})
-
-test('remoteToContactId()',  async t => {
-  const REMOTE_ID         = 'admin_id<->contact_id'
-  const EXPECT_CONTACT_ID = 'contact_id'
-
-  const remoteUser = new RemoteUser(REMOTE_ID)
-
-  const appserviceManager = getMockAppserviceManager()
-
-  const contactId = appserviceManager.wechatyIdOf(remoteUser)
-  t.equal(contactId, EXPECT_CONTACT_ID, 'should get contact id right')
-})
-
-test('contactToGhostId() v.s. ghostToContactId()', async t => {
-  const ADMIN_ID         = '@admin_id:domain.tld'
-  const CONTACT_ID       = 'contact_id'
-
-  const matrixConsumer = new MatrixUser(ADMIN_ID)
-
-  const appserviceManager = getMockAppserviceManager()
-
-  const remoteId = appserviceManager.remoteIdOf(CONTACT_ID, matrixConsumer)
-  const remoteUser = new RemoteUser(remoteId)
-  const contactId = appserviceManager.wechatyIdOf(remoteUser)
-
-  t.equal(contactId, CONTACT_ID, 'should get contact id to remote id and get back')
-})
-
-test('generateGhostUserId()', async t => {
-  const appserviceManager = getMockAppserviceManager()
-
-  const ghostId = appserviceManager.generateGhostUserId()
-  t.true(/^@wechaty_[^:]+:.+$/.test(ghostId), 'ghost id generator should match base rules')
+  const virtualId = appserviceManager.generateVirtualUserId()
+  t.true(/^@wechaty_[^:]+:.+$/.test(virtualId), 'virtual id generator should match base rules')
 })

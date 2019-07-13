@@ -126,7 +126,7 @@ declare module 'matrix-appservice-bridge' {
   }
 
   export interface ThirdPartyUserResult {
-    userid   : string  // The Matrix user ID for the ghost representing this 3PU
+    userid   : string  // The Matrix user ID for the virtual representing this 3PU
     protocol : string  // The name of the 3PE protocol
     fields   : object  // The normalised values of the user query field data.
   }
@@ -267,9 +267,10 @@ declare module 'matrix-appservice-bridge' {
 
   export class MatrixUser {
 
-    private userId    : string
-    public localpart : string
-    public host      : string
+    public readonly localpart : string
+    public readonly host      : string
+
+    private userId : string
 
     constructor (userId: string, dataopt?: object, escape = true)
     escapeUserId(): void

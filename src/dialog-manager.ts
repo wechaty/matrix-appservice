@@ -77,7 +77,7 @@ export class DialogManager {
       // throw new Error('no wechaty for id: ' + matrixUser.getId())
     }
 
-    // message to wechaty ghost users
+    // message to wechaty virtual users
     if (!wechaty.logonoff()) {
       await this.gotoLoginWechatyDialog(matrixUser.getId())
     } else {
