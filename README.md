@@ -102,6 +102,13 @@ Simply run the `logout` management command.
 ### v0.4 (Alpha) July 14, 2019
 
 1. Support receive/send Wechat message from Matrix for both Individuals and Rooms.
+1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/Chatie/wechaty-puppet-puppeteer)) and Pad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
+
+#### Known Issues
+
+1. The names/avatars of Wechat users/groups are not set right on Matrix.
+1. Only support text message, Image/Audio/Video message is not supported yet. (Will be supported in the future version)
+1. Appservice will create more than one matrix room for a Wechat room when receiving messages from it for the very first time. (It will stop creating new rooms after you accepted the invitation)
 
 ### v0.2 July 6,  2019
 
