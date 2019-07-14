@@ -18,8 +18,14 @@ import { AppserviceManager } from './appservice-manager'
 
 const MOCK_DOMAIN = 'domain.tld'
 
+class AppserviceManagerMock extends AppserviceManager {
+
+  public generateVirtualUserId () { return super.generateVirtualUserId() }
+
+}
+
 function getMockAppserviceManager () {
-  const appserviceManager = new AppserviceManager()
+  const appserviceManager = new AppserviceManagerMock()
 
   const mockBridge = {
     getIntent: Sinon.spy(),

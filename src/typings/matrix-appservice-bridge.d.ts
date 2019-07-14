@@ -164,31 +164,31 @@ declare module 'matrix-appservice-bridge' {
   export class Bridge {
 
     constructor (public opts: BridgeOptions)
-    run                    (port: number, config: any)                                                       : Promise<void>
-    getIntent              (id: string)                                                                      : Intent
-    getBot                ()                                                                                 : AppServiceBot
-    getClientFactory      ()                                                                                 : ClientFactory
-    getIntent             (userId?: string, request?: Request)                                               : Intent
-    getIntentFromLocalpart(localpart: null | string, request?: Request)                                      : Intent
-    getPrometheusMetrics  ()                                                                                 : RequestFactory
-    getRequestFactory     ()                                                                                 : RequestFactory
-    getRoomStore          ()                                                                                 : null | RoomBridgeStore
-    getUserStore          ()                                                                                 : null | UserBridgeStore
-    loadDatabases         ()                                                                                 : Promise<void>
-    provisionUser         (matrixUser: MatrixUser, provisionedUser: ProvisionedUser)                         : Promise<void>
-    registerBridgeGauges  (counterFunc: () => any)                                                           : object
-    run                   (port: number, config: object, appServiceInstance?: AppService)                    : void
-    getLocation           (protocol: string, fields: object)                                                 : Promise<Array<ThirdPartyLocationResult>>
-    getProtocol           (protocol: string)                                                                 : Promise<BridgeThirdPartyProtocolResult>
-    getUser               (protocol: string, fields: options)                                                : Promise<Array<ThirdPartyUserResult>>
-    onAliasQueried        (alias: string, roomId: string)                                                    : void
-    onAliasQuery          (alias: string, aliasLocalpart: string)                                            : ProvisionedRoom | Promise<ProvisionedRoom>
-    onEvent               (request: Request, context: BridgeContext)                                         : void
-    onLog                 (line: string, isError: boolean)                                                   : void
-    onRoomUpgrade         (oldRoomId: string, newRoomId: string, newVersion: string, context: BridgeContext) : void
-    onUserQuery           (matrixUser: MatrixUser)                                                           : ProvisionedUser | Promise<ProvisionedUser>
-    parseLocation         (alias: string)                                                                    : Promise<Array<ThirdPartyLocationResult>>
-    parseUser             (userid: string)                                                                   : Promise<Array<ThirdPartyUserResult>>
+    run                    (port: number, config: any)                                                        : Promise<void>
+    getIntent              (id: string)                                                                       : Intent
+    getBot                 ()                                                                                 : AppServiceBot
+    getClientFactory       ()                                                                                 : ClientFactory
+    getIntent              (userId?: string, request?: Request)                                               : Intent
+    getIntentFromLocalpart (localpart: null | string, request?: Request)                                      : Intent
+    getPrometheusMetrics   ()                                                                                 : RequestFactory
+    getRequestFactory      ()                                                                                 : RequestFactory
+    getRoomStore           ()                                                                                 : null | RoomBridgeStore
+    getUserStore           ()                                                                                 : null | UserBridgeStore
+    loadDatabases          ()                                                                                 : Promise<void>
+    provisionUser          (matrixUser: MatrixUser, provisionedUser: ProvisionedUser)                         : Promise<void>
+    registerBridgeGauges   (counterFunc: () => any)                                                           : object
+    run                    (port: number, config: object, appServiceInstance?: AppService)                    : void
+    getLocation            (protocol: string, fields: object)                                                 : Promise<Array<ThirdPartyLocationResult>>
+    getProtocol            (protocol: string)                                                                 : Promise<BridgeThirdPartyProtocolResult>
+    getUser                (protocol: string, fields: options)                                                : Promise<Array<ThirdPartyUserResult>>
+    onAliasQueried         (alias: string, roomId: string)                                                    : void
+    onAliasQuery           (alias: string, aliasLocalpart: string)                                            : ProvisionedRoom | Promise<ProvisionedRoom>
+    onEvent                (request: Request, context: BridgeContext)                                         : void
+    onLog                  (line: string, isError: boolean)                                                   : void
+    onRoomUpgrade          (oldRoomId: string, newRoomId: string, newVersion: string, context: BridgeContext) : void
+    onUserQuery            (matrixUser: MatrixUser)                                                           : ProvisionedUser | Promise<ProvisionedUser>
+    parseLocation          (alias: string)                                                                    : Promise<Array<ThirdPartyLocationResult>>
+    parseUser              (userid: string)                                                                   : Promise<Array<ThirdPartyUserResult>>
 
   }
 
@@ -237,7 +237,7 @@ declare module 'matrix-appservice-bridge' {
     roomState       (roomId: string, useCache = false)                                    : Promise<any>
     sendEvent       (roomId: string, type: EventType, content: object)                    : Promise<void>
     sendMessage     (roomId: string, content: object)                                     : Promise<void>
-    sendReadReceipt ()                                                                     : Promise<void>
+    sendReadReceipt ()                                                                    : Promise<void>
     sendStateEvent  (roomId: string, type: EventType, skey: string, content: object)      : Promise<void>
     sendText        (roomId: string, text: string)                                        : Promise<void>
     sendTyping      (roomId: string, isTyping: boolean)                                   : Promise<void>

@@ -4,7 +4,6 @@ import {
   MatrixRoom,
   MatrixUser,
   Request,
-  RemoteRoom,
 }                   from 'matrix-appservice-bridge'
 import { EventType } from 'matrix-js-sdk'
 
@@ -20,11 +19,6 @@ import { WechatyManager }     from './wechaty-manager'
 export interface DirectMessageUserPair {
   user    : MatrixUser,
   service : MatrixUser,
-}
-
-export interface RoomPair {
-  matrix: MatrixRoom,
-  remote: RemoteRoom,
 }
 
 export class SuperEvent {
@@ -77,7 +71,7 @@ export class SuperEvent {
     return this.appserviceManager.isBot(matrixUserId)
   }
 
-  public isRemoteTarget (): boolean {
+  public isVirtualTarget (): boolean {
     const target = this.target()
     if (!target) {
       return false
@@ -85,8 +79,11 @@ export class SuperEvent {
     return this.appserviceManager.isVirtual(target.getId())
   }
 
-  public isMatrixTarget (): boolean {
-    return !this.isRemoteTarget() && !this.isBotTarget()
+  public isUserTarget (): boolean {
+    return (
+      !this.isVirtualTarget()
+      && !this.isBotTarget()
+    )
   }
 
   /**
@@ -106,8 +103,11 @@ export class SuperEvent {
     return this.appserviceManager.isVirtual(sender.getId())
   }
 
-  public isMatrixSender (): boolean {
-    return !this.isVirtualSender() && !this.isBotSender()
+  public isUserSender (): boolean {
+    return (
+      !this.isVirtualSender()
+      && !this.isBotSender()
+    )
   }
 
   public isRoomInvitation (): boolean {
@@ -135,10 +135,6 @@ export class SuperEvent {
       .getIntent(inviteeMatrixUserId)
 
     await intent.join(matrixRoomId)
-  }
-
-  public remoteRoom (): null | RemoteRoom {
-    return this.context.rooms.remote
   }
 
   public async directMessageUserPair (): Promise<DirectMessageUserPair> {

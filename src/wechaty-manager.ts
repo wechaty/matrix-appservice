@@ -18,7 +18,6 @@ import {
   AppserviceMatrixUserData,
   APPSERVICE_USER_DATA_KEY,
   APPSERVICE_ROOM_DATA_KEY,
-  APPSERVICE_NAME_POSTFIX,
 }                             from './config'
 
 import { AppserviceManager }  from './appservice-manager'
@@ -401,7 +400,7 @@ export class WechatyManager {
       throw new Error('can not found from contact for wechat message')
     }
 
-    const virtualMatrixUser = await this.matrixUser(from, forMatrixConsumer)
+    const virtualMatrixUser = await this.appserviceManager.matrixUser(from, forMatrixConsumer)
     let   matrixRoom        = await this.appserviceManager.directMessageRoom(virtualMatrixUser)
     if (!matrixRoom) {
       log.silly('WechatyManager', 'onMessage() creating direct chat room for remote user "%s"', virtualMatrixUser.getId())
@@ -440,8 +439,8 @@ export class WechatyManager {
 
     const text = onWechatyMessage.text()
 
-    const matrixRoom = await this.matrixRoom(room, forMatrixConsumer)
-    const matrixUser = await this.matrixUser(
+    const matrixRoom = await this.appserviceManager.matrixRoom(room, forMatrixConsumer)
+    const matrixUser = await this.appserviceManager.matrixUser(
       from,
       forMatrixConsumer,
     )
@@ -452,128 +451,6 @@ export class WechatyManager {
       text,
     )
 
-  }
-
-  protected async matrixUser (
-    ofWechatyContact  : Contact,
-    forMatrixConsumer : null | MatrixUser,
-  ): Promise<MatrixUser> {
-    if (!forMatrixConsumer) { throw new Error('matrix consumer is null') }
-
-    log.verbose('WechatyManager', 'matrixUser(%s, %s)',
-      ofWechatyContact.id,
-      forMatrixConsumer.getId(),
-    )
-
-    const userData: AppserviceMatrixUserData = {
-      consumerId       : forMatrixConsumer.getId(),
-      wechatyContactId : ofWechatyContact.id,
-    }
-
-    const query = this.appserviceManager
-      .storeQuery(
-        APPSERVICE_USER_DATA_KEY,
-        userData,
-      )
-
-    const matrixUserList = await this.appserviceManager.userStore
-      .getByMatrixData(query)
-
-    const matrixUser = matrixUserList.length > 0
-      ? matrixUserList[0]
-      : this.generateMatrixUser(ofWechatyContact, userData)
-
-    return matrixUser
-  }
-
-  protected async generateMatrixUser (
-    ofWechatyContact : Contact,
-    fromUserData     : AppserviceMatrixUserData,
-  ): Promise<MatrixUser> {
-    log.verbose('WechatyManager', 'generateMatrixUser(%s, "%s")',
-      ofWechatyContact.id,
-      JSON.stringify(fromUserData),
-    )
-
-    const matrixUserId = this.appserviceManager.generateVirtualUserId()
-    const matrixUser   = new MatrixUser(matrixUserId)
-
-    // fromUserData.avatar = ofWechatyContact.avatar()
-    fromUserData.name   = ofWechatyContact.name() + APPSERVICE_NAME_POSTFIX
-
-    matrixUser.set(APPSERVICE_USER_DATA_KEY, fromUserData)
-    await this.appserviceManager.userStore.setMatrixUser(matrixUser)
-
-    return matrixUser
-  }
-
-  protected async matrixRoom (
-    ofWechatyRoom     : Room,
-    forMatrixConsumer : null | MatrixUser,
-  ): Promise<MatrixRoom> {
-    if (!forMatrixConsumer) { throw new Error('matrix consumer is null') }
-    log.verbose('WechatyManager', 'matrixRoomOf(%s, %s)',
-      ofWechatyRoom.id,
-      forMatrixConsumer.getId(),
-    )
-
-    const roomData = {
-      consumerId    : forMatrixConsumer.getId(),
-      wechatyRoomId : ofWechatyRoom.id,
-    } as AppserviceMatrixRoomData
-
-    const query = this.appserviceManager
-      .storeQuery(
-        APPSERVICE_ROOM_DATA_KEY,
-        roomData,
-      )
-
-    const entryList = await this.appserviceManager.roomStore
-      .getEntriesByMatrixRoomData(query)
-
-    const matrixRoom = entryList.length > 0
-      ? entryList[0].matrix
-      : this.generateMatrixRoom(ofWechatyRoom, roomData)
-
-    if (!matrixRoom) {
-      throw new Error('entryList[0].matrix not found')
-    }
-    return matrixRoom
-  }
-
-  protected async generateMatrixRoom (
-    fromWechatyRoom : Room,
-    withRoomData    : AppserviceMatrixRoomData,
-  ): Promise<MatrixRoom> {
-    const topic = await fromWechatyRoom.topic()
-    log.verbose('WechatyManager', 'generateMatrixRoom(%s, %s)',
-      topic,
-      JSON.stringify(withRoomData),
-    )
-
-    const consumer = await this.appserviceManager
-      .matrixUser(withRoomData.consumerId)
-
-    const inviteeIdList: string[] = [
-      consumer.getId(),
-    ]
-
-    for await (const member of fromWechatyRoom) {
-      const matrixUser = await this.matrixUser(
-        member,
-        consumer,
-      )
-      inviteeIdList.push(matrixUser.getId())
-    }
-
-    const matrixRoom = await this.appserviceManager
-      .createRoom(inviteeIdList, topic)
-
-    matrixRoom.set(APPSERVICE_ROOM_DATA_KEY, withRoomData)
-    await this.appserviceManager.roomStore
-      .setMatrixRoom(matrixRoom)
-
-    return matrixRoom
   }
 
 }

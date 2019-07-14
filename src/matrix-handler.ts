@@ -82,22 +82,23 @@ export class MatrixHandler {
   public async onUserQuery (
     queriedUser: MatrixUser,
   ): Promise<ProvisionedUser> {
-    log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser))
+    log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser),
+      APPSERVICE_USER_DATA_KEY as any as AppserviceMatrixUserData)
+    return {}
+    // const storeMatrixUser = await this.appserviceManager.matrixUser(queriedUser.getId())
+    // const userData = {
+    //   ...storeMatrixUser.get(
+    //     APPSERVICE_USER_DATA_KEY
+    //   ),
+    // } as AppserviceMatrixUserData
 
-    const storeMatrixUser = await this.appserviceManager.matrixUser(queriedUser.getId())
-    const userData = {
-      ...storeMatrixUser.get(
-        APPSERVICE_USER_DATA_KEY
-      ),
-    } as AppserviceMatrixUserData
+    // const provisionedUser = {
+    //   name : userData.name,
+    //   url  : userData.avatar,
+    // } as ProvisionedUser
 
-    const provisionedUser = {
-      name : userData.name,
-      url  : userData.avatar,
-    } as ProvisionedUser
-
-    log.silly('MatrixHandler', 'onUserQuery() -> "%s"', JSON.stringify(provisionedUser))
-    return provisionedUser
+    // log.silly('MatrixHandler', 'onUserQuery() -> "%s"', JSON.stringify(provisionedUser))
+    // return provisionedUser
   }
 
   /****************************************************************************
@@ -108,20 +109,6 @@ export class MatrixHandler {
     superEvent : SuperEvent,
   ): Promise<void> {
     log.verbose('MatrixHandler', 'process(superEvent)')
-
-    /**
-     * Matrix age was converted from millisecond to seconds in SuperEvent
-     */
-    if (superEvent.age() > AGE_LIMIT_SECONDS) {
-      log.verbose('MatrixHandler', 'process() skipping event due to age %s > %s',
-        superEvent.age(), AGE_LIMIT_SECONDS)
-      return
-    }
-
-    if (superEvent.isBotSender() || superEvent.isVirtualSender()) {
-      log.verbose('MatrixHandler', 'process() virtual or appservice sender "%s" found, skipped.', superEvent.sender().getId())
-      return
-    }
 
     if (superEvent.isRoomInvitation()) {
       if (superEvent.isBotTarget()) {
@@ -181,6 +168,21 @@ export class MatrixHandler {
     superEvent: SuperEvent,
   ): Promise<void> {
     log.verbose('MatrixHandler', 'processMatrixRoomMessage(superEvent)')
+
+    /**
+     * Matrix age was converted from millisecond to seconds in SuperEvent
+     */
+    if (superEvent.age() > AGE_LIMIT_SECONDS) {
+      log.verbose('MatrixHandler', 'processMatrixMessage() skipping event due to age %s > %s',
+        superEvent.age(), AGE_LIMIT_SECONDS)
+      return
+    }
+
+    if (superEvent.isBotSender() || superEvent.isVirtualSender()) {
+      log.verbose('MatrixHandler', 'processMatrixMessage() virtual or appservice sender "%s" found, skipped.',
+        superEvent.sender().getId())
+      return
+    }
 
     const matrixUser = superEvent.sender()
     const matrixRoom = superEvent.room()
@@ -251,11 +253,9 @@ export class MatrixHandler {
 
     if (!isEnabled) {
       log.silly('MatrixHandler', 'processRoomMessage() %s is not enabled for wechaty', matrixUser.getId())
-      let directMessageRoom = await this.appserviceManager
-        .directMessageRoom(matrixUser)
+      let directMessageRoom = await this.appserviceManager.directMessageRoom(matrixUser)
       if (!directMessageRoom) {
-        directMessageRoom = await this.appserviceManager
-          .createDirectRoom(matrixUser)
+        directMessageRoom = await this.appserviceManager.createDirectRoom(matrixUser)
       }
       await this.appserviceManager.directMessage(
         directMessageRoom,
