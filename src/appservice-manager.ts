@@ -1,31 +1,29 @@
+import cuid from 'cuid'
+
 import {
   Bridge,
   MatrixUser,
   RoomBridgeStore,
   UserBridgeStore,
   MatrixRoom,
-  // RemoteUser,
-  // Intent,
 }                   from 'matrix-appservice-bridge'
 import {
   WechatyOptions,
 }                   from 'wechaty'
 
-import cuid from 'cuid'
-
 import {
   log,
-  AppserviceWechatyData,
-  APPSERVICE_WECHATY_DATA_KEY,
-  WECHATY_LOCALPART,
-  AppserviceMatrixRoomData,
-  APPSERVICE_USER_DATA_KEY,
-  AppserviceMatrixUserData,
-  APPSERVICE_ROOM_DATA_KEY,
-  APPSERVICE_NAME_POSTFIX,
-}                               from './config'
 
-// const REMOTE_CONTACT_DELIMITER = '<->'
+  AppserviceMatrixRoomData,
+  AppserviceMatrixUserData,
+  AppserviceWechatyData,
+
+  APPSERVICE_NAME_POSTFIX,
+
+  APPSERVICE_ROOM_DATA_KEY,
+  APPSERVICE_USER_DATA_KEY,
+  APPSERVICE_WECHATY_DATA_KEY,
+}                               from './config'
 
 export class AppserviceManager {
 
@@ -33,18 +31,23 @@ export class AppserviceManager {
   public roomStore! : RoomBridgeStore
   public userStore! : UserBridgeStore
 
+  public domain!    : string
+  public localpart! : string
+
   constructor () {
     log.verbose('AppserviceManager', 'constructor()')
   }
 
   public setBridge (matrixBridge: Bridge): void {
-    log.verbose('AppserviceManager', 'bridge()')
+    log.verbose('AppserviceManager', 'setBridge(bridge)')
 
     if (this.bridge) {
       throw new Error('bridge can not be set twice!')
     }
 
-    this.bridge = matrixBridge
+    this.bridge    = matrixBridge
+    this.domain    = matrixBridge.opts.domain
+    this.localpart = matrixBridge.opts.registration.sender_localpart
 
     const userBridgeStore = matrixBridge.getUserStore()
     const roomBridgeStore = matrixBridge.getRoomStore()
@@ -60,15 +63,11 @@ export class AppserviceManager {
   }
 
   public appserviceUserId (): string {
-    const bridgeOpts = this.bridge.opts
-    const localpart  = bridgeOpts.registration.sender_localpart
-    const domain     = bridgeOpts.domain
-
     return [
       '@',
-      localpart,
+      this.localpart,
       ':',
-      domain,
+      this.domain,
     ].join('')
   }
 
@@ -81,17 +80,20 @@ export class AppserviceManager {
     return matrixUser
   }
 
-  public async matrixUserList (): Promise<MatrixUser[]> {
-    log.verbose('AppserviceManager', 'matrixUserList()')
+  public async enabledUserList (): Promise<MatrixUser[]> {
+    log.verbose('AppserviceManager', 'enabledUserList()')
 
     const wechatyData = {
       enabled: true,
     } as AppserviceWechatyData
 
-    const query = this.storeQuery(APPSERVICE_WECHATY_DATA_KEY, wechatyData)
+    const query = this.storeQuery(
+      APPSERVICE_WECHATY_DATA_KEY,
+      wechatyData,
+    )
 
     const matrixUserList = await this.userStore.getByMatrixData(query)
-    log.silly('AppserviceManager', 'matrixUserList() found %s users', matrixUserList.length)
+    log.silly('AppserviceManager', 'enabledUserList() total number %s', matrixUserList.length)
 
     return matrixUserList
   }
@@ -103,10 +105,23 @@ export class AppserviceManager {
     matrixUser      : MatrixUser,
     wechatyOptions? : WechatyOptions,
   ): Promise<void> | WechatyOptions {
+    log.verbose('AppserviceManager', 'wechatyOptions(%s,%s)',
+      matrixUser.getId(),
+      wechatyOptions
+        ? JSON.stringify(wechatyOptions)
+        : '',
+    )
+
+    const that = this
 
     if (wechatyOptions) {
-      // SET
-      log.verbose('AppserviceManager', 'wechatyOptions(%s, "%s") SET',
+      return wechatyOptionsSet()
+    } else {
+      return wechatyOptionsGet()
+    }
+
+    function wechatyOptionsSet () {
+      log.silly('AppserviceManager', 'wechatyOptionsSet(%s, "%s") SET',
         matrixUser.getId(), JSON.stringify(wechatyOptions))
       const wechatyData = {
         ...matrixUser.get(
@@ -116,11 +131,11 @@ export class AppserviceManager {
 
       wechatyData.wechatyOptions = wechatyOptions
       matrixUser.set(APPSERVICE_WECHATY_DATA_KEY, wechatyData)
-      return this.userStore.setMatrixUser(matrixUser)
+      return that.userStore.setMatrixUser(matrixUser)
+    }
 
-    } else {
-      // GET
-      log.verbose('AppserviceManager', 'wechatyOptions(%s) GET', matrixUser.getId())
+    function wechatyOptionsGet () {
+      log.silly('AppserviceManager', 'wechatyOptionsGet(%s)', matrixUser.getId())
 
       const wechatyData = {
         ...matrixUser.get(
@@ -128,14 +143,13 @@ export class AppserviceManager {
         ),
       } as AppserviceWechatyData
 
-      log.silly('AppserviceManager', 'wechatyOptions(%s) GOT "%s"',
+      log.silly('AppserviceManager', 'wechatyOptionsGet(%s) -> "%s"',
         matrixUser.getId(), JSON.stringify(wechatyData.wechatyOptions))
 
       return {
         ...wechatyData.wechatyOptions,
       }
     }
-
   }
 
   public isVirtual (matrixUserId: string): boolean {
@@ -156,7 +170,7 @@ export class AppserviceManager {
   }
 
   public isEnabled (matrixUser: MatrixUser): boolean {
-    log.verbose('AppserviceManager', 'isEnable(%s)', matrixUser.getId())
+    log.verbose('AppserviceManager', 'isEnabled(%s)', matrixUser.getId())
 
     const wechatyData = {
       ...matrixUser.get(
@@ -175,11 +189,17 @@ export class AppserviceManager {
       throw new Error(`matrixUserId ${matrixUser.getId()} has already enabled`)
     }
 
-    const data = {
+    const wechatyData = {
+      ...matrixUser.get(
+        APPSERVICE_WECHATY_DATA_KEY
+      ),
       enabled: true,
     } as AppserviceWechatyData
 
-    matrixUser.set(APPSERVICE_WECHATY_DATA_KEY, data)
+    matrixUser.set(
+      APPSERVICE_WECHATY_DATA_KEY,
+      wechatyData,
+    )
     await this.userStore.setMatrixUser(matrixUser)
   }
 
@@ -190,10 +210,13 @@ export class AppserviceManager {
       ...matrixUser.get(
         APPSERVICE_WECHATY_DATA_KEY
       ),
+      enabled: false,
     } as AppserviceWechatyData
-    wechatyData.enabled = false
 
-    matrixUser.set(APPSERVICE_WECHATY_DATA_KEY, wechatyData)
+    matrixUser.set(
+      APPSERVICE_WECHATY_DATA_KEY,
+      wechatyData,
+    )
     await this.userStore.setMatrixUser(matrixUser)
   }
 
@@ -222,8 +245,8 @@ export class AppserviceManager {
   }
 
   public storeQuery (
-    forDataKey  : string,
-    fromData    : AppserviceWechatyData| AppserviceMatrixRoomData | AppserviceMatrixUserData,
+    forDataKey : string,
+    fromData   : AppserviceWechatyData| AppserviceMatrixRoomData | AppserviceMatrixUserData,
   ): {
     [key: string]: string,
   } {
@@ -262,7 +285,8 @@ export class AppserviceManager {
     }
 
     try {
-      await this.bridge.getIntent(directUserId).sendText(
+      const intent = this.bridge.getIntent(directUserId)
+      await intent.sendText(
         inMatrixRoom.getId(),
         withText,
       )
@@ -428,9 +452,9 @@ export class AppserviceManager {
     const roomInfo = await intent.createRoom({
       createAsClient: false,
       options: {
-        invite: withMatrixIdList,
-        name: withName + APPSERVICE_NAME_POSTFIX,
-        visibility: 'private',
+        invite     : withMatrixIdList,
+        name       : withName + APPSERVICE_NAME_POSTFIX,
+        visibility : 'private',
       },
     })
 
@@ -441,16 +465,16 @@ export class AppserviceManager {
   public generateVirtualUserId () {
     return [
       '@',
-      WECHATY_LOCALPART,
+      this.localpart,
       '_',
       cuid(),
       ':',
-      this.bridge.opts.domain,
+      this.domain,
     ].join('')
   }
 
-  /*******************
-   * Private Methods *
-   *******************/
+  /*********************
+   * Protected Methods *
+   *********************/
 
 }

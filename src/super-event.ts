@@ -45,8 +45,11 @@ export class SuperEvent {
     this.event = request.getData()
   }
 
-  public age () {
-    return this.event.unsigned.age
+  /**
+   * Return event age in seconds.
+   */
+  public age (): number {
+    return this.event.unsigned.age / 1000
   }
 
   public sender (): MatrixUser {

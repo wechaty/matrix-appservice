@@ -16,7 +16,7 @@ export { log } from 'wechaty'
 
 export { VERSION }        from './version'
 
-export const AGE_LIMIT_SECONDS = 2 * 60   // 2 minutes
+export const AGE_LIMIT_SECONDS = 5 * 60   // 5 minutes
 export const DEFAULT_PORT      = 8788     // W:87 X:88
 
 export const APPSERVICE_WECHATY_DATA_KEY = 'wechatyAppservice'
@@ -24,8 +24,8 @@ export const APPSERVICE_ROOM_DATA_KEY    = 'wechatyAppserviceRoom'
 export const APPSERVICE_USER_DATA_KEY    = 'wechatyAppserviceUser'
 
 export const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
+export const APPSERVICE_LOCALPART    = 'wechaty'
 
-export const WECHATY_LOCALPART = 'wechaty'
 export const REGISTRATION_FILE = 'wechaty-registration.yaml'
 export const SCHEMA_FILE       = path.join(__dirname, '../config/schema.yaml')
 

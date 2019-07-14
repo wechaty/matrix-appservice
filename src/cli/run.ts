@@ -41,7 +41,7 @@ export async function run (
     wechatyManager,
   )
 
-  const bridgeMatrixUserList = await appserviceManager.matrixUserList()
+  const bridgeMatrixUserList = await appserviceManager.enabledUserList()
 
   const wechatyStartFutureList = bridgeMatrixUserList.map(
     matrixUser => {

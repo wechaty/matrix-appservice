@@ -3,14 +3,15 @@ import {
   Request,
   MatrixUser,
   ProvisionedUser,
-  // RemoteUser,
 }                   from 'matrix-appservice-bridge'
 
 import {
   AGE_LIMIT_SECONDS,
-  log,
   APPSERVICE_USER_DATA_KEY,
+
   AppserviceMatrixUserData,
+
+  log,
 }                     from './config'
 
 import { AppserviceManager }  from './appservice-manager'
@@ -109,11 +110,11 @@ export class MatrixHandler {
     log.verbose('MatrixHandler', 'process(superEvent)')
 
     /**
-     * Matrix age is millisecond, convert second by multiple 1000
+     * Matrix age was converted from millisecond to seconds in SuperEvent
      */
-    if (superEvent.age() > AGE_LIMIT_SECONDS * 1000) {
+    if (superEvent.age() > AGE_LIMIT_SECONDS) {
       log.verbose('MatrixHandler', 'process() skipping event due to age %s > %s',
-        superEvent.age(), AGE_LIMIT_SECONDS * 1000)
+        superEvent.age(), AGE_LIMIT_SECONDS)
       return
     }
 
@@ -165,11 +166,12 @@ export class MatrixHandler {
 
     if (memberNum === 2) {
       log.silly('MatrixHandler', 'process() room has 2 members, treat it as a direct room')
-      // const directMessageRoom = await this.appserviceManager.directMessageRoomOf(sender)
 
-      // if (!directMessageRoom) {
       await this.appserviceManager.directMessageRoom(sender, room)
-      // }
+
+      const text = 'This room has been registered as your bridge management/status room.'
+      await this.appserviceManager.directMessage(room, text)
+
     } else {
       log.silly('MatrixHandler', 'process() room has %s(!=2) members, it is not a direct room', memberNum)
     }
