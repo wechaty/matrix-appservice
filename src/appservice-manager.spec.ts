@@ -17,6 +17,7 @@ import Nedb     from 'nedb'
 import { AppserviceManager } from './appservice-manager'
 
 const MOCK_DOMAIN = 'domain.tld'
+const MOCK_LOCALPART = 'wechaty'
 
 class AppserviceManagerMock extends AppserviceManager {
 
@@ -33,6 +34,9 @@ function getMockAppserviceManager () {
     getUserStore: () => new UserBridgeStore(new Nedb()),
     opts: {
       domain: MOCK_DOMAIN,
+      registration: {
+        sender_localpart: MOCK_LOCALPART,
+      },
     },
   } as any
 
