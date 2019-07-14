@@ -16,13 +16,24 @@ import Nedb     from 'nedb'
 
 import { AppserviceManager } from './appservice-manager'
 
+const MOCK_DOMAIN = 'domain.tld'
+
+class AppserviceManagerMock extends AppserviceManager {
+
+  public generateVirtualUserId () { return super.generateVirtualUserId() }
+
+}
+
 function getMockAppserviceManager () {
-  const appserviceManager = new AppserviceManager()
+  const appserviceManager = new AppserviceManagerMock()
 
   const mockBridge = {
     getIntent: Sinon.spy(),
-    getUserStore: () => new UserBridgeStore(new Nedb()),
     getRoomStore: () => new RoomBridgeStore(new Nedb()),
+    getUserStore: () => new UserBridgeStore(new Nedb()),
+    opts: {
+      domain: MOCK_DOMAIN,
+    },
   } as any
 
   appserviceManager.setBridge(mockBridge)
@@ -35,7 +46,7 @@ test('smoke testing for enable() disable() isEnabled() matrixUserList()', async 
 
   const appserviceManager = getMockAppserviceManager()
 
-  let matrixUserList = await appserviceManager.matrixUserList()
+  let matrixUserList = await appserviceManager.enabledUserList()
   t.equal(matrixUserList.length, 0, 'should get zero user with empty user store')
 
   const matrixUser1 = new MatrixUser(MATRIX_USER_ID1)
@@ -52,17 +63,17 @@ test('smoke testing for enable() disable() isEnabled() matrixUserList()', async 
   t.equal(appserviceManager.isEnabled(matrixUser1), false, 'should be false after disable it')
 
   await appserviceManager.enable(matrixUser1)
-  matrixUserList = await appserviceManager.matrixUserList()
+  matrixUserList = await appserviceManager.enabledUserList()
   // console.info(matrixUserList)
   t.equal(matrixUserList.length, 1, 'should get 1 enabled user in the list')
 
   await appserviceManager.enable(matrixUser2)
-  matrixUserList = await appserviceManager.matrixUserList()
+  matrixUserList = await appserviceManager.enabledUserList()
   // console.info(matrixUserList)
   t.equal(matrixUserList.length, 2, 'should get 2 enabled user in the list after enable user 2')
 
   await appserviceManager.disable(matrixUser2)
-  matrixUserList = await appserviceManager.matrixUserList()
+  matrixUserList = await appserviceManager.enabledUserList()
   // console.info(matrixUserList)
   t.equal(matrixUserList.length, 1, 'should get 1 enabled user in the list after disable user 2')
 
@@ -87,4 +98,11 @@ test('wechatyOptions()', async (t) => {
   option =  appserviceManager.wechatyOptions(matrixUser)
   // console.info(option)
   t.deepEqual(option, EXPECTED_OPTIONS, 'should get expected option after set')
+})
+
+test('generateVirtualUserId()', async t => {
+  const appserviceManager = getMockAppserviceManager()
+
+  const virtualId = appserviceManager.generateVirtualUserId()
+  t.true(/^@wechaty_[^:]+:.+$/.test(virtualId), 'virtual id generator should match base rules')
 })

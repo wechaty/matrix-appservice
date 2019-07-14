@@ -3,7 +3,7 @@ import {
 }                             from 'matrix-appservice-bridge'
 
 import {
-  WECHATY_LOCALPART,
+  APPSERVICE_LOCALPART,
 }                             from '../config'
 
 export function generateRegistration (
@@ -14,13 +14,13 @@ export function generateRegistration (
   reg.setAppServiceToken(AppServiceRegistration.generateToken())
 
   // reg.setId(AppServiceRegistration.generateToken())
-  reg.setId(WECHATY_LOCALPART)
-  reg.setSenderLocalpart(WECHATY_LOCALPART)
-  reg.setProtocols([WECHATY_LOCALPART])
+  reg.setId(APPSERVICE_LOCALPART)
+  reg.setSenderLocalpart(APPSERVICE_LOCALPART)
+  reg.setProtocols([APPSERVICE_LOCALPART])
   reg.setRateLimited(false)
 
-  reg.addRegexPattern('aliases', `^#${WECHATY_LOCALPART}_.+`, true)
-  reg.addRegexPattern('users', `^@${WECHATY_LOCALPART}_.+`, true)
+  reg.addRegexPattern('aliases', `#${APPSERVICE_LOCALPART}_.*`, true)
+  reg.addRegexPattern('users', `@${APPSERVICE_LOCALPART}_.*`, true)
 
   callback(reg)
 }

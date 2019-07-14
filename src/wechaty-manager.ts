@@ -1,70 +1,83 @@
 import {
+  MatrixUser,
+  MatrixRoom,
+}                   from 'matrix-appservice-bridge'
+import {
   Wechaty,
   WechatyOptions,
   ScanStatus,
   Contact,
   Message,
+  Room,
 }                   from 'wechaty'
 
 import {
-  AGE_LIMIT,
+  AGE_LIMIT_SECONDS,
   log,
-}             from './config'
+  AppserviceMatrixRoomData,
+  AppserviceMatrixUserData,
+  APPSERVICE_USER_DATA_KEY,
+  APPSERVICE_ROOM_DATA_KEY,
+}                             from './config'
 
-import { AppserviceManager }        from './appservice-manager'
+import { AppserviceManager }  from './appservice-manager'
 
 export class WechatyManager {
 
-  private matrixWechatyDict: Map<string, Wechaty>
-  private wechatyMatrixDict: WeakMap<Wechaty, string>
+  protected matrixWechatyDict: Map<string, Wechaty>
+  protected wechatyMatrixDict: WeakMap<Wechaty, string>
+  protected wechatyFilehelperDict: WeakMap<Wechaty, Contact>
 
   constructor (
-    public appserviceManager: AppserviceManager,
+    public readonly appserviceManager: AppserviceManager,
   ) {
     log.verbose('WechatyManager', 'constructor()')
-    this.matrixWechatyDict = new Map<string, Wechaty>()
-    this.wechatyMatrixDict = new WeakMap<Wechaty, string>()
+    this.matrixWechatyDict     = new Map<string,      Wechaty>()
+    this.wechatyMatrixDict     = new WeakMap<Wechaty, string>()
+    this.wechatyFilehelperDict = new WeakMap<Wechaty, Contact>()
   }
 
-  public size (): number {
+  public count (): number {
     return this.matrixWechatyDict.size
   }
 
   public create (
-    matrixUserId    : string,
-    wechatyOptions? : WechatyOptions,
+    matrixConsumerId : string,
+    wechatyOptions?  : WechatyOptions,
   ): Wechaty {
     log.verbose('WechatyManager', 'create(%s, "%s")',
-      matrixUserId, JSON.stringify(wechatyOptions))
+      matrixConsumerId,
+      JSON.stringify(wechatyOptions),
+    )
 
-    if (this.matrixWechatyDict.has(matrixUserId)) {
-      throw new Error('can not create twice for one user id: ' + matrixUserId)
+    if (this.matrixWechatyDict.has(matrixConsumerId)) {
+      throw new Error('can not create twice for one user id: ' + matrixConsumerId)
     }
 
     const wechaty = new Wechaty({
       ...wechatyOptions,
-      name: matrixUserId,
+      name: matrixConsumerId,
     })
 
     const onScan = (qrcode: string, status: ScanStatus) => this.onScan(
       qrcode,
       status,
-      matrixUserId,
+      matrixConsumerId,
     )
 
     const onLogin = (user: Contact) => this.onLogin(
       user,
-      matrixUserId,
+      matrixConsumerId,
     )
 
     const onLogout = (user: Contact) => this.onLogout(
       user,
-      matrixUserId,
+      matrixConsumerId,
     )
 
-    const onMessage = (msg: Message) => this.onMessage(
-      msg,
-      matrixUserId,
+    const onMessage = (message: Message) => this.onMessage(
+      message,
+      matrixConsumerId,
     )
 
     wechaty.on('login',   onLogin)
@@ -72,53 +85,32 @@ export class WechatyManager {
     wechaty.on('message', onMessage)
     wechaty.on('scan',    onScan)
 
-    this.matrixWechatyDict.set(matrixUserId, wechaty)
-    this.wechatyMatrixDict.set(wechaty, matrixUserId)
+    this.matrixWechatyDict.set(matrixConsumerId, wechaty)
+    this.wechatyMatrixDict.set(wechaty, matrixConsumerId)
 
     return wechaty
   }
 
-  public matrixUserId (wechaty: Wechaty): string {
-    log.verbose('WechatyManager', 'matrixUserId(%s)', wechaty)
-
-    const matrixUserId = this.wechatyMatrixDict.get(wechaty)
-    if (!matrixUserId) {
-      throw new Error('matrix user id not found for wechaty ' + wechaty)
-    }
-    return matrixUserId
-  }
-
-  public wechaty (
-    matrixUserId: string,
-  ): null | Wechaty {
-    log.verbose('WechatyManager', 'wechaty(%s)', matrixUserId)
-    log.silly('WechatyManager', 'wechaty() currently wechatyStore has %s wechaty instances.', this.matrixWechatyDict.size)
-
-    let wechaty = this.matrixWechatyDict.get(matrixUserId)
-    if (!wechaty) {
-      return null
-    }
-
-    return wechaty
-  }
-
-  public async destroy(matrixUserId:  string):  Promise<void>
-  public async destroy(wechaty:       Wechaty): Promise<void>
+  public async destroy(matrixConsumerId: string)  : Promise<void>
+  public async destroy(wechaty:          Wechaty) : Promise<void>
 
   public async destroy (
-    matrixUserIdOrWechaty: string | Wechaty,
+    wechatyOrmatrixConsumerId: string | Wechaty,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'destroy(%s)', matrixUserIdOrWechaty)
+    log.verbose('WechatyManager', 'destroy(%s) (total %s instances)',
+      wechatyOrmatrixConsumerId,
+      this.count(),
+    )
 
-    let matrixUserId: undefined | string
-    let wechaty: null | Wechaty
+    let matrixConsumerId : undefined | string
+    let wechaty       : null | Wechaty
 
-    if (matrixUserIdOrWechaty instanceof Wechaty) {
-      wechaty = matrixUserIdOrWechaty
-      matrixUserId = this.matrixUserId(wechaty)
+    if (wechatyOrmatrixConsumerId instanceof Wechaty) {
+      wechaty       = wechatyOrmatrixConsumerId
+      matrixConsumerId = this.matrixConsumerId(wechaty)
     } else {
-      matrixUserId = matrixUserIdOrWechaty
-      wechaty = this.wechaty(matrixUserId)
+      matrixConsumerId = wechatyOrmatrixConsumerId
+      wechaty       = this.wechaty(matrixConsumerId)
     }
 
     if (wechaty) {
@@ -134,78 +126,151 @@ export class WechatyManager {
       this.wechatyMatrixDict.delete(wechaty)
 
     } else {
-      log.error('WechatyManager', 'destroy() can not get wechaty for id: ' + matrixUserId)
+      log.error('WechatyManager', 'destroy() can not get wechaty for id: ' + matrixConsumerId)
     }
 
     /**
-     * 2. Delete matrixUserId
+     * 2. Delete matrix consumer id
      */
-    this.matrixWechatyDict.delete(matrixUserId)
+    this.matrixWechatyDict.delete(matrixConsumerId)
+  }
+
+  public matrixConsumerId (ofWechaty: Wechaty): string {
+    log.verbose('WechatyManager', 'matrixConsumerId(%s)', ofWechaty)
+
+    const matrixConsumerId = this.wechatyMatrixDict.get(ofWechaty)
+    if (!matrixConsumerId) {
+      throw new Error('matrix user id not found for wechaty ' + ofWechaty)
+    }
+    return matrixConsumerId
+  }
+
+  public wechaty (
+    ofMatrixConsumerId: string,
+  ): null | Wechaty {
+    log.verbose('WechatyManager', 'wechaty(%s) (total %s instances)',
+      ofMatrixConsumerId,
+      this.matrixWechatyDict.size,
+    )
+
+    let wechaty = this.matrixWechatyDict.get(ofMatrixConsumerId)
+    if (!wechaty) {
+      return null
+    }
+
+    return wechaty
+  }
+
+  public async filehelperOf (matrixConsumerId: string) : Promise<null | Contact>
+  public async filehelperOf (wechaty: Wechaty)      : Promise<null | Contact>
+
+  public async filehelperOf (
+    wechatyOrmatrixConsumerId: string | Wechaty,
+  ): Promise<null | Contact> {
+    log.silly('WechatyManager', 'filehelperOf(%s)', wechatyOrmatrixConsumerId)
+
+    let wechaty: null | Wechaty
+
+    if (typeof wechatyOrmatrixConsumerId === 'string') {
+      wechaty = this.wechaty(wechatyOrmatrixConsumerId)
+      if (!wechaty) {
+        log.silly('WechatyManager', 'filehelperOf(%s) no wechaty found', wechatyOrmatrixConsumerId)
+        return null
+      }
+      if (!wechaty.logonoff()) {
+        log.silly('WechatyManager', 'filehelperOf(%s) wechaty not loged in yet', wechatyOrmatrixConsumerId)
+        return null
+      }
+    } else {
+      wechaty = wechatyOrmatrixConsumerId
+    }
+
+    let filehelper = this.wechatyFilehelperDict.get(wechaty) || null
+
+    if (!filehelper) {
+      filehelper = await wechaty.Contact.find({ id: 'filehelper' })
+      if (filehelper) {
+        this.wechatyFilehelperDict.set(wechaty, filehelper)
+      }
+    }
+    if (!filehelper) {
+      throw new Error('filehelper can not be found. maybe the wechaty is not full loaded.')
+    }
+    return filehelper
+  }
+
+  public async wechatyContact (
+    ofMatrixUser      : MatrixUser,
+    forMatrixConsumer : MatrixUser,
+  ): Promise<Contact> {
+    log.verbose('WechatyManager', 'wechatyContact(%s, %s)',
+      ofMatrixUser.getId(),
+      forMatrixConsumer.getId(),
+    )
+
+    const {
+      wechatyContactId,
+    } = {
+      ...ofMatrixUser.get(
+        APPSERVICE_USER_DATA_KEY
+      ),
+    } as AppserviceMatrixUserData
+
+    const wechaty = this.wechaty(forMatrixConsumer.getId())
+    if (!wechaty) {
+      throw new Error('no wechaty instance for matrix user id ' + forMatrixConsumer.getId())
+    }
+
+    const wechatyContact = await wechaty.Contact
+      .find({ id: wechatyContactId })
+    if (!wechatyContact) {
+      throw new Error('no wechaty contact found for id: ' + wechatyContactId)
+    }
+    return wechatyContact
+  }
+
+  public async wechatyRoom (
+    ofMatrixRoom      : MatrixRoom,
+    forMatrixConsumer : MatrixUser,
+  ): Promise<Room> {
+    log.verbose('WechatyManager', 'wechatyRoom(%s, %s)',
+      ofMatrixRoom.getId(),
+      forMatrixConsumer.getId(),
+    )
+
+    const {
+      wechatyRoomId,
+    } = {
+      ...ofMatrixRoom.get(
+        APPSERVICE_ROOM_DATA_KEY
+      ),
+    } as AppserviceMatrixRoomData
+
+    if (!wechatyRoomId) {
+      throw new Error('no wechaty room id for matrix room ' + ofMatrixRoom.getId())
+    }
+
+    const wechaty = this.wechaty(forMatrixConsumer.getId())
+    if (!wechaty) {
+      throw new Error('no wechaty instance for matrix user id ' + forMatrixConsumer.getId())
+    }
+
+    const wechatyRoom = await wechaty.Room
+      .find({ id: wechatyRoomId })
+    if (!wechatyRoom) {
+      throw new Error('no wechaty room found for id: ' + wechatyRoomId)
+    }
+    return wechatyRoom
   }
 
   /****************************************************************************
-   * Private Methods                                                         *
+   * Protected Methods                                                       *
    ****************************************************************************/
 
-  async onLogin (
-    user         : Contact,
-    matrixUserId : string,
-  ): Promise<void> {
-    log.verbose('WechatyManager', 'onLogin(%s, %s)', user, matrixUserId)
-
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
-
-    await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
-      `${user} logout`,
-    )
-
-  }
-
-  async onLogout (
-    user         : Contact,
-    matrixUserId : string,
-  ) {
-    log.verbose('WechatyManager', 'onLogout(%s, %s)', user, matrixUserId)
-
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
-
-    await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
-      `${user} logout`,
-    )
-
-  }
-
-  async onMessage (
-    msg               : Message,
-    matrixUserId      : string,
-  ) {
-    log.verbose('WechatyManager', 'onMessage(%s, %s)', msg, matrixUserId)
-
-    if (msg.age() > AGE_LIMIT) {
-      log.silly('WechatyManager', 'onMessage(%s, %s)', msg, matrixUserId)
-      return
-    }
-
-    if (msg.self()) {
-      log.silly('WechatyManager', 'onMessage(%s, %s)', msg, matrixUserId)
-
-      return
-    }
-
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
-
-    await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
-      `recv message: ${msg}`,
-    )
-  }
-
-  async onScan (
-    qrcode            : string,
-    status            : ScanStatus,
-    matrixUserId      : string,
+  protected async onScan (
+    qrcode        : string,
+    status        : ScanStatus,
+    matrixConsumerId : string,
   ): Promise<void> {
     require('qrcode-terminal').generate(qrcode)  // show qrcode on console
 
@@ -217,13 +282,173 @@ export class WechatyManager {
     const statusName = ScanStatus[status]
 
     log.verbose('WechatyManager', 'onScan(%s,%s(%s), %s)',
-      qrcodeImageUrl, statusName, status, matrixUserId)
+      qrcodeImageUrl, statusName, status, matrixConsumerId)
 
-    const matrixRoomId = await this.appserviceManager.directMessageRoomId(matrixUserId)
+    let text: string
 
-    await this.appserviceManager.botIntent.sendText(
-      matrixRoomId,
-      `Scan to login: ${qrcodeImageUrl}`,
+    switch (status) {
+      case ScanStatus.Waiting:
+        text = `Scan to login: ${qrcodeImageUrl}`
+        break
+      case ScanStatus.Scanned:
+        text = 'Scanned. Please confirm on your phone.'
+        break
+      case ScanStatus.Confirmed:
+        text = 'Confirmed. Please waitting for Wechaty logging in.'
+        break
+      case ScanStatus.Timeout:
+        text = 'QR Code expired. New QR Code are coming soon.'
+        break
+      default:
+        text = `Scan Status: ${ScanStatus[status]}`
+        break
+    }
+
+    const matrixConsumer  = await this.appserviceManager.matrixUser(matrixConsumerId)
+    let directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
+
+    if (!directMessageRoom) {
+      directMessageRoom = await this.appserviceManager.createDirectRoom(matrixConsumer)
+    }
+    await this.appserviceManager.directMessage(directMessageRoom, `${text}`)
+  }
+
+  protected async onLogin (
+    wechatyContact   : Contact,
+    matrixConsumerId : string,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'onLogin(%s, %s)', wechatyContact, matrixConsumerId)
+
+    const matrixConsumer    = await this.appserviceManager.matrixUser(matrixConsumerId)
+    const directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
+
+    // const text = `You are successfully logged in. Wechat user: ${wechatyContact.name()}`
+    const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
+
+    if (directMessageRoom) {
+      await this.appserviceManager.directMessage(directMessageRoom, text)
+    } else {
+      log.error('WechatyManager', 'onLogin() no directMessageRoom found to %s', matrixConsumerId)
+    }
+
+    // TODO(huan): clean all store for puppeteer relogin:
+    // db.remove({}, { multi: true }, function (err, numRemoved) {})
+  }
+
+  protected async onLogout (
+    wechatyContact   : Contact,
+    matrixConsumerId : string,
+  ) {
+    log.verbose('WechatyManager', 'onLogout(%s, %s)', wechatyContact, matrixConsumerId)
+
+    const matrixConsumer    = await this.appserviceManager.matrixUser(matrixConsumerId)
+    const directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
+
+    // const text = `Logout successful for Wechat user ${wechatyContact.name()}`
+    const text = 'You are now logged out from Wechat. Your user name is: ' + wechatyContact.name()
+
+    if (directMessageRoom) {
+      await this.appserviceManager.directMessage(directMessageRoom, text)
+    } else {
+      log.error('WechatyManager', 'onLogout() no directMessageRoom found to %s', matrixConsumerId)
+    }
+  }
+
+  protected async onMessage (
+    message          : Message,
+    matrixConsumerId : string,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'onMessage(%s, %s) from %s to %s with age %s (timestamp: %s)',
+      message,
+      matrixConsumerId,
+      message.from()!.id,
+      message.to()!.id,
+      message.age(),
+      (message as any).payload.timestamp,
+    )
+
+    if (message.age() > AGE_LIMIT_SECONDS) {
+      log.silly('WechatyManager', 'onMessage() age %s > %s seconds', message.age(), AGE_LIMIT_SECONDS)
+      return
+    }
+
+    if (message.self()) {
+      log.silly('WechatyManager', 'onMessage() self() is true, skipped')
+      return
+    }
+
+    const matrixConsumer = await this.appserviceManager.matrixUser(matrixConsumerId)
+
+    if (message.room()) {
+      return this.processRoomMessage(message, matrixConsumer)
+    } else {
+      return this.processContactMessage(message, matrixConsumer)
+    }
+  }
+
+  async processContactMessage (
+    onWechatyMessage  : Message,
+    forMatrixConsumer : MatrixUser,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'processContactMessage(%s, %s)',
+      onWechatyMessage,
+      forMatrixConsumer.getId(),
+    )
+
+    const from = onWechatyMessage.from()
+    if (!from) {
+      throw new Error('can not found from contact for wechat message')
+    }
+
+    const virtualMatrixUser = await this.appserviceManager.matrixUser(from, forMatrixConsumer)
+    let   matrixRoom        = await this.appserviceManager.directMessageRoom(virtualMatrixUser)
+    if (!matrixRoom) {
+      log.silly('WechatyManager', 'onMessage() creating direct chat room for remote user "%s"', virtualMatrixUser.getId())
+
+      matrixRoom = await this.appserviceManager.createDirectRoom(
+        forMatrixConsumer,
+        virtualMatrixUser,
+        from.name(),
+      )
+    }
+
+    await this.appserviceManager
+      .directMessage(
+        matrixRoom,
+        onWechatyMessage.text(),
+      )
+  }
+
+  async processRoomMessage (
+    onWechatyMessage  : Message,
+    forMatrixConsumer : MatrixUser,
+  ): Promise<void> {
+    log.verbose('WechatyManager', 'processRoomMessage(%s, %s)',
+      onWechatyMessage,
+      forMatrixConsumer.getId(),
+    )
+
+    const room = onWechatyMessage.room()
+    if (!room) {
+      throw new Error('no room')
+    }
+    const from = onWechatyMessage.from()
+    if (!from) {
+      throw new Error('no from')
+    }
+
+    const text = onWechatyMessage.text()
+
+    const matrixRoom = await this.appserviceManager.matrixRoom(room, forMatrixConsumer)
+    const matrixUser = await this.appserviceManager.matrixUser(
+      from,
+      forMatrixConsumer,
+    )
+
+    const intent = this.appserviceManager.bridge.getIntent(matrixUser.getId())
+    await intent.sendText(
+      matrixRoom.getId(),
+      text,
     )
 
   }

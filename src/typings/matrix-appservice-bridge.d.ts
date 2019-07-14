@@ -30,12 +30,16 @@ declare module 'matrix-appservice-bridge' {
   }
   /* ********************* */
 
+  export interface AppServiceRegistration {
+    sender_localpart: string
+  }
+
   export interface BridgeOptions {
-    controller    : Controller
-    domain        : string
-    homeserverUrl : string
-    registration  : string
-    suppressEcho? : boolean     // True to stop receiving onEvent callbacks for events which were sent by a bridge user. Default: true.
+    controller       : Controller
+    domain           : string
+    homeserverUrl    : string
+    registration     : AppServiceRegistration
+    suppressEcho?    : boolean     // True to stop receiving onEvent callbacks for events which were sent by a bridge user. Default: true.
   }
 
   export interface BridgeConfig {
@@ -54,16 +58,16 @@ declare module 'matrix-appservice-bridge' {
 
   /* *********************************************** */
   // FIXME: find the official name for this structure
-  interface RoomMemberMap {
+  interface RoomMemberDict {
     [id: string]: {
       display_name: string,
       avatar_url: string,
     }
   }
-  interface RemoteRoomMap {
+  interface RemoteRoomDict {
     [id: string]: RemoteRoom
   }
-  interface EntryMap {
+  interface EntryDict {
     [id: string]: Array<Entry>
   }
   // FIXME: END
@@ -94,9 +98,9 @@ declare module 'matrix-appservice-bridge' {
       registration: AppServiceRegistration,
       memberCache: MembershipCache,
     )
-    getJoinedMembers(roomId: string): Promise<RoomMemberMap>
-    getJoinedRooms(): Promise<Array<string>>
-    isRemoteUser(userId: string): boolean
+    getJoinedMembers(roomId: string) : Promise<RoomMemberDict>
+    getJoinedRooms  ()               : Promise<Array<string>>
+    isRemoteUser    (userId: string) : boolean
 
   }
 
@@ -122,7 +126,7 @@ declare module 'matrix-appservice-bridge' {
   }
 
   export interface ThirdPartyUserResult {
-    userid   : string  // The Matrix user ID for the ghost representing this 3PU
+    userid   : string  // The Matrix user ID for the virtual representing this 3PU
     protocol : string  // The name of the 3PE protocol
     fields   : object  // The normalised values of the user query field data.
   }
@@ -159,32 +163,32 @@ declare module 'matrix-appservice-bridge' {
 
   export class Bridge {
 
-    constructor (options: BridgeOptions)
-    run                    (port: number, config: any)                                                       : Promise<void>
-    getIntent              (id: string)                                                                      : Intent
-    getBot                ()                                                                                 : AppServiceBot
-    getClientFactory      ()                                                                                 : ClientFactory
-    getIntent             (userId?: string, request?: Request)                                               : Intent
-    getIntentFromLocalpart(localpart: null | string, request?: Request)                                      : Intent
-    getPrometheusMetrics  ()                                                                                 : RequestFactory
-    getRequestFactory     ()                                                                                 : RequestFactory
-    getRoomStore          ()                                                                                 : null | RoomBridgeStore
-    getUserStore          ()                                                                                 : null | UserBridgeStore
-    loadDatabases         ()                                                                                 : Promise<void>
-    provisionUser         (matrixUser: MatrixUser, provisionedUser: ProvisionedUser)                         : Promise<void>
-    registerBridgeGauges  (counterFunc: () => any)                                                           : object
-    run                   (port: number, config: object, appServiceInstance?: AppService)                    : void
-    getLocation           (protocol: string, fields: object)                                                 : Promise<Array<ThirdPartyLocationResult>>
-    getProtocol           (protocol: string)                                                                 : Promise<BridgeThirdPartyProtocolResult>
-    getUser               (protocol: string, fields: options)                                                : Promise<Array<ThirdPartyUserResult>>
-    onAliasQueried        (alias: string, roomId: string)                                                    : void
-    onAliasQuery          (alias: string, aliasLocalpart: string)                                            : ProvisionedRoom | Promise<ProvisionedRoom>
-    onEvent               (request: Request, context: BridgeContext)                                         : void
-    onLog                 (line: string, isError: boolean)                                                   : void
-    onRoomUpgrade         (oldRoomId: string, newRoomId: string, newVersion: string, context: BridgeContext) : void
-    onUserQuery           (matrixUser: MatrixUser)                                                           : ProvisionedUser | Promise<ProvisionedUser>
-    parseLocation         (alias: string)                                                                    : Promise<Array<ThirdPartyLocationResult>>
-    parseUser             (userid: string)                                                                   : Promise<Array<ThirdPartyUserResult>>
+    constructor (public opts: BridgeOptions)
+    run                    (port: number, config: any)                                                        : Promise<void>
+    getIntent              (id: string)                                                                       : Intent
+    getBot                 ()                                                                                 : AppServiceBot
+    getClientFactory       ()                                                                                 : ClientFactory
+    getIntent              (userId?: string, request?: Request)                                               : Intent
+    getIntentFromLocalpart (localpart: null | string, request?: Request)                                      : Intent
+    getPrometheusMetrics   ()                                                                                 : RequestFactory
+    getRequestFactory      ()                                                                                 : RequestFactory
+    getRoomStore           ()                                                                                 : null | RoomBridgeStore
+    getUserStore           ()                                                                                 : null | UserBridgeStore
+    loadDatabases          ()                                                                                 : Promise<void>
+    provisionUser          (matrixUser: MatrixUser, provisionedUser: ProvisionedUser)                         : Promise<void>
+    registerBridgeGauges   (counterFunc: () => any)                                                           : object
+    run                    (port: number, config: object, appServiceInstance?: AppService)                    : void
+    getLocation            (protocol: string, fields: object)                                                 : Promise<Array<ThirdPartyLocationResult>>
+    getProtocol            (protocol: string)                                                                 : Promise<BridgeThirdPartyProtocolResult>
+    getUser                (protocol: string, fields: options)                                                : Promise<Array<ThirdPartyUserResult>>
+    onAliasQueried         (alias: string, roomId: string)                                                    : void
+    onAliasQuery           (alias: string, aliasLocalpart: string)                                            : ProvisionedRoom | Promise<ProvisionedRoom>
+    onEvent                (request: Request, context: BridgeContext)                                         : void
+    onLog                  (line: string, isError: boolean)                                                   : void
+    onRoomUpgrade          (oldRoomId: string, newRoomId: string, newVersion: string, context: BridgeContext) : void
+    onUserQuery            (matrixUser: MatrixUser)                                                           : ProvisionedUser | Promise<ProvisionedUser>
+    parseLocation          (alias: string)                                                                    : Promise<Array<ThirdPartyLocationResult>>
+    parseUser              (userid: string)                                                                   : Promise<Array<ThirdPartyUserResult>>
 
   }
 
@@ -233,7 +237,7 @@ declare module 'matrix-appservice-bridge' {
     roomState       (roomId: string, useCache = false)                                    : Promise<any>
     sendEvent       (roomId: string, type: EventType, content: object)                    : Promise<void>
     sendMessage     (roomId: string, content: object)                                     : Promise<void>
-    sendReadReceipt ()                                                                     : Promise<void>
+    sendReadReceipt ()                                                                    : Promise<void>
     sendStateEvent  (roomId: string, type: EventType, skey: string, content: object)      : Promise<void>
     sendText        (roomId: string, text: string)                                        : Promise<void>
     sendTyping      (roomId: string, isTyping: boolean)                                   : Promise<void>
@@ -250,7 +254,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class MatrixRoom {
 
-    public roomId: string
+    protected roomId: string
 
     constructor (roomId: string)
     deserialize(data: object): void
@@ -263,12 +267,13 @@ declare module 'matrix-appservice-bridge' {
 
   export class MatrixUser {
 
-    public userId    : string
-    public localpart : string
-    public host      : string
+    public readonly localpart : string
+    public readonly host      : string
+
+    private userId : string
 
     constructor (userId: string, dataopt?: object, escape = true)
-    escapeUserId()
+    escapeUserId(): void
     get(key: string): unknown
     getDisplayName(): null | string
     getId(): string
@@ -290,7 +295,7 @@ declare module 'matrix-appservice-bridge' {
 
   export class RemoteUser {
 
-    constructor (identifier: string, dataopt?: object)
+    constructor (private id: string, protected data?: object)
     get(key: string): unknown
     getId(): string
     serialize(): object
@@ -305,25 +310,26 @@ declare module 'matrix-appservice-bridge' {
   export class RoomBridgeStore {
 
     constructor (db: Datastore, ops?: RoomBridgeStoreOptions)
-    batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : RemoteRoomMap
-    getEntriesByLinkData          (data: object)                : Array<Entry>
-    getEntriesByMatrixId          (matrixId: string)            : Array<Entry>
-    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<EntryMap>
-    getEntriesByMatrixRoomData    (data: object)                : Array<Entry>
-    getEntriesByRemoteId          (remoteId: string)            : Array<Entry>
-    getEntriesByRemoteRoomData    (data: object)                : Array<Entry>
+
+    batchGetLinkedRemoteRooms     (matrixIds: Array<string>)    : Promise<RemoteRoomDict>
+    getEntriesByLinkData          (data: object)                : Promise<Array<Entry>>
+    getEntriesByMatrixId          (matrixId: string)            : Promise<Array<Entry>>
+    getEntriesByMatrixIds         (ids: Array<string>)          : Promise<EntryDict>
+    getEntriesByMatrixRoomData    (data: object)                : Promise<Array<Entry>>
+    getEntriesByRemoteId          (remoteId: string)            : Promise<Array<Entry>>
+    getEntriesByRemoteRoomData    (data: object)                : Promise<Array<Entry>>
     getEntryById                  (id: string)                  : Promise<null | Entry>
-    getLinkedMatrixRooms          (remoteId: string)            : Array<MatrixRoom>
-    getLinkedRemoteRooms          (matrixId: string)            : Array<RemoteRoom>
-    getMatrixRoom                 (roomId: string)              : null | MatrixRoom
+    getLinkedMatrixRooms          (remoteId: string)            : Promise<Array<MatrixRoom>>
+    getLinkedRemoteRooms          (matrixId: string)            : Promise<Array<RemoteRoom>>
+    getMatrixRoom                 (roomId: string)              : Promise<null | MatrixRoom>
     removeEntriesByLinkData       (data: object)                : Promise<void>
-    removeEntriesByMatrixRoomData(data: object)                 : Promise<void>
+    removeEntriesByMatrixRoomData (data: object)                : Promise<void>
     removeEntriesByMatrixRoomId   (matrixId: string)            : Promise<void>
-    removeEntriesByRemoteRoomData(data: object)                 : Promise<void>
+    removeEntriesByRemoteRoomData (data: object)                : Promise<void>
     removeEntriesByRemoteRoomId   (remoteId: string)            : Promise<void>
     setMatrixRoom                 (matrixRoom: MatrixRoom)      : Promise<void>
-    upsertEntry                   (entry: Entry) : Promise<void>
-    linkRooms                    (
+    upsertEntry                   (entry: Entry)                : Promise<void>
+    linkRooms                     (
       matrixRoom : MatrixRoom,
       remoteRoom : RemoteRoom,
       data?      : object,
@@ -332,32 +338,32 @@ declare module 'matrix-appservice-bridge' {
 
   }
 
+  export class UserBridgeStore {
+
+    constructor (db: Datastore, opts?: object)
+
+    getByMatrixData            (dataQuery: object)                              : Promise<Array<MatrixUser>>
+    getByMatrixLocalpart       (localpart: string)                              : Promise<null | MatrixUser>
+    getByRemoteData            (dataQuery: object)                              : Promise<Array<RemoteUser>>
+    getMatrixLinks             (remoteId: string)                               : Promise<Array<String>>
+    getMatrixUser              (userId: string)                                 : Promise<null | MatrixUser>
+    getMatrixUsersFromRemoteId (remoteId: string)                               : Promise<Array<MatrixUser>>
+    getRemoteLinks             (matrixId: string)                               : Promise<Array<String>>
+    getRemoteUser              (id: string)                                     : Promise<null | RemoteUser>
+    getRemoteUsersFromMatrixId (userId: string)                                 : Promise<Array<RemoteUser>>
+    linkUsers                  (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<void>
+    setMatrixUser              (matrixUser: MatrixUser)                         : Promise<void>
+    setRemoteUser              (remoteUser: RemoteUser)                         : Promise<void>
+    unlinkUserIds              (matrixUserId: string, remoteUserId: string)     : Promise<number>
+    unlinkUsers                (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<number>
+
+  }
+
   export class MembershipCache {
 
     constructor ()
     getMemberEntry(roomId: string, userId: string): MembershipType
     setMemberEntry(roomId: string, userId: string, membership: MembershipType)
-
-  }
-
-  export class UserBridgeStore {
-
-    constructor (db: Datastore, opts?: object)
-
-    getByMatrixData           (dataQuery: object)                              : Promise<Array<MatrixUser>>
-    getByMatrixLocalpart      (localpart: string)                              : Promise<null | MatrixUser>
-    getByRemoteData           (dataQuery: object)                              : Promise<Array<RemoteUser>>
-    getMatrixLinks            (remoteId: string)                               : Promise<Array<String>>
-    getMatrixUser             (userId: string)                                 : Promise<null | MatrixUser>
-    getMatrixUsersFromRemoteId(remoteId: string)                               : Promise<Array<MatrixUser>>
-    getRemoteLinks            (matrixId: string)                               : Promise<Array<String>>
-    getRemoteUser             (id: string)                                     : Promise<null | RemoteUser>
-    getRemoteUsersFromMatrixId(userId: string)                                 : Promise<Array<RemoteUser>>
-    linkUsers                 (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<void>
-    setMatrixUser             (matrixUser: MatrixUser)                         : Promise<void>
-    setRemoteUser             (remoteUser: RemoteUser)                         : Promise<void>
-    unlinkUserIds             (matrixUserId: string, remoteUserId: string)     : Promise<number>
-    unlinkUsers               (matrixUser: MatrixUser, remoteUser: RemoteUser) : Promise<number>
 
   }
 
