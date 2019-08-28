@@ -38,8 +38,8 @@
   },
   "homepage": "https://github.com/huan/matrix-appservice-wechaty#readme",
   "dependencies": {
+    "matrix-appservice-bridge": "^1.9.0",
     "cuid": "^2.1.6",
-    "matrix-appservice-bridge": "^1.8.1",
     "read-pkg-up": "^6.0.0",
     "update-notifier": "^3.0.0",
     "wechaty": "^0.27.52",
@@ -51,7 +51,7 @@
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.6.1",
     "@types/nedb": "^1.8.7",
-    "@types/read-pkg-up": "^3.0.1",
+    "@types/read-pkg-up": "^6.0.0",
     "@types/update-notifier": "^2.5.0",
     "nodemon": "^1.19.1",
     "pkg-jq": "^0.2.2",
