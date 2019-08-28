@@ -155,14 +155,15 @@ Copied from disclaimer part from [matrix-appservice-discord](https://github.com/
 
 > I accept no responsibility if Tencent ban your IP, Account or even your details on their system. They have never given official support on custom clients.
 
-## AUTHOR
+## Author
 
-[Huan LI (李卓桓)](http://linkedin.com/in/zixia) <zixia@zixia.net>
+[Huan](https://github.com/huan) [(李卓桓)](http://linkedin.com/in/zixia) <zixia@zixia.net>
 
 [![Profile of Huan LI (李卓桓) on StackOverflow](https://stackexchange.com/users/flair/265499.png)](https://stackexchange.com/users/265499)
 
-## COPYRIGHT & LICENSE
+## Copyright & License
 
-- Code & Docs © 2019 - now Huan LI <zixia@zixia.net>
+- Code & Docs © 2019 - now Huan (李卓桓) <zixia@zixia.net>
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
+
