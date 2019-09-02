@@ -42,7 +42,7 @@
     "cuid": "^2.1.6",
     "read-pkg-up": "^6.0.0",
     "update-notifier": "^3.0.0",
-    "wechaty": "^0.27.52",
+    "wechaty": "^0.28.1",
     "wechaty-puppet-padpro": "^0.3.7"
   },
   "devDependencies": {
