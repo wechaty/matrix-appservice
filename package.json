@@ -53,7 +53,7 @@
     "@types/nedb": "^1.8.7",
     "@types/read-pkg-up": "^6.0.0",
     "@types/update-notifier": "^2.5.0",
-    "nodemon": "^1.19.1",
+    "nodemon": "^2.0.0",
     "pkg-jq": "^0.2.2",
     "qrcode-terminal": "^0.12.0",
     "shx": "^0.3.2",
