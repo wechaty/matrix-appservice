@@ -1,7 +1,7 @@
 {
   "name": "matrix-appservice-wechaty",
   "version": "0.5.4",
-  "description": "Matrix Application Services Bridge for Wechaty",
+  "description": "Matrix Application Services Bridge for Wechat",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
   "scripts": {
@@ -42,7 +42,7 @@
     "matrix-appservice-bridge": "^1.11.1",
     "read-pkg-up": "^7.0.1",
     "update-notifier": "^4.1.0",
-    "wechaty": "^0.31.22"
+    "wechaty": "^0.32.1"
   },
   "devDependencies": {
     "@chatie/eslint-config": "^0.8.1",
