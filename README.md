@@ -3,7 +3,6 @@
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 ![NPM](https://github.com/wechaty/matrix-appservice-wechaty/workflows/NPM/badge.svg)
 ![Docker](https://github.com/wechaty/matrix-appservice-wechaty/workflows/Docker/badge.svg)
-
 [![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://github.com/wechaty/wechaty)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![Greenkeeper badge](https://badges.greenkeeper.io/wechaty/matrix-appservice-wechaty.svg)](https://greenkeeper.io/)
