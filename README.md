@@ -1,6 +1,6 @@
 # MATRIX-APPSERVICE-WECHATY
 
-[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-blue.svg)](https://github.com/wechaty/wechaty)
+[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-green.svg)](https://github.com/wechaty/wechaty)
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 [![Build Status](https://api.travis-ci.com/wechaty/matrix-appservice-wechaty.svg?branch=master)](https://travis-ci.com/wechaty/matrix-appservice-wechaty)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
