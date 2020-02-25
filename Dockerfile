@@ -15,9 +15,9 @@ RUN sudo apt-get update \
     && sudo apt-get purge --auto-remove \
     && sudo rm -rf /tmp/* /var/lib/apt/lists/*
 
-RUN [ -e /data ] || sudo mkdir /data \
-  && sudo chown -R "$(id -nu)" /data
-VOLUME /data
+RUN [ -e /workdir ] || sudo mkdir /workdir \
+  && sudo chown -R "$(id -nu)" /workdir
+VOLUME /workdir
 
 RUN [ -e /matrix-appservice-wechaty ] || sudo mkdir /matrix-appservice-wechaty \
   && sudo chown -R "$(id -nu)" /matrix-appservice-wechaty
@@ -30,6 +30,9 @@ RUN sudo chown "$(id -nu)" package.json \
   && rm -fr /tmp/* ~/.npm
 
 COPY . .
-RUN npm run dist
+RUN ./scripts/generate-version.sh \
+  && npm run dist
 
-ENTRYPOINT [ "/usr/bin/dumb-init", "--", "node", "dist/bin/matrix-appservice-wechaty" ]
+WORKDIR /workdir
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "node", "dist/bin/matrix-appservice-wechaty" ]
