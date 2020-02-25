@@ -23,6 +23,8 @@ async function main () {
     console.warn(warning.stack)   // Print the stack trace
   })
 
+  process.argv[0] = 'matrix-appservice-wechaty'
+
   const cli = await createCli()
   cli.run()
 }
