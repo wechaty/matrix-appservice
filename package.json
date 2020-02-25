@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "shx rm -fr dist/* *-store.db",
-    "dist": "npm run clean && npm run build && chmod +x dist/bin/*.js",
+    "dist": "npm run clean && npm run build && chmod +x dist/bin/*.js && cp -R config dist/",
     "lint": "npm run lint:es && npm run lint:ts && npm run lint:md",
     "lint:md": "markdownlint README.md",
     "lint:es": "eslint --ignore-pattern tests/fixtures/ '{bin,src,tests}/**/*.ts' ",
