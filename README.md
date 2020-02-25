@@ -1,4 +1,4 @@
-# MATRIX-APPSERVICE-WECHATY
+# matrix-appservice-wechaty [![Matrix Chat](https://img.shields.io/matrix/matrix-appservice-wechaty:matrix.org?label=[M]%20Chat)](https://matrix.to/#/#matrix-appservice-wechaty:matrix.org)
 
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 ![NPM](https://github.com/wechaty/matrix-appservice-wechaty/workflows/NPM/badge.svg)
