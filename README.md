@@ -1,19 +1,22 @@
 # MATRIX-APPSERVICE-WECHATY
 
-[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-green.svg)](https://github.com/wechaty/wechaty)
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 ![NPM](https://github.com/wechaty/matrix-appservice-wechaty/workflows/NPM/badge.svg)
 ![Docker](https://github.com/wechaty/matrix-appservice-wechaty/workflows/Docker/badge.svg)
+
+[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://github.com/wechaty/wechaty)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![Greenkeeper badge](https://badges.greenkeeper.io/wechaty/matrix-appservice-wechaty.svg)](https://greenkeeper.io/)
 
-![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
-> Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
+[![dockeri.co](https://dockeri.co/image/wechaty/matrix-appservice)](https://hub.docker.com/r/wechaty/matrix-appservice/)
 
 Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 
 - [Matrix Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
 - [Matrix Bridge List](https://matrix.org/bridges/#we-chat)
+
+![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
+> Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
 
 ## INTRO
 
