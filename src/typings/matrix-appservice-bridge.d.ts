@@ -258,7 +258,7 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (roomId: string)
     deserialize(data: object): void
-    get(key: string): unknown
+    get(key: string): object
     getId(): string
     serialize(): object
     set(key: string, val: any): void
@@ -274,7 +274,7 @@ declare module 'matrix-appservice-bridge' {
 
     constructor (userId: string, dataopt?: object, escape = true)
     escapeUserId(): void
-    get(key: string): unknown
+    get(key: string): object
     getDisplayName(): null | string
     getId(): string
     serialize(): object
@@ -286,7 +286,7 @@ declare module 'matrix-appservice-bridge' {
   export class RemoteRoom {
 
     constructor (identifier: string, dataopt?: object)
-    get(key: string): unknown
+    get(key: string): object
     getId(): string
     serialize(): object
     set(key: string, val: object): void
@@ -296,7 +296,7 @@ declare module 'matrix-appservice-bridge' {
   export class RemoteUser {
 
     constructor (private id: string, protected data?: object)
-    get(key: string): unknown
+    get(key: string): object
     getId(): string
     serialize(): object
     set(key: string, val: object): void

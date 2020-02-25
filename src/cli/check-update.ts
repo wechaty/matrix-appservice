@@ -8,7 +8,7 @@ export function checkUpdate (): void {
         throw new Error('package.json not found')
       }
 
-      const pkg = pack.package
+      const pkg = pack.packageJson
       // 1 week
       const updateCheckInterval = 1000 * 60 * 60 * 24 * 7
 
