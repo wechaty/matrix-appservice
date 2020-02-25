@@ -32,7 +32,7 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 > 1. [homeserver install in 1 hr](https://github.com/spantaleev/matrix-docker-ansible-deploy)
 > 1. [examples of puppet bridges](https://github.com/matrix-hacks/matrix-puppet-bridge)
 >
-> &mdash; <cite>April 2019</cite>
+> &mdash; <cite>Huan, April 2019</cite>
 
 ---
 
@@ -41,7 +41,7 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 > 1. [A Matrix-Telegram hybrid puppeting/relaybot bridge](https://github.com/tulir/mautrix-telegram)
 > 1. [A Matrix-WhatsApp puppeting bridge](https://github.com/tulir/mautrix-whatsapp)
 >
-> &mdash; <cite>May 2019</cite>
+> &mdash; <cite>Huan, May 2019</cite>
 
 ## HOW TO USE MATRIX
 
@@ -138,7 +138,7 @@ Simply run the `logout` management command.
 1. The names/avatars of Wechat users/groups are not set right on Matrix.
 1. Only support text message, Image/Audio/Video message is not supported yet. (Will be supported in the future version)
 1. Appservice will create more than one matrix room for a Wechat room when receiving messages from it for the very first time. (It will stop creating new rooms after you accepted the invitation)
-1. Login QR Code should not use the 3rd party API for security considerations. Upload the QR Code image to matrix server instead.
+1. Login QR Code should not use the 3rd party API for security considerations. A better way is to upload the QR Code image to matrix server instead.
 
 ### v0.2 July 6,  2019
 

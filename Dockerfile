@@ -32,5 +32,4 @@ RUN sudo chown "$(id -nu)" package.json \
 COPY . .
 RUN npm run dist
 
-ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "node", "dist/bin/matrix-appservice-wechaty" ]
+ENTRYPOINT [ "/usr/bin/dumb-init", "--", "node", "dist/bin/matrix-appservice-wechaty" ]
