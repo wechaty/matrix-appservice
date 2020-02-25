@@ -1,12 +1,12 @@
 # MATRIX-APPSERVICE-WECHATY
 
-[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-blue.svg)](https://github.com/chatie/wechaty)
+[![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-blue.svg)](https://github.com/wechaty/wechaty)
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
-[![Build Status](https://api.travis-ci.com/huan/matrix-appservice-wechaty.svg?branch=master)](https://travis-ci.com/huan/matrix-appservice-wechaty)
+[![Build Status](https://api.travis-ci.com/wechaty/matrix-appservice-wechaty.svg?branch=master)](https://travis-ci.com/wechaty/matrix-appservice-wechaty)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
-[![Greenkeeper badge](https://badges.greenkeeper.io/huan/matrix-appservice-wechaty.svg)](https://greenkeeper.io/)
+[![Greenkeeper badge](https://badges.greenkeeper.io/wechaty/matrix-appservice-wechaty.svg)](https://greenkeeper.io/)
 
-![Matrix + Wechaty](https://huan.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
+![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
 > Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
 
 Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
@@ -16,7 +16,7 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 
 ## INTRO
 
-- [Integrate Wechat with Matrix with the power of Wechaty #1737](https://github.com/Chatie/wechaty/issues/1737)
+- [Integrate Wechat with Matrix with the power of Wechaty #1737](https://github.com/wechaty/wechaty/issues/1737)
 
 > [Matrix](https://matrix.org/blog/index) is like [Pidgin](http://pidgin.im) on your Phone.
 >
@@ -130,7 +130,7 @@ Simply run the `logout` management command.
 ### v0.4 (Alpha) July 14, 2019
 
 1. Support receive/send Wechat message in Matrix. (individuals and rooms)
-1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/Chatie/wechaty-puppet-puppeteer)) and Pad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
+1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/wechaty/wechaty-puppet-puppeteer)) and Pad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
 
 #### Known Issues
 
