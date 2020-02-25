@@ -1,6 +1,9 @@
-# Matrix Appservice Wechaty
-# https://github.com/huan/matrix-appservice-wechaty
-# Copyright 2019, Huan LI <zixia@zixia.net>
+#
+# Wechat Matrix Appservice Bridge
+#
+#   GitHub:     https://github.com/wechaty/matrix-appservice-wechaty
+#   License:    Apache-2.0
+#   Copyright:  2019, Huan LI <zixia@zixia.net>
 #
 FROM zixia/wechaty
 LABEL maintainer="Huan LI <zixia@zixia.net>"
