@@ -23,6 +23,9 @@ async function main () {
     console.warn(warning.stack)   // Print the stack trace
   })
 
+  /**
+   * To show a nice name from CLI, instead of `node`
+   */
   process.argv[0] = 'matrix-appservice-wechaty'
 
   const cli = await createCli()

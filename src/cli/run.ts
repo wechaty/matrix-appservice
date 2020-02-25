@@ -10,7 +10,7 @@ import { MatrixHandler }      from '../matrix-handler'
 import { WechatyManager }     from '../wechaty-manager'
 
 import { BridgeConfig }     from './bridge-config-schema'
-import { DialogManager } from '../dialog-manager'
+import { DialogManager }    from '../dialog-manager'
 
 export async function run (
   port         : number,
