@@ -56,9 +56,11 @@ jspm_packages/
 
 /package-lock.json
 t.*
+t/
 /bundles/
 /dist/
 
 *.memory-card.json
 *-registration.yaml
 *-store.db
+
