@@ -31,9 +31,9 @@ Riot: <https://riot.im/app/>
 
 ## Features
 
-According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), Wechaty Bot in Matrix will create an `Simple Puppeted Bridge` with `Portal Rooms` because we want to bring all conversations from Wechat to Matrix, and let the Matrix user control his account on Wechat.
+According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), Wechaty Bot in Matrix will create an [Simple Puppeted Bridge](https://matrix.org/docs/guides/types-of-bridging#simple-puppeted-bridge) with [Portal Rooms](https://matrix.org/docs/guides/types-of-bridging#portal-rooms) because we want to bring all conversations from Wechat to Matrix, and let the Matrix user control his account on Wechat.
 
-1. Support connect to Wechat via Web/iPad/Windows/Mac Protocol, with the power of [Wechaty](https://github.com/wechaty)
+1. Support connect to Wechat via [Web](https://github.com/wechaty/wechaty-puppet-puppeteer)/[iPad](https://github.com/wechaty/wechaty-puppet-padplus)/[Hostie](https://github.com/wechaty/wechaty-puppet-hostie)/Windows/Mac Protocol, with the power of [Wechaty](https://github.com/wechaty)
 1. Map all Wechat users/room/official accounts to Matrix virtual users
 
 ## Requirements
@@ -45,11 +45,11 @@ According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridgin
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 [![npm (next)](https://img.shields.io/npm/v/matrix-appservice-wechaty/next.svg)](https://www.npmjs.com/package/matrix-appservice-wechaty?activeTab=versions)
 
-`matrix-appservcie-wechaty` is all you need.
-
 ```sh
 sudo npm install -g matrix-appservice-wechaty
 ```
+
+`matrix-appservcie-wechaty` is all you need.
 
 ### 1 Configure `config.yaml`
 
@@ -105,6 +105,8 @@ matrix-appservice-wechaty \
   --file    wechaty-registration.yaml
 ```
 
+> Note: apply for token of wechaty-puppet-padplus from [here](https://github.com/wechaty/wechaty/wiki/Support-Developers)
+
 The bridge should start working shortly afterwards.
 
 The current path (`$(pwd)`) should have the `wechaty-registration.yaml` file and `config.yaml` file. Additional bridge-related data will be stored here.
@@ -146,7 +148,7 @@ registration: wechaty-registration.yaml
 
 We have published a docker image [wechaty/matrix-appservice](https://hub.docker.com/r/wechaty/matrix-appservice) for your convenience.
 
-Add the following settings to your `docker-compose.yml`
+You can use docker to run matrix-appservice-wechaty bridge by adding the following configs to your `docker-compose.yml`
 
 ```yaml
 matrix-appservice-wechaty:
@@ -162,7 +164,7 @@ matrix-appservice-wechaty:
   command: ["-c", "/data/config.yaml", "-f", "/data/wechaty-registration.yaml", "-p", "8788"]
 ```
 
-## Usage
+## Beidge Usage
 
 1. Talk to Wechaty Bot (`@wechaty:your.domain.ltd`)
 1. Send the message `!login` (three times ... wip... )
