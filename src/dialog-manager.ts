@@ -4,8 +4,8 @@ import {
   log,
 }           from './config'
 
-import { AppserviceManager } from './appservice-manager'
-import { WechatyManager } from './wechaty-manager'
+import { AppserviceManager }  from './appservice-manager'
+import { WechatyManager }     from './wechaty-manager'
 
 export class DialogManager {
 
