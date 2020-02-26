@@ -9,7 +9,7 @@
 
 [![dockeri.co](https://dockeri.co/image/wechaty/matrix-appservice)](https://hub.docker.com/r/wechaty/matrix-appservice/)
 
-Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
+A Dockerized Matrix Application Services Bridge for Wechat.
 
 - [Matrix Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
 - [Matrix Bridge List](https://matrix.org/bridges/#we-chat)
@@ -17,7 +17,7 @@ Matrix Application Services Wechaty Bridge for Wechat Individual Accounts
 ![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
 > Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
 
-## INTRO
+## Background
 
 - [Integrate Wechat with Matrix with the power of Wechaty #1737](https://github.com/wechaty/wechaty/issues/1737)
 
@@ -52,7 +52,7 @@ I'd like to recommend using Riot for using Matrix. Riot is a universal secure ch
 - <https://riot.im/app/>
 - <https://riot.chatie.io/>
 
-## INSTALL
+## Install
 
 `matrix-appservcie-wechaty` is a very easy to use bridge for Matrix. It supports two installation methods:
 
@@ -82,7 +82,7 @@ docker run \
   wechaty/matrix-appservice
 ```
 
-## USAGE
+## Usage
 
 ### Authentication
 
@@ -126,7 +126,7 @@ Simply run the `logout` management command.
 - [A matrix SMS bridge, powered by Twilio](https://github.com/turt2live/matrix-appservice-twilio)
 - [Node.js IRC bridge for Matrix](https://github.com/matrix-org/matrix-appservice-irc)
 
-## HISTORY
+## History
 
 ### master
 
@@ -156,7 +156,7 @@ Simply run the `logout` management command.
 
 1. Auto response the message in a Matrix Room.
 
-## DISCLAIMER
+## Disclaimer
 
 Copied from disclaimer part from [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer):
 
