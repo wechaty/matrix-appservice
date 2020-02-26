@@ -29,10 +29,10 @@ RUN ./scripts/generate-version.sh \
   && npm run dist \
   && npm link
 
-WORKDIR /workdir
-VOLUME /workdir
+WORKDIR /data
+VOLUME /data
 
-EXPOSE 9000/tcp
+EXPOSE 8788/tcp
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "matrix-appservice-wechaty" ]
 CMD [ "" ]
