@@ -295,4 +295,3 @@ Copied from disclaimer part from [matrix-appservice-discord](https://github.com/
 - Code & Docs © 2019 - now Huan (李卓桓) <zixia@zixia.net>
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
-
