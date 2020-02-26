@@ -9,7 +9,7 @@
 
 [![dockeri.co](https://dockeri.co/image/wechaty/matrix-appservice)](https://hub.docker.com/r/wechaty/matrix-appservice/)
 
-A Dockerized Matrix Application Services Bridge for Wechat.
+A Dockerized Matrix Application Services Bridge for Wechat (微信)
 
 - [Matrix Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
 - [Matrix Bridge List](https://matrix.org/bridges/#we-chat)
