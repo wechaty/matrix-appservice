@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-APP_SERVER_ENDPOINT='http://localhost:8788'
+source .env
 
 ts-node ../bin/matrix-appservice-wechaty \
   --config config.yaml \

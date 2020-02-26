@@ -2,8 +2,10 @@
 
 set -eo pipefail
 
+source .env
+
 export WECHATY_LOG=silly
-export APP_SERVICE_PORT=80
+export WECHATY_PUPPET=wechaty-puppet-padplus
 
 ts-node ../bin/matrix-appservice-wechaty \
   --config config.yaml \
