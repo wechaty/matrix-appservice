@@ -1,5 +1,10 @@
 # matrix-appservice-wechaty [![[M] Matrix](https://img.shields.io/badge/[M]%20Matrix-8788%20users-brightgreen.svg)](https://matrix.to/#/#matrix-appservice-wechaty:matrix.org)
 
+Wechat (微信) Matrix Application Services Bridge
+
+![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
+> Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
+
 [![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://github.com/wechaty/wechaty)
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 ![NPM](https://github.com/wechaty/matrix-appservice-wechaty/workflows/NPM/badge.svg)
@@ -7,31 +12,26 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/wechaty/matrix-appservice-wechaty.svg)](https://greenkeeper.io/)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 
-Wechat (微信) Matrix Application Services Bridge
-
-![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
-> Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
-
 ## What is [Matrix]
 
-> [Matrix](https://matrix.org/blog/index) is like [Pidgin](http://pidgin.im) on your Phone.
+> [Matrix](https://matrix.org/blog/index) is an open network for secure, decentralized communication, like [Pidgin](http://pidgin.im) on your Phone.
 >
 > Pidgin try to IM all your friends in one place in Linux, and with Matrix you can have your Phone clinet with your private server which is highly customized. Matrix did not use XMPP protocol, it's server uses REST so that it could be more easy to extend.
 
-### `matrix-appservice-wechaty` Official Links
-
-1. [[Matrix] Bridge List for Wechaty](https://matrix.org/bridges/#we-chat)
-1. [[Matrix] Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
-
-### Matrix Clients
+### [Matrix] Clients
 
 I'd like to recommend using Riot for using Matrix. Riot is a universal secure chat app entirely under your control. It supports all types of the platforms, including Web/Browser, Android, and iPhone.
 
 Riot: <https://riot.im/app/>
 
+### `matrix-appservice-wechaty` on [Matrix]
+
+1. [[Matrix] Bridge List for Wechaty](https://matrix.org/bridges/#we-chat)
+1. [[Matrix] Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
+
 ## Features
 
-According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), Wechaty Bot in Matrix will create `Portal Rooms` with the `Simple Puppeted Bridge` because what we want is to bring all the Wechat Conversation to the Matrix, and let the Matrix user control his account on Wechat.
+According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), Wechaty Bot in Matrix will create an `Simple Puppeted Bridge` with `Portal Rooms` because we want to bring all conversations from Wechat to Matrix, and let the Matrix user control his account on Wechat.
 
 1. Support connect to Wechat via Web/iPad/Windows/Mac Protocol, with the power of [Wechaty](https://github.com/wechaty)
 1. Map all Wechat users/room/official accounts to Matrix virtual users
@@ -40,20 +40,16 @@ According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridgin
 
 1. A Matrix homeserver that supports application services (e.g. [Synapse](https://github.com/matrix-org/synapse))
 
-## Install
+## Installation
 
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
 [![npm (next)](https://img.shields.io/npm/v/matrix-appservice-wechaty/next.svg)](https://www.npmjs.com/package/matrix-appservice-wechaty?activeTab=versions)
 
-`matrix-appservcie-wechaty` is a very easy to use bridge for Matrix. 
+`matrix-appservcie-wechaty` is all you need.
 
 ```sh
 sudo npm install -g matrix-appservice-wechaty
 ```
-
-## Installation
-
-The docker image [wechaty/matrix-appservice](https://hub.docker.com/r/wechaty/matrix-appservice) is all you need.
 
 ### 1 Configure `config.yaml`
 
@@ -70,14 +66,10 @@ After we setup the `config.yaml`, then we can generate the `wechaty-registration
 ```sh
 export APP_SERVER_ENDPOINT='http://localhost:8788'
 
-docker run -ti --rm \
-  --name matrix-appservcie-wechaty \
-  -v "$(pwd)":/workdir:z \
-  wechaty/matrix-appservice \
-  \
-  --config config.yaml \
-  --generate-registration \
-  --url "$APP_SERVER_ENDPOINT"
+matrix-appservice-wechaty \
+  --config  config.yaml \
+  --url     "$APP_SERVER_ENDPOINT" \
+  --generate-registration
 ```
 
 Note: The URL `APP_SERVER_ENDPIOINT` is used by the home server to communite with appservice, in this example is: `http://localhost:8788`. If you have other appservices, or other requirements, pick an appropriate hostname and port.
@@ -105,20 +97,12 @@ Remember to restart it every time the registration file is updated.
 Let's start the `matrix-appservice-wechaty` bridge, with the port specified in `wechaty-registration.yaml` (`8788` in the above example)
 
 ```shell
-export APP_SERVICE_PORT=8788
 export WECHATY_PUPPET=wechaty-puppet-padplus
 export WECHATY_PUPPET_PADPLUS_TOKEN=xxxxxxxxxxxxxxxxxxxxx
 
-docker run -ti --rm \
-  --name matrix-appservcie-wechaty \
-  -v "$(pwd)":/workdir:z \
-  -p "$APP_SERVICE_PORT":8788 \
-  -e "WECHATY_PUPPET=$WECHATY_PUPPET" \
-  -e "WECHATY_PUPPET_PADPLUS_TOKEN=$WECHATY_PUPPET_PADPLUS_TOKEN" \
-  wechaty/matrix-appservice \
-  \
-  --config config.yaml \
-  --file wechaty-registration.yaml
+matrix-appservice-wechaty \
+  --config  config.yaml \
+  --file    wechaty-registration.yaml
 ```
 
 The bridge should start working shortly afterwards.
@@ -141,7 +125,7 @@ namespaces:
     - exclusive: true
       regex: '#wechaty_.*'
   rooms: []
-url: matrix.chatie.io:80
+url: matrix.chatie.io:8788
 sender_localpart: wechaty
 rate_limited: false
 protocols:
@@ -156,11 +140,35 @@ homeserverUrl: http://matrix.chatie.io:8008
 registration: wechaty-registration.yaml
 ```
 
-## TODO
+### Example Docker Compose File
 
-Distill steps to setup the matrix server from <https://github.com/spantaleev/matrix-docker-ansible-deploy/blob/master/docs/README.md>
+[![dockeri.co](https://dockeri.co/image/wechaty/matrix-appservice)](https://hub.docker.com/r/wechaty/matrix-appservice)
+
+We have published a docker image [wechaty/matrix-appservice](https://hub.docker.com/r/wechaty/matrix-appservice) for your convenience.
+
+Add the following settings to your `docker-compose.yml`
+
+```yaml
+matrix-appservice-wechaty:
+  container_name: matrix-appservice-wechaty
+  image: wechaty/matrix-appservice
+  volumes:
+  - ./bridges/matrix-appservice-wechaty:/data
+  networks:
+  - default
+  environment:
+  - WECHATY_PUPPET_PADPLUS_TOKEN=puppet_padplus_<token>
+  - WECHATY_PUPPET=wechaty-puppet-padplus
+  command: ["-c", "/data/config.yaml", "-f", "/data/wechaty-registration.yaml", "-p", "8788"]
+```
 
 ## Usage
+
+1. Talk to Wechaty Bot (`@wechaty:your.domain.ltd`)
+1. Send the message `!login` (three times ... wip... )
+1. The `wechaty` app service bot will then send you a QR Code for scanning by WeChat.
+
+After scan the QR Code and confirm on your phone, everything will be setup automatically by the wechaty bot.
 
 ### Authentication
 
@@ -185,6 +193,10 @@ Simply run the `logout` management command.
 By following the guide from [@spantaleev](https://github.com/spantaleev), you can set your matrix server up just in dozens of minutes.
 
 - [Matrix (An open network for secure, decentralized communication) server setup using Ansible and Docker](https://github.com/spantaleev/matrix-docker-ansible-deploy/blob/master/docs/README.md)
+
+### TODO
+
+Distill steps to setup the matrix server from <https://github.com/spantaleev/matrix-docker-ansible-deploy/blob/master/docs/README.md>
 
 ## See Also
 
@@ -241,7 +253,8 @@ By following the guide from [@spantaleev](https://github.com/spantaleev), you ca
 
 ### v0.5 (Beta) Feb 25, 2020
 
-1. Testing and refining with Eric @[ericmigi](https://github.com/ericmigi)
+1. added docker-compose.yaml example. (thanks @[ericmigi](https://github.com/ericmigi))
+1. Added install documentation
 
 ### v0.4 (Alpha) July 14, 2019
 
@@ -283,25 +296,3 @@ Copied from disclaimer part from [matrix-appservice-discord](https://github.com/
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
 
-
-### Docker
-
-[![dockeri.co](https://dockeri.co/image/wechaty/matrix-appservice)](https://hub.docker.com/r/wechaty/matrix-appservice)
-
-To be documented...
-
-```sh
-docker run \
-  --rm \
-  --name matrix-appservice-wechaty \
-  --mount type=bind,source="$(pwd)",target=/data \
-  wechaty/matrix-appservice
-```
-
-## Usage
-
-1. Talk to Wechaty Bot (`@wechaty:your.domain.ltd`)
-1. Send the message `!login`
-1. The `wechaty` app service bot will then send you a QR Code for scanning by WeChat.
-
-After scan the QR Code and confirm on your phone, everything will be setup automatically by the wechaty bot.
