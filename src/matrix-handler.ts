@@ -128,8 +128,8 @@ export class MatrixHandler {
 
       default:
         log.silly('MatrixHandler', 'process() default for type: ' + superEvent.type())
-        console.info('DEBUG request', superEvent.request)
-        console.info('DEBUG context', superEvent.context)
+        // console.info('DEBUG request', superEvent.request)
+        // console.info('DEBUG context', superEvent.context)
         break
 
     }
