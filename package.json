@@ -18,7 +18,8 @@
     "sloc": "sloc bin scripts src tests --details --format cli-table --keys total,source,comment && sloc bin scripts src tests",
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
     "test:unit": "blue-tape -r ts-node/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
-    "test": "npm run lint && npm run test:unit"
+    "test": "npm run lint && npm run test:unit",
+    "watch": "nodemon --watch src/ --ext ts --ignore 'src/**/*.spec.ts' --exec npm run dist"
   },
   "repository": {
     "type": "git",

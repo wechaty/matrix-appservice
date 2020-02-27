@@ -31,7 +31,7 @@ export class SuperEvent {
     public appserviceManager : AppserviceManager,
     public wechatyManager    : WechatyManager,
   ) {
-    log.verbose('SuperEvent', 'constructor(request[event_id]="%s", context[sender]="%s", wechatyManager.count()=%s)',
+    log.verbose('SuperEvent', 'constructor(request[event_id]="%s", context[sender]="%s", appserviceManager, wechatyManager.count()=%s)',
       request.getData().event_id,
       context.senders.matrix.getId(),
       wechatyManager.count(),
@@ -117,7 +117,7 @@ export class SuperEvent {
       && this.event.content && this.event.content.membership === 'invite'
       && this.event.state_key
     )
-    log.silly('SuperEvent', 'isRoomInvitation() for event id: %s -> %s', this.event.event_id, ret)
+    log.silly('SuperEvent', 'isRoomInvitation() -> %s', ret)
     return ret
   }
 
@@ -182,7 +182,7 @@ export class SuperEvent {
 
     const isDM = !!directUserId
 
-    log.silly('SuperEvent', 'isDirectMessage() room "%s" -> %s', matrixRoom.getId(), isDM)
+    log.silly('SuperEvent', 'isDirectMessage() -> %s', isDM)
     return isDM
   }
 

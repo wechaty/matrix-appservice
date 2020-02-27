@@ -108,7 +108,7 @@ export class MatrixHandler {
   protected async process (
     superEvent : SuperEvent,
   ): Promise<void> {
-    log.verbose('MatrixHandler', 'process(superEvent)')
+    log.verbose('MatrixHandler', 'process({type: %s})', superEvent.type())
 
     if (superEvent.isRoomInvitation()) {
       if (superEvent.isBotTarget()) {
@@ -146,7 +146,8 @@ export class MatrixHandler {
     const room   = superEvent.room()
     const sender = superEvent.sender()
 
-    const memberIdDict = await this.appserviceManager.bridge.getBot()
+    const memberIdDict = await this.appserviceManager.bridge
+      .getBot()
       .getJoinedMembers(room.getId())
 
     const memberNum = Object.keys(memberIdDict).length

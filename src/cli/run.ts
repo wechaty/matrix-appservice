@@ -82,6 +82,9 @@ function createBridge (
     context,
   )
 
+  /**
+   * This is for keeping a clear typing information
+   */
   const onUserQuery = (
     user: any
   ) => matrixHandler.onUserQuery(

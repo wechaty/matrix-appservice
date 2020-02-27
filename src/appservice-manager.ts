@@ -396,9 +396,11 @@ export class AppserviceManager {
     ofMatrixUser  : MatrixUser,
     toMatrixRoom? : MatrixRoom,
   ): Promise<void | null | MatrixRoom> {
-    log.verbose('AppserviceManager', 'directMessageRoom(%s, %s)',
+    log.verbose('AppserviceManager', 'directMessageRoom(%s%s)',
       ofMatrixUser.getId(),
-      (toMatrixRoom && toMatrixRoom.getId()) || '',
+      toMatrixRoom
+        ? ', ' + toMatrixRoom.getId()
+        : '',
     )
 
     const userData = {
