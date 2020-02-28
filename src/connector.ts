@@ -10,32 +10,10 @@ import {
 
 import {
   log,
-}           from './config'
-import { WechatyManager } from './wechaty-manager'
-import { AppserviceManager } from './appservice-manager'
+}                            from './config'
+import { WechatyManager }     from './wechaty-manager'
+import { AppserviceManager }  from './appservice-manager'
 
-/**
- * 
-# AppserviceMatrixRoomData
-
-AppServiceManager::matrixRoomOfWechatyRoom
-AppServiceManager::directMessage
-AppServiceManager::createDirectRoom
-AppServiceManager::generateMatrixRoom
-AppServiceManager::storeQuery
-
-SuperEvent::DirectmessageUserPair
-SuperEvent::isDirectMessage
-
-WechatyManager::wechatyRoom
-
-# AppserviceMatrixUserData
-
-AppServiceManager::matrixUserOfContact
-AppServiceManager::directMessageRoom
-
-WechatyManager::wechatyContact
- */
 interface MatchRoomData {
   ownerId : string   // the matrix user id who is using the matrix-appservice-wechaty
 
@@ -43,7 +21,7 @@ interface MatchRoomData {
    * 1 or 2:
    *  directUserId & wechatyRoomId should only be set one, and leave the other one to be undefined.
    */
-  
+
   /*
    * 1. If wechatyUserId is set, then this room is a direct message room, between the ownerId and wechatyUserId
    */
@@ -59,13 +37,17 @@ interface MatchUserData {
   wechatyUserId : string  // the wechaty contact id that this user linked to
 }
 
+interface DirectMessageUserPair {
+  user    : MatrixUser,
+  service : MatrixUser,
+}
+
 const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
-const APPSERVICE_DATA_KEY     = 'wechatyBridge'
 
 const MATCH_ROOM_DATA_KEY    = 'wechatyBridgeRoom'
 const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
 
- export class Transformer {
+export class Connector {
 
   constructor (
     public wechatyManager: WechatyManager,
@@ -74,10 +56,21 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
 
   }
 
+  public async matrixUser (wechatyUser: WechatyUser) : Promise<MatrixUser>
+  public async matrixUser (matrixUserId: string)     : Promise<MatrixUser>
+
   public async matrixUser (
-    user: WechatyUser,
+    user: string | WechatyUser,
   ): Promise<MatrixUser> {
-    log.verbose('Transformer', 'matrixUser(%s)', user)
+    log.verbose('Connector', 'matrixUser(%s)', user)
+
+    if (typeof user === 'string') {
+      const matrixUser = await this.appserviceManager.userStore.getMatrixUser(user)
+      if (matrixUser) {
+        return matrixUser
+      }
+      throw new Error(`matrix user id ${user} not found in store`)
+    }
 
     const wechaty = user.wechaty
     const ownerId = this.wechatyManager.matrixOwnerId(wechaty)
@@ -87,7 +80,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
       wechatyUserId: user.id,
     }
 
-    const query = this.storeQuery(
+    const query = this.appserviceManager.storeQuery(
       MATCH_USER_DATA_KEY,
       userData,
     )
@@ -102,10 +95,15 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     return matrixUser
   }
 
+  /**
+   * Get a Wechaty User from:
+   *  1. Direct Message Room, or
+   *  2. Matrix User.
+   */
   public async wechatyUser (
     roomOrUser: MatrixRoom | MatrixUser,
   ): Promise<WechatyUser> {
-    log.verbose('Transformer', 'wechatyUser(%s)', roomOrUser)
+    log.verbose('Connector', 'wechatyUser(%s)', roomOrUser)
 
     let matchKey: string
 
@@ -157,10 +155,10 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async matrixRoom (
     wechatyUserOrRoom: WechatyUser | WechatyRoom,
   ): Promise<MatrixRoom> {
-    log.verbose('Transformer', 'matrixRoom(%s)', wechatyUserOrRoom)
+    log.verbose('Connector', 'matrixRoom(%s)', wechatyUserOrRoom)
 
     const ownerId = this.wechatyManager.matrixOwnerId(wechatyUserOrRoom.wechaty)
-    
+
     const data = { ownerId } as MatchRoomData
 
     if (wechatyUserOrRoom instanceof WechatyUser) {
@@ -171,7 +169,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
       throw new Error('unknown args')
     }
 
-    const query = this.storeQuery(
+    const query = this.appserviceManager.storeQuery(
       MATCH_ROOM_DATA_KEY,
       data,
     )
@@ -192,7 +190,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async wechatyRoom (
     room: MatrixRoom,
   ): Promise<WechatyRoom> {
-    log.verbose('Transformer', 'wechatyRoom(%s)', room.getId())
+    log.verbose('Connector', 'wechatyRoom(%s)', room.getId())
 
     const {
       ownerId,
@@ -221,31 +219,11 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     return wechatyRoom
   }
 
-  protected storeQuery (
-    dataKey    : string,
-    filterData : MatchUserData | MatchRoomData,
-  ): {
-    [key: string]: string,
-  } {
-    log.verbose('Transformer', 'storeQuery(%s, "%s")',
-      dataKey,
-      JSON.stringify(filterData),
-    )
-
-    const query = {} as { [key: string]: string }
-
-    for (let [key, value] of Object.entries(filterData)) {
-      query[`${dataKey}.${key}`] = value
-    }
-
-    return query
-  }
-
   protected async generateMatrixUser (
     wechatyUser : WechatyUser,
     userData    : MatchUserData,
   ): Promise<MatrixUser> {
-    log.verbose('Transformer', 'generateMatrixUser(%s, "%s")',
+    log.verbose('Connector', 'generateMatrixUser(%s, "%s")',
       wechatyUser.id,
       JSON.stringify(userData),
     )
@@ -269,7 +247,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     wechatyRoomOrUser : WechatyRoom | WechatyUser,
     roomData          : MatchRoomData,
   ): Promise<MatrixRoom> {
-    log.verbose('Transformer', 'generateMatrixRoom(%s, %s)',
+    log.verbose('Connector', 'generateMatrixRoom(%s, %s)',
       wechatyRoomOrUser,
       JSON.stringify(roomData),
     )
@@ -287,11 +265,13 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
         const matrixUser = await this.matrixUser(member)
         inviteeIdList.push(matrixUser.getId())
       }
-    } else {
+    } else if (wechatyRoomOrUser instanceof WechatyUser) {
       // User: direct message
       roomName = wechatyRoomOrUser.name()
       const matrixUser = await this.matrixUser(wechatyRoomOrUser)
       inviteeIdList.push(matrixUser.getId())
+    } else {
+      throw new Error('unknown args')
     }
 
     const matrixRoom = await this.createGroupRoom(inviteeIdList, roomName)
@@ -309,7 +289,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     matrixUserIdList : string[],
     topic            : string,
   ): Promise<MatrixRoom> {
-    log.verbose('Transformer', 'createGroupRoom([%s], %s)',
+    log.verbose('Connector', 'createGroupRoom([%s], %s)',
       matrixUserIdList.join(','),
       topic,
     )
@@ -333,71 +313,60 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async isDirectMessageRoom (
     matrixRoom: MatrixRoom,
   ): Promise<boolean> {
-    log.verbose('Transformer', 'isDirectMessageRoom(%s)', matrixRoom.getId())
+    log.verbose('Connector', 'isDirectMessageRoom(%s)', matrixRoom.getId())
 
-    const { 
+    const {
       wechatyUserId,
     } = {
-      ...matrixRoom.get(MATCH_ROOM_DATA_KEY)
+      ...matrixRoom.get(MATCH_ROOM_DATA_KEY),
     } as Partial<MatchRoomData>
 
     const isDM = !!wechatyUserId
 
-    log.silly('Transformer', 'isDirectMessage() -> %s', isDM)
+    log.silly('Connector', 'isDirectMessageRoom() -> %s', isDM)
     return isDM
   }
 
+  public async directMessageUserPair (
+    matrixRoom: MatrixRoom,
+  ): Promise<DirectMessageUserPair> {
+    log.verbose('Connector', 'directMessageUserPair(%s)', matrixRoom.getId())
 
-  public isEnabled (matrixUser: MatrixUser): boolean {
-    log.verbose('AppserviceManager', 'isEnabled(%s)', matrixUser.getId())
-
-    const wechatyData = {
-      ...matrixUser.get(
-        APPSERVICE_WECHATY_DATA_KEY
+    const {
+      ownerId,
+      wechatyUserId,
+    } = {
+      ...matrixRoom.get(
+        MATCH_ROOM_DATA_KEY
       ),
-    } as AppserviceWechatyData
-
-    const enabled = !!wechatyData.enabled
-    log.silly('AppserviceManager', 'isEnable(%s) -> %s', matrixUser.getId(), enabled)
-    return !!enabled
-  }
-
-  public async enable (matrixUser: MatrixUser): Promise<void> {
-    log.verbose('AppserviceManager', 'enable(%s)', matrixUser.getId())
-
-    if (this.isEnabled(matrixUser)) {
-      throw new Error(`matrixUserId ${matrixUser.getId()} has already enabled`)
+    } as MatchRoomData
+    if (!wechatyUserId) {
+      throw new Error('no wechaty user id found)')
     }
 
-    const wechatyData = {
-      ...matrixUser.get(
-        APPSERVICE_WECHATY_DATA_KEY
-      ),
-      enabled: true,
-    } as AppserviceWechatyData
+    const queryData = {
+      wechatyUserId,
+    } as MatchUserData
 
-    matrixUser.set(
-      APPSERVICE_WECHATY_DATA_KEY,
-      wechatyData,
+    const query = this.appserviceManager.storeQuery(
+      MATCH_USER_DATA_KEY,
+      queryData,
     )
-    await this.userStore.setMatrixUser(matrixUser)
-  }
 
-  public async disable (matrixUser: MatrixUser): Promise<void> {
-    log.verbose('AppserviceManager', 'disable(%s)', matrixUser.getId())
+    const matrixUserList = await this.appserviceManager.userStore
+      .getByMatrixData(query)
 
-    const wechatyData = {
-      ...matrixUser.get(
-        APPSERVICE_WECHATY_DATA_KEY
-      ),
-      enabled: false,
-    } as AppserviceWechatyData
+    if (matrixUserList.length !== 1) {
+      throw new Error(`found ${matrixUserList.length} matrix user for wechaty user id ${wechatyUserId}`)
+    }
 
-    matrixUser.set(
-      APPSERVICE_WECHATY_DATA_KEY,
-      wechatyData,
-    )
-    await this.userStore.setMatrixUser(matrixUser)
+    const service = matrixUserList[0]
+    const user    = await this.appserviceManager.matrixUser(ownerId)
+
+    return {
+      service,
+      user,
+    }
   }
 
 }

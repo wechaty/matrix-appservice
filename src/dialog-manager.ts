@@ -5,6 +5,7 @@ import {
 }           from './config'
 
 import { AppserviceManager }  from './appservice-manager'
+import { UserManager }        from './user-manager'
 import { WechatyManager }     from './wechaty-manager'
 
 export class DialogManager {
@@ -29,8 +30,9 @@ export class DialogManager {
   // }
 
   constructor (
-    public appserviceManager: AppserviceManager,
-    public wechatyManager: WechatyManager,
+    public appserviceManager : AppserviceManager,
+    public userManager       : UserManager,
+    public wechatyManager    : WechatyManager,
   ) {
     log.verbose('DialogManager', 'constructor()')
   }
@@ -59,7 +61,7 @@ export class DialogManager {
       .getIntent()
 
     await intent.sendText(room.getId(), 'You are not enable `matrix-appservice-wechaty` yet. Please talk to the `wechaty` bot to check you in.')
-    await this.appserviceManager.enable(matrixUser)
+    await this.userManager.enable(matrixUser)
     await intent.sendText(room.getId(), 'I had enabled it for you ;-)')
   }
 

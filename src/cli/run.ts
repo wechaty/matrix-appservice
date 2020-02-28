@@ -8,9 +8,9 @@ import { AppserviceManager }  from '../appservice-manager'
 import { log }                from '../config'
 import { MatrixHandler }      from '../matrix-handler'
 import { WechatyManager }     from '../wechaty-manager'
+import { DialogManager }      from '../dialog-manager'
 
-import { BridgeConfig }     from './bridge-config-schema'
-import { DialogManager }    from '../dialog-manager'
+import { BridgeConfig }       from './bridge-config-schema'
 
 export async function run (
   port         : number,
@@ -41,7 +41,7 @@ export async function run (
     wechatyManager,
   )
 
-  const bridgeMatrixUserList = await appserviceManager.enabledUserList()
+  const bridgeMatrixUserList = await userManager.list()
 
   const wechatyStartFutureList = bridgeMatrixUserList.map(
     matrixUser => {

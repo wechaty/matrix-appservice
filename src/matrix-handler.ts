@@ -7,22 +7,24 @@ import {
 
 import {
   AGE_LIMIT_SECONDS,
-  APPSERVICE_USER_DATA_KEY,
-
-  AppserviceMatrixUserData,
 
   log,
 }                     from './config'
 
-import { AppserviceManager }  from './appservice-manager'
 import { SuperEvent }         from './super-event'
+
+import { AppserviceManager }  from './appservice-manager'
+import { DialogManager }      from './dialog-manager'
+import { Connector }          from './connector'
 import { WechatyManager }     from './wechaty-manager'
-import { DialogManager } from './dialog-manager'
+import { UserManager }         from './user-manager'
 
 export class MatrixHandler {
 
   public appserviceManager! : AppserviceManager
+  public bridgeUser!        : UserManager
   public wechatyManager!    : WechatyManager
+  public connector!         : Connector
 
   constructor (
     public dialogManager: DialogManager,
@@ -32,9 +34,13 @@ export class MatrixHandler {
 
   public setManager (
     appserviceManager : AppserviceManager,
+    bridgeUser        : UserManager,
+    connector         : Connector,
     wechatyManager    : WechatyManager,
   ): void {
     this.appserviceManager = appserviceManager
+    this.bridgeUser        = bridgeUser
+    this.connector         = connector
     this.wechatyManager    = wechatyManager
   }
 
@@ -82,9 +88,11 @@ export class MatrixHandler {
   public async onUserQuery (
     queriedUser: MatrixUser,
   ): Promise<ProvisionedUser> {
-    log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser),
-      APPSERVICE_USER_DATA_KEY as any as AppserviceMatrixUserData)
+    log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser))
+
+    // FIXME:
     return {}
+
     // const storeMatrixUser = await this.appserviceManager.matrixUser(queriedUser.getId())
     // const userData = {
     //   ...storeMatrixUser.get(
@@ -111,9 +119,9 @@ export class MatrixHandler {
     log.verbose('MatrixHandler', 'process({type: %s})', superEvent.type())
 
     if (superEvent.isRoomInvitation()) {
-      if (superEvent.isBotTarget()) {
+      if (superEvent.targetIsBot()) {
         log.verbose('MatrixHandler', 'process() isRoomInvitation() appservice was invited')
-        await this.processRoomInvitationToBot(superEvent)
+        await this.processRoomInvitationForBot(superEvent)
       } else {
         log.verbose('MatrixHandler', 'process() isRoomInvitation() skipped for non-bot user: %s"', superEvent.target()!.getId())
       }
@@ -136,10 +144,10 @@ export class MatrixHandler {
 
   }
 
-  protected async processRoomInvitationToBot (
+  protected async processRoomInvitationForBot (
     superEvent: SuperEvent,
   ): Promise<void> {
-    log.verbose('MatrixHandler', 'processRoomInvitationToBot()')
+    log.verbose('MatrixHandler', 'processRoomInvitationForBot()')
 
     await superEvent.acceptRoomInvitation()
 
@@ -179,7 +187,7 @@ export class MatrixHandler {
       return
     }
 
-    if (superEvent.isBotSender() || superEvent.isVirtualSender()) {
+    if (superEvent.senderIsBot() || superEvent.senderIsVirtual()) {
       log.verbose('MatrixHandler', 'processMatrixMessage() virtual or appservice sender "%s" found, skipped.',
         superEvent.sender().getId())
       return
@@ -204,7 +212,9 @@ export class MatrixHandler {
       log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', e.message)
     }
 
-    if (await superEvent.isDirectMessage()) {
+    const room = superEvent.room()
+
+    if (await this.connector.isDirectMessageRoom(room)) {
       await this.processDirectMessage(superEvent)
     } else {
       await this.processGroupMessage(superEvent)
@@ -217,8 +227,10 @@ export class MatrixHandler {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'processDirectMessage()')
 
-    const { user, service } = await superEvent.directMessageUserPair()
-    const wechatyEnabled    = await this.appserviceManager.isEnabled(user)
+    const room = superEvent.room()
+    const { user, service } = await this.connector.directMessageUserPair(room)
+
+    const wechatyEnabled    = await this.bridgeUser.isEnabled(user)
 
     if (!wechatyEnabled) {
       await this.dialogManager.gotoEnableWechatyDialog(superEvent)
@@ -250,7 +262,7 @@ export class MatrixHandler {
 
     const matrixUser = superEvent.sender()
 
-    const isEnabled = this.appserviceManager.isEnabled(matrixUser)
+    const isEnabled = this.bridgeUser.isEnabled(matrixUser)
 
     if (!isEnabled) {
       log.silly('MatrixHandler', 'processRoomMessage() %s is not enabled for wechaty', matrixUser.getId())
@@ -267,10 +279,11 @@ export class MatrixHandler {
     }
 
     try {
-      const wechatyRoom = await this.wechatyManager.wechatyRoom(
-        superEvent.room(),
-        superEvent.sender(),    // FIXME: should be consumer
-      )
+      const wechatyRoom = await this.connector.wechatyRoom(superEvent.room())
+      // await this.wechatyManager.wechatyRoom(
+      //   superEvent.room(),
+      //   superEvent.sender(),    // FIXME: should be consumer
+      // )
 
       await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
 
@@ -292,10 +305,13 @@ export class MatrixHandler {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'bridgeToWechatIndividual()')
 
-    const { user, service } = await superEvent.directMessageUserPair()
+    const room = superEvent.room()
+    const { service } = await this.connector.directMessageUserPair(room)
 
-    const contact = await this.wechatyManager
-      .wechatyContact(service, user)
+    const contact = await this.connector.wechatyUser(service)
+    // const contact = await this.wechatyManager
+    //   .wechatyContact(service, user)
+
     const text = superEvent.event.content!.body
     await contact.say(text + '')
   }

@@ -2,9 +2,7 @@ import {
   AppServiceRegistration,
 }                             from 'matrix-appservice-bridge'
 
-import {
-  APPSERVICE_LOCALPART,
-}                             from '../config'
+const APPSERVICE_LOCALPART = 'wechaty'
 
 export function generateRegistration (
   reg      : any,

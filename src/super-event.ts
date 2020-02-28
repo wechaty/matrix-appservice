@@ -8,10 +8,8 @@ import {
 import { EventType } from 'matrix-js-sdk'
 
 import {
-  APPSERVICE_ROOM_DATA_KEY,
-  AppserviceMatrixRoomData,
   log,
-}                          from './config'
+}                           from './config'
 
 import { AppserviceManager }  from './appservice-manager'
 import { WechatyManager }     from './wechaty-manager'
@@ -62,7 +60,7 @@ export class SuperEvent {
     return this.event.type
   }
 
-  public isBotTarget (): boolean {
+  public targetIsBot (): boolean {
     if (!this.context.targets.matrix) {
       return false
     }
@@ -71,7 +69,7 @@ export class SuperEvent {
     return this.appserviceManager.isBot(matrixUserId)
   }
 
-  public isVirtualTarget (): boolean {
+  public targetIsVirtual (): boolean {
     const target = this.target()
     if (!target) {
       return false
@@ -79,17 +77,17 @@ export class SuperEvent {
     return this.appserviceManager.isVirtual(target.getId())
   }
 
-  public isUserTarget (): boolean {
+  public targetIsUser (): boolean {
     return (
-      !this.isVirtualTarget()
-      && !this.isBotTarget()
+      !this.targetIsVirtual()
+      && !this.targetIsBot()
     )
   }
 
   /**
    * from @wechaty:
    */
-  public isBotSender (): boolean {
+  public senderIsBot (): boolean {
     const matrixUserId = this.context.senders.matrix.getId()
     return this.appserviceManager.isBot(matrixUserId)
   }
@@ -97,16 +95,16 @@ export class SuperEvent {
   /**
    * from @wechaty_.*
    */
-  public isVirtualSender (): boolean {
+  public senderIsVirtual (): boolean {
     const sender = this.sender()
 
     return this.appserviceManager.isVirtual(sender.getId())
   }
 
-  public isUserSender (): boolean {
+  public senderIsUser (): boolean {
     return (
-      !this.isVirtualSender()
-      && !this.isBotSender()
+      !this.senderIsVirtual()
+      && !this.senderIsBot()
     )
   }
 
@@ -136,58 +134,5 @@ export class SuperEvent {
 
     await intent.join(matrixRoomId)
   }
-
-  public async directMessageUserPair (): Promise<DirectMessageUserPair> {
-    const matrixRoom = this.room()
-    log.verbose('SuperEvent', 'directMessageUserPair() in room "%s"', matrixRoom.getId())
-
-    const {
-      consumerId,
-      directUserId,
-    } = {
-      ...matrixRoom.get(
-        APPSERVICE_ROOM_DATA_KEY
-      ),
-    } as AppserviceMatrixRoomData
-    if (!directUserId) {
-      throw new Error('no directUserId found)')
-    }
-
-    const consumerUser = await this.appserviceManager
-      .matrixUser(consumerId)
-    const serviceUser  = await this.appserviceManager
-      .matrixUser(directUserId)
-
-    log.silly('SuperEvent', 'directMessageUserPair() in room "%s" -> {user: "%s", service: "%s"}',
-      matrixRoom.getId(),
-      consumerUser.getId(),
-      serviceUser.getId(),
-    )
-
-    return {
-      service : serviceUser,
-      user    : consumerUser,
-    }
-  }
-
-  public async isDirectMessage (): Promise<boolean> {
-    const matrixRoom = this.room()
-    log.verbose('SuperEvent', 'isDirectMessage() room "%s"', matrixRoom.getId())
-
-    const { directUserId } = {
-      ...matrixRoom.get(
-        APPSERVICE_ROOM_DATA_KEY
-      ),
-    } as AppserviceMatrixRoomData
-
-    const isDM = !!directUserId
-
-    log.silly('SuperEvent', 'isDirectMessage() -> %s', isDM)
-    return isDM
-  }
-
-  /****************************************************************************
-   * Private Methods                                                         *
-   ****************************************************************************/
 
 }
