@@ -65,7 +65,7 @@ const APPSERVICE_DATA_KEY     = 'wechatyBridge'
 const MATCH_ROOM_DATA_KEY    = 'wechatyBridgeRoom'
 const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
 
- export class MatchMaker {
+ export class Transformer {
 
   constructor (
     public wechatyManager: WechatyManager,
@@ -77,7 +77,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async matrixUser (
     user: WechatyUser,
   ): Promise<MatrixUser> {
-    log.verbose('MatchMaker', 'matrixUser(%s)', user)
+    log.verbose('Transformer', 'matrixUser(%s)', user)
 
     const wechaty = user.wechaty
     const ownerId = this.wechatyManager.matrixOwnerId(wechaty)
@@ -105,7 +105,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async wechatyUser (
     roomOrUser: MatrixRoom | MatrixUser,
   ): Promise<WechatyUser> {
-    log.verbose('MatchMaker', 'wechatyUser(%s)', roomOrUser)
+    log.verbose('Transformer', 'wechatyUser(%s)', roomOrUser)
 
     let matchKey: string
 
@@ -157,7 +157,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async matrixRoom (
     wechatyUserOrRoom: WechatyUser | WechatyRoom,
   ): Promise<MatrixRoom> {
-    log.verbose('MatchMaker', 'matrixRoom(%s)', wechatyUserOrRoom)
+    log.verbose('Transformer', 'matrixRoom(%s)', wechatyUserOrRoom)
 
     const ownerId = this.wechatyManager.matrixOwnerId(wechatyUserOrRoom.wechaty)
     
@@ -192,7 +192,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async wechatyRoom (
     room: MatrixRoom,
   ): Promise<WechatyRoom> {
-    log.verbose('MatchMaker', 'wechatyRoom(%s)', room.getId())
+    log.verbose('Transformer', 'wechatyRoom(%s)', room.getId())
 
     const {
       ownerId,
@@ -227,7 +227,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   ): {
     [key: string]: string,
   } {
-    log.verbose('MatchMaker', 'storeQuery(%s, "%s")',
+    log.verbose('Transformer', 'storeQuery(%s, "%s")',
       dataKey,
       JSON.stringify(filterData),
     )
@@ -245,7 +245,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     wechatyUser : WechatyUser,
     userData    : MatchUserData,
   ): Promise<MatrixUser> {
-    log.verbose('MatchMaker', 'generateMatrixUser(%s, "%s")',
+    log.verbose('Transformer', 'generateMatrixUser(%s, "%s")',
       wechatyUser.id,
       JSON.stringify(userData),
     )
@@ -269,7 +269,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     wechatyRoomOrUser : WechatyRoom | WechatyUser,
     roomData          : MatchRoomData,
   ): Promise<MatrixRoom> {
-    log.verbose('MatchMaker', 'generateMatrixRoom(%s, %s)',
+    log.verbose('Transformer', 'generateMatrixRoom(%s, %s)',
       wechatyRoomOrUser,
       JSON.stringify(roomData),
     )
@@ -309,7 +309,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
     matrixUserIdList : string[],
     topic            : string,
   ): Promise<MatrixRoom> {
-    log.verbose('MatchMaker', 'createGroupRoom([%s], %s)',
+    log.verbose('Transformer', 'createGroupRoom([%s], %s)',
       matrixUserIdList.join(','),
       topic,
     )
@@ -333,7 +333,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
   public async isDirectMessageRoom (
     matrixRoom: MatrixRoom,
   ): Promise<boolean> {
-    log.verbose('MatchMaker', 'isDirectMessageRoom(%s)', matrixRoom.getId())
+    log.verbose('Transformer', 'isDirectMessageRoom(%s)', matrixRoom.getId())
 
     const { 
       wechatyUserId,
@@ -343,7 +343,7 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
 
     const isDM = !!wechatyUserId
 
-    log.silly('MatchMaker', 'isDirectMessage() -> %s', isDM)
+    log.silly('Transformer', 'isDirectMessage() -> %s', isDM)
     return isDM
   }
 
