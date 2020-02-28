@@ -253,7 +253,7 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ### master
 
-### v0.5 (Beta) Feb 25, 2020
+### v0.6 (Beta) Feb 25, 2020
 
 1. added docker-compose.yaml example. (thanks @[ericmigi](https://github.com/ericmigi))
 1. Added install documentation
