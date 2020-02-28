@@ -28,13 +28,22 @@ export class DialogManager {
   //   this.dialogDict.set(matrixRoomId, dialogManager)
   //   return dialogManager
   // }
+  public appserviceManager! : AppserviceManager
+  public userManager!       : UserManager
+  public wechatyManager!    : WechatyManager
 
-  constructor (
-    public appserviceManager : AppserviceManager,
-    public userManager       : UserManager,
-    public wechatyManager    : WechatyManager,
-  ) {
+  constructor () {
     log.verbose('DialogManager', 'constructor()')
+  }
+
+  public setManager (managers: {
+    appserviceManager : AppserviceManager,
+    userManager       : UserManager,
+    wechatyManager    : WechatyManager,
+  }) {
+    this.appserviceManager = managers.appserviceManager
+    this.userManager       = managers.userManager
+    this.wechatyManager    = managers.wechatyManager
   }
 
   public async gotoEnableWechatyDialog (
@@ -42,20 +51,8 @@ export class DialogManager {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'gotoEnableDialog()')
 
-    // const userPair = await superEvent.directMessageUserPair()
     const room = superEvent.room()
     const matrixUser = superEvent.sender()
-
-    // console.info('DEBUG userPair', userPair)
-
-    // const matrixUserList = await this.appserviceManager.userStore
-    //   .getMatrixUsersFromRemoteId(userPair.remote.getId())
-
-    // if (matrixUserList.length !== 1) {
-    //   throw new Error(`get ${matrixUserList.length} matrix user from remote user id ${userPair.remote.getId()}`)
-    // }
-
-    // const matrixUser = matrixUserList[0]
 
     const intent = this.appserviceManager.bridge
       .getIntent()

@@ -20,10 +20,16 @@ const WECHATY_BRIDGE_DATA_KEY = 'wechatyBridge'
 
 export class UserManager {
 
-  constructor (
-    public appserviceManager: AppserviceManager,
-  ) {
+  public appserviceManager!: AppserviceManager
+
+  constructor () {
     log.verbose('UserManager', 'constructor()')
+  }
+
+  public setManager (managers: {
+    appserviceManager: AppserviceManager,
+  }) {
+    this.appserviceManager = managers.appserviceManager
   }
 
   public async list (): Promise<MatrixUser[]> {

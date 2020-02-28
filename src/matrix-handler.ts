@@ -15,33 +15,34 @@ import { SuperEvent }         from './super-event'
 
 import { AppserviceManager }  from './appservice-manager'
 import { DialogManager }      from './dialog-manager'
-import { Connector }          from './connector'
+import { MapManager }         from './map-manager'
 import { WechatyManager }     from './wechaty-manager'
 import { UserManager }         from './user-manager'
 
 export class MatrixHandler {
 
   public appserviceManager! : AppserviceManager
-  public bridgeUser!        : UserManager
+  public userManager!       : UserManager
   public wechatyManager!    : WechatyManager
-  public connector!         : Connector
+  public mapManager!        : MapManager
+  public dialogManager!     : DialogManager
 
-  constructor (
-    public dialogManager: DialogManager,
-  ) {
+  constructor () {
     log.verbose('MatrixHandler', 'constructor()')
   }
 
-  public setManager (
+  public setManager (managers: {
     appserviceManager : AppserviceManager,
-    bridgeUser        : UserManager,
-    connector         : Connector,
+    dialogManager     : DialogManager,
+    userManager       : UserManager,
+    mapManager        : MapManager,
     wechatyManager    : WechatyManager,
-  ): void {
-    this.appserviceManager = appserviceManager
-    this.bridgeUser        = bridgeUser
-    this.connector         = connector
-    this.wechatyManager    = wechatyManager
+  }): void {
+    this.appserviceManager = managers.appserviceManager
+    this.dialogManager     = managers.dialogManager
+    this.userManager       = managers.userManager
+    this.mapManager        = managers.mapManager
+    this.wechatyManager    = managers.wechatyManager
   }
 
   public async onEvent (
@@ -163,7 +164,11 @@ export class MatrixHandler {
     if (memberNum === 2) {
       log.silly('MatrixHandler', 'process() room has 2 members, treat it as a direct room')
 
-      await this.appserviceManager.directMessageRoom(sender, room)
+      await this.mapManager.setDirectMessageRoom({
+        matrixRoom : room,
+        matrixUser : superEvent.target()!,
+        owner      : sender,
+      })
 
       const text = 'This room has been registered as your bridge management/status room.'
       await this.appserviceManager.directMessage(room, text)
@@ -214,7 +219,7 @@ export class MatrixHandler {
 
     const room = superEvent.room()
 
-    if (await this.connector.isDirectMessageRoom(room)) {
+    if (await this.mapManager.isDirectMessageRoom(room)) {
       await this.processDirectMessage(superEvent)
     } else {
       await this.processGroupMessage(superEvent)
@@ -228,9 +233,9 @@ export class MatrixHandler {
     log.verbose('MatrixHandler', 'processDirectMessage()')
 
     const room = superEvent.room()
-    const { user, service } = await this.connector.directMessageUserPair(room)
+    const { user, service } = await this.mapManager.directMessageUserPair(room)
 
-    const wechatyEnabled    = await this.bridgeUser.isEnabled(user)
+    const wechatyEnabled    = await this.userManager.isEnabled(user)
 
     if (!wechatyEnabled) {
       await this.dialogManager.gotoEnableWechatyDialog(superEvent)
@@ -262,24 +267,15 @@ export class MatrixHandler {
 
     const matrixUser = superEvent.sender()
 
-    const isEnabled = this.bridgeUser.isEnabled(matrixUser)
+    const isEnabled = this.userManager.isEnabled(matrixUser)
 
     if (!isEnabled) {
-      log.silly('MatrixHandler', 'processRoomMessage() %s is not enabled for wechaty', matrixUser.getId())
-      let directMessageRoom = await this.appserviceManager.directMessageRoom(matrixUser)
-      if (!directMessageRoom) {
-        directMessageRoom = await this.appserviceManager.createDirectRoom(matrixUser)
-      }
-      await this.appserviceManager.directMessage(
-        directMessageRoom,
-        'You did not enable wechaty appservice yet. please contact huan.',
-      )
-      // TODO: add action
+      await this.dialogManager.gotoEnableWechatyDialog(superEvent)
       return
     }
 
     try {
-      const wechatyRoom = await this.connector.wechatyRoom(superEvent.room())
+      const wechatyRoom = await this.mapManager.wechatyRoom(superEvent.room())
       // await this.wechatyManager.wechatyRoom(
       //   superEvent.room(),
       //   superEvent.sender(),    // FIXME: should be consumer
@@ -288,15 +284,7 @@ export class MatrixHandler {
       await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
 
     } catch (e) {
-      log.silly('MatrixHandler', 'onGroupMessage() rejection: %s', e.message)
-
-      // FIXME: better way to deal with this error message
-      let dmRoom = await this.appserviceManager.directMessageRoom(superEvent.sender())
-      if (!dmRoom) {
-        dmRoom = await this.appserviceManager.createDirectRoom(superEvent.sender())
-      }
-      await this.appserviceManager.directMessage(dmRoom, e.message)
-
+      log.error('MatrixHandler', 'onGroupMessage() rejection: %s', e.message)
     }
   }
 
@@ -306,9 +294,9 @@ export class MatrixHandler {
     log.verbose('MatrixHandler', 'bridgeToWechatIndividual()')
 
     const room = superEvent.room()
-    const { service } = await this.connector.directMessageUserPair(room)
+    const { service } = await this.mapManager.directMessageUserPair(room)
 
-    const contact = await this.connector.wechatyUser(service)
+    const contact = await this.mapManager.wechatyUser(service)
     // const contact = await this.wechatyManager
     //   .wechatyContact(service, user)
 

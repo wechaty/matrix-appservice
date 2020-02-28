@@ -2,13 +2,17 @@ import {
   Bridge,
   Request,
   BridgeContext,
+  MatrixUser,
 }                   from 'matrix-appservice-bridge'
 
 import { AppserviceManager }  from '../appservice-manager'
-import { log }                from '../config'
-import { MatrixHandler }      from '../matrix-handler'
-import { WechatyManager }     from '../wechaty-manager'
+import { MapManager }         from '../map-manager'
 import { DialogManager }      from '../dialog-manager'
+import { MatrixHandler }      from '../matrix-handler'
+import { UserManager }        from '../user-manager'
+import { WechatyManager }     from '../wechaty-manager'
+
+import { log }                from '../config'
 
 import { BridgeConfig }       from './bridge-config-schema'
 
@@ -19,14 +23,36 @@ export async function run (
   log.info('cli', 'run(port=%s,)', port)
 
   const appserviceManager = new AppserviceManager()
-  const wechatyManager    = new WechatyManager(appserviceManager)
+  const wechatyManager    = new WechatyManager()
 
-  const dialogManager = new DialogManager(
+  const dialogManager = new DialogManager()
+  const mapManager    = new MapManager()
+  const matrixHandler = new MatrixHandler()
+  const userManager   = new UserManager()
+
+  dialogManager.setManager({
+    appserviceManager,
+    userManager,
+    wechatyManager,
+  })
+  mapManager.setManager({
     appserviceManager,
     wechatyManager,
-  )
-
-  const matrixHandler = new MatrixHandler(dialogManager)
+  })
+  matrixHandler.setManager({
+    appserviceManager,
+    dialogManager,
+    mapManager,
+    userManager,
+    wechatyManager,
+  })
+  userManager.setManager({
+    appserviceManager,
+  })
+  wechatyManager.setManager({
+    appserviceManager,
+    mapManager,
+  })
 
   const matrixBridge = createBridge(
     bridgeConfig,
@@ -35,27 +61,26 @@ export async function run (
 
   await matrixBridge.run(port, bridgeConfig)
 
+  /**
+   * setBridge() need to be after the matrixBridge.run() (?)
+   */
   appserviceManager.setBridge(matrixBridge)
-  matrixHandler.setManager(
-    appserviceManager,
-    wechatyManager,
-  )
 
-  const bridgeMatrixUserList = await userManager.list()
+  const bridgeUserList = await userManager.list()
 
-  const wechatyStartFutureList = bridgeMatrixUserList.map(
-    matrixUser => {
-      const wechatyOptions = appserviceManager.wechatyOptions(matrixUser)
-      const wechaty = wechatyManager.create(
-        matrixUser.getId(),
-        wechatyOptions,
-      )
-      return wechaty.start()
-    }
-  )
+  const startWechaty = (matrixUser: MatrixUser) => {
+    const wechatyOptions = userManager.wechatyOptions(matrixUser)
+    const wechaty = wechatyManager.create(
+      matrixUser.getId(),
+      wechatyOptions,
+    )
+    return wechaty.start()
+  }
 
   // wait all wechaty to be started
-  await Promise.all(wechatyStartFutureList)
+  await Promise.all(
+    bridgeUserList.map(startWechaty)
+  )
 }
 
 function createBridge (

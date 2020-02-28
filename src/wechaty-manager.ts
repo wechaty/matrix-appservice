@@ -1,7 +1,4 @@
 import {
-  MatrixUser,
-}                   from 'matrix-appservice-bridge'
-import {
   Wechaty,
   WechatyOptions,
   ScanStatus,
@@ -15,7 +12,7 @@ import {
 }                             from './config'
 
 import { AppserviceManager }  from './appservice-manager'
-import { Connector }        from './connector'
+import { MapManager }         from './map-manager'
 
 export class WechatyManager {
 
@@ -23,14 +20,23 @@ export class WechatyManager {
   protected wechatyMatrixDict: WeakMap<Wechaty, string>
   protected wechatyFilehelperDict: WeakMap<Wechaty, Contact>
 
+  public appserviceManager!: AppserviceManager
+  public mapManager!: MapManager
+
   constructor (
-    public readonly appserviceManager: AppserviceManager,
-    public readonly connector: Connector,
   ) {
     log.verbose('WechatyManager', 'constructor()')
     this.matrixWechatyDict     = new Map<string,      Wechaty>()
     this.wechatyMatrixDict     = new WeakMap<Wechaty, string>()
     this.wechatyFilehelperDict = new WeakMap<Wechaty, Contact>()
+  }
+
+  public setManager (managers: {
+    appserviceManager : AppserviceManager,
+    mapManager        : MapManager,
+  }) {
+    this.appserviceManager = managers.appserviceManager
+    this.mapManager = managers.mapManager
   }
 
   public count (): number {
@@ -225,14 +231,8 @@ export class WechatyManager {
         break
     }
 
-    const ownerId = this.matrixOwnerId(wechaty)
-    const matrixConsumer  = await this.appserviceManager.matrixUser(matrixConsumerId)
-    let directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
-
-    if (!directMessageRoom) {
-      directMessageRoom = await this.appserviceManager.createDirectRoom(matrixConsumer)
-    }
-    await this.appserviceManager.directMessage(directMessageRoom, `${text}`)
+    const matrixRoom = await this.mapManager.matrixRoom(wechaty.userSelf())
+    await this.appserviceManager.directMessage(matrixRoom, `${text}`)
   }
 
   protected async onLogin (
@@ -243,7 +243,7 @@ export class WechatyManager {
 
     // const matrixConsumer    = await this.appserviceManager.matrixUser(matrixConsumerId)
     // const directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
-    const directMessageRoom = await this.connector.matrixRoom(wechatyContact)
+    const directMessageRoom = await this.mapManager.matrixRoom(wechatyContact)
 
     // const text = `You are successfully logged in. Wechat user: ${wechatyContact.name()}`
     const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
@@ -266,7 +266,7 @@ export class WechatyManager {
 
     // const matrixConsumer    = await this.appserviceManager.matrixUser(matrixConsumerId)
     // const directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
-    const directMessageRoom = await this.connector.matrixRoom(wechatyContact)
+    const directMessageRoom = await this.mapManager.matrixRoom(wechatyContact)
 
     // const text = `Logout successful for Wechat user ${wechatyContact.name()}`
     const text = 'You are now logged out from Wechat. Your user name is: ' + wechatyContact.name()
@@ -325,7 +325,7 @@ export class WechatyManager {
     }
 
     // const virtualMatrixUser = await this.connector.matrixUser(from)
-    const matrixRoom = await this.connector.matrixRoom(from)
+    const matrixRoom = await this.mapManager.matrixRoom(from)
 
     await this.appserviceManager
       .directMessage(
@@ -354,8 +354,8 @@ export class WechatyManager {
 
     const text = onWechatyMessage.text()
 
-    const matrixRoom = await this.connector.matrixRoom(room)
-    const matrixUser = await this.connector.matrixUser(from)
+    const matrixRoom = await this.mapManager.matrixRoom(room)
+    const matrixUser = await this.mapManager.matrixUser(from)
 
     // const matrixRoom = await this.appserviceManager.matrixRoom(room, forMatrixConsumer)
     // const matrixUser = await this.appserviceManager.matrixUser(
