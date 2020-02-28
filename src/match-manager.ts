@@ -40,20 +40,23 @@ interface MatchRoomData {
   ownerId : string   // the matrix user id who is using the matrix-appservice-wechaty
 
   /**
+   * 1 or 2:
    *  directUserId & wechatyRoomId should only be set one, and leave the other one to be undefined.
-   *
+   */
+  
+  /*
    * 1. If wechatyUserId is set, then this room is a direct message room, between the ownerId and wechatyUserId
-   * 2. If wechatyRoomId is set, then this room is a group room, linked to the wechatyRoomId as well.
    */
   wechatyUserId? : string // for a direct message room (user to user private message, exactly 2 people)
+  /**
+   * 2. If wechatyRoomId is set, then this room is a group room, linked to the wechatyRoomId as well.
+   */
   wechatyRoomId? : string // for a group room (not direct message, >2 people)
 }
 
 interface MatchUserData {
   ownerId       : string  // the matrix user who is using the matrix-appservice-wechaty
   wechatyUserId : string  // the wechaty contact id that this user linked to
-
-  directRoomId?    : string  // direct message betwen the virtual user with the matrix consumer
 }
 
 const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
@@ -325,6 +328,76 @@ const MATCH_USER_DATA_KEY    = 'wechatyBridgeUser'
 
     const matrixRoom = new MatrixRoom(roomInfo.room_id)
     return matrixRoom
+  }
+
+  public async isDirectMessageRoom (
+    matrixRoom: MatrixRoom,
+  ): Promise<boolean> {
+    log.verbose('MatchMaker', 'isDirectMessageRoom(%s)', matrixRoom.getId())
+
+    const { 
+      wechatyUserId,
+    } = {
+      ...matrixRoom.get(MATCH_ROOM_DATA_KEY)
+    } as Partial<MatchRoomData>
+
+    const isDM = !!wechatyUserId
+
+    log.silly('MatchMaker', 'isDirectMessage() -> %s', isDM)
+    return isDM
+  }
+
+
+  public isEnabled (matrixUser: MatrixUser): boolean {
+    log.verbose('AppserviceManager', 'isEnabled(%s)', matrixUser.getId())
+
+    const wechatyData = {
+      ...matrixUser.get(
+        APPSERVICE_WECHATY_DATA_KEY
+      ),
+    } as AppserviceWechatyData
+
+    const enabled = !!wechatyData.enabled
+    log.silly('AppserviceManager', 'isEnable(%s) -> %s', matrixUser.getId(), enabled)
+    return !!enabled
+  }
+
+  public async enable (matrixUser: MatrixUser): Promise<void> {
+    log.verbose('AppserviceManager', 'enable(%s)', matrixUser.getId())
+
+    if (this.isEnabled(matrixUser)) {
+      throw new Error(`matrixUserId ${matrixUser.getId()} has already enabled`)
+    }
+
+    const wechatyData = {
+      ...matrixUser.get(
+        APPSERVICE_WECHATY_DATA_KEY
+      ),
+      enabled: true,
+    } as AppserviceWechatyData
+
+    matrixUser.set(
+      APPSERVICE_WECHATY_DATA_KEY,
+      wechatyData,
+    )
+    await this.userStore.setMatrixUser(matrixUser)
+  }
+
+  public async disable (matrixUser: MatrixUser): Promise<void> {
+    log.verbose('AppserviceManager', 'disable(%s)', matrixUser.getId())
+
+    const wechatyData = {
+      ...matrixUser.get(
+        APPSERVICE_WECHATY_DATA_KEY
+      ),
+      enabled: false,
+    } as AppserviceWechatyData
+
+    matrixUser.set(
+      APPSERVICE_WECHATY_DATA_KEY,
+      wechatyData,
+    )
+    await this.userStore.setMatrixUser(matrixUser)
   }
 
 }
