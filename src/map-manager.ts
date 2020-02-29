@@ -13,6 +13,7 @@ import {
 }                            from './config'
 import { WechatyManager }     from './wechaty-manager'
 import { AppserviceManager }  from './appservice-manager'
+import { Manager } from './manager'
 
 interface MapRoomData {
   ownerId : string   // the matrix user id who is using the matrix-appservice-wechaty
@@ -47,15 +48,16 @@ const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
 const MAP_ROOM_DATA_KEY = 'wechatyBridgeRoom'
 const MAP_USER_DATA_KEY = 'wechatyBridgeUser'
 
-export class MapManager {
+export class MapManager extends Manager {
 
   private wechatyManager!: WechatyManager
   private appserviceManager!: AppserviceManager
 
   constructor () {
+    super()
   }
 
-  setManager (managers: {
+  teamManager (managers: {
     wechatyManager    : WechatyManager,
     appserviceManager : AppserviceManager,
   }) {

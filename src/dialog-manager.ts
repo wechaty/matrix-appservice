@@ -7,8 +7,9 @@ import {
 import { AppserviceManager }  from './appservice-manager'
 import { UserManager }        from './user-manager'
 import { WechatyManager }     from './wechaty-manager'
+import { Manager }            from './manager'
 
-export class DialogManager {
+export class DialogManager extends Manager {
 
   // static dialogDict: Map<string, DialogManager>
 
@@ -33,6 +34,7 @@ export class DialogManager {
   public wechatyManager!    : WechatyManager
 
   constructor () {
+    super()
     log.verbose('DialogManager', 'constructor()')
   }
 

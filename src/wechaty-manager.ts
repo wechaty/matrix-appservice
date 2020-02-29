@@ -13,8 +13,9 @@ import {
 
 import { AppserviceManager }  from './appservice-manager'
 import { MapManager }         from './map-manager'
+import { Manager } from './manager'
 
-export class WechatyManager {
+export class WechatyManager extends Manager {
 
   protected matrixWechatyDict: Map<string, Wechaty>
   protected wechatyMatrixDict: WeakMap<Wechaty, string>
@@ -23,20 +24,20 @@ export class WechatyManager {
   public appserviceManager!: AppserviceManager
   public mapManager!: MapManager
 
-  constructor (
-  ) {
+  constructor () {
+    super()
     log.verbose('WechatyManager', 'constructor()')
     this.matrixWechatyDict     = new Map<string,      Wechaty>()
     this.wechatyMatrixDict     = new WeakMap<Wechaty, string>()
     this.wechatyFilehelperDict = new WeakMap<Wechaty, Contact>()
   }
 
-  public setManager (managers: {
+  public teamManager (managers: {
     appserviceManager : AppserviceManager,
     mapManager        : MapManager,
   }) {
     this.appserviceManager = managers.appserviceManager
-    this.mapManager = managers.mapManager
+    this.mapManager        = managers.mapManager
   }
 
   public count (): number {
@@ -126,12 +127,12 @@ export class WechatyManager {
     this.matrixWechatyDict.delete(matrixConsumerId)
   }
 
-  public matrixOwnerId (wechaty: Wechaty): string {
-    log.verbose('WechatyManager', 'ownerId(%s)', wechaty)
+  public matrixOwnerId (ofWechaty: Wechaty): string {
+    log.verbose('WechatyManager', 'ownerId(%s)', ofWechaty)
 
-    const ownerId = this.wechatyMatrixDict.get(wechaty)
+    const ownerId = this.wechatyMatrixDict.get(ofWechaty)
     if (!ownerId) {
-      throw new Error('matrix user id not found for wechaty ' + wechaty)
+      throw new Error('matrix user id not found for wechaty ' + ofWechaty)
     }
     return ownerId
   }
@@ -170,10 +171,11 @@ export class WechatyManager {
         log.silly('WechatyManager', 'filehelperOf(%s) no wechaty found', wechatyOrmatrixConsumerId)
         return null
       }
-      if (!wechaty.logonoff()) {
-        log.silly('WechatyManager', 'filehelperOf(%s) wechaty not loged in yet', wechatyOrmatrixConsumerId)
-        return null
-      }
+    }
+
+    if (!wechaty.logonoff()) {
+      log.silly('WechatyManager', 'filehelperOf(%s) wechaty not loged in yet', wechaty)
+      return null
     }
 
     let filehelper = this.wechatyFilehelperDict.get(wechaty) || null

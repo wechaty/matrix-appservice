@@ -30,12 +30,12 @@ export async function run (
   const matrixHandler = new MatrixHandler()
   const userManager   = new UserManager()
 
-  dialogManager.setManager({
+  dialogManager.teamManager({
     appserviceManager,
     userManager,
     wechatyManager,
   })
-  mapManager.setManager({
+  mapManager.teamManager({
     appserviceManager,
     wechatyManager,
   })
@@ -46,10 +46,10 @@ export async function run (
     userManager,
     wechatyManager,
   })
-  userManager.setManager({
+  userManager.teamManager({
     appserviceManager,
   })
-  wechatyManager.setManager({
+  wechatyManager.teamManager({
     appserviceManager,
     mapManager,
   })
@@ -95,8 +95,8 @@ function createBridge (
     registration,
   }                 = bridgeConfig
 
-  // const domain        = 'aka.cn'
-  // const homeServerUrl = 'http://matrix.aka.cn:8008'
+  // const domain        = 'chatie.io'
+  // const homeServerUrl = 'http://matrix.chatie.io:8008'
   // const registrationFile  = REGISTRATION_FILE
 
   const onEvent = (

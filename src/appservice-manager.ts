@@ -11,8 +11,12 @@ import {
 import {
   log,
 }                       from './config'
+import {
+  Manager,
+  Managers,
+}                         from './manager'
 
-export class AppserviceManager {
+export class AppserviceManager extends Manager {
 
   public bridge!    : Bridge
   public roomStore! : RoomBridgeStore
@@ -22,7 +26,13 @@ export class AppserviceManager {
   public localpart! : string
 
   constructor () {
+    super()
     log.verbose('AppserviceManager', 'constructor()')
+  }
+
+  teamManager (managers: Managers) {
+    // I'm the solo one!
+    log.verbose('AppserviceManager', 'setManager(%s)', managers)
   }
 
   public setBridge (matrixBridge: Bridge): void {

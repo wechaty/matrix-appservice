@@ -10,23 +10,25 @@ import {
   log,
 }           from './config'
 import { AppserviceManager } from './appservice-manager'
+import { Manager } from './manager'
+
+const WECHATY_BRIDGE_DATA_KEY = 'wechatyBridge'
 
 interface WechatyBridgeData {
   enabled         : boolean           // enable / disable the bridge
   wechatyOptions? : WechatyOptions
 }
 
-const WECHATY_BRIDGE_DATA_KEY = 'wechatyBridge'
-
-export class UserManager {
+export class UserManager extends Manager {
 
   public appserviceManager!: AppserviceManager
 
   constructor () {
+    super()
     log.verbose('UserManager', 'constructor()')
   }
 
-  public setManager (managers: {
+  public teamManager (managers: {
     appserviceManager: AppserviceManager,
   }) {
     this.appserviceManager = managers.appserviceManager
