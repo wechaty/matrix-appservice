@@ -308,10 +308,11 @@ export class MapManager extends Manager {
     const intent = this.appserviceManager.bridge.getIntent()
 
     const roomInfo = await intent.createRoom({
-      createAsClient: false,
+      createAsClient: true,
       options: {
         invite     : matrixUserIdList,
         name       : topic + APPSERVICE_NAME_POSTFIX,
+        preset     : 'trusted_private_chat',
         visibility : 'private',
       },
     })
