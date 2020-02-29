@@ -75,6 +75,9 @@ export class MatrixHandler {
 
     try {
 
+      console.info('[event.request]:', request)
+      console.info('[event.context]:', context)
+
       await this.process(superEvent)
 
     } catch (e) {
@@ -165,9 +168,9 @@ export class MatrixHandler {
       log.silly('MatrixHandler', 'process() room has 2 members, treat it as a direct room')
 
       await this.middleManager.setDirectMessageRoom({
+        consumer   : sender,
         matrixRoom : room,
         matrixUser : superEvent.target()!,
-        owner      : sender,
       })
 
       const text = 'This room has been registered as your bridge management/status room.'
@@ -184,7 +187,7 @@ export class MatrixHandler {
   protected async processMatrixMessage (
     superEvent: SuperEvent,
   ): Promise<void> {
-    log.verbose('MatrixHandler', 'processMatrixRoomMessage(superEvent)')
+    log.verbose('MatrixHandler', 'processMatrixMessage(superEvent)')
 
     /**
      * Matrix age was converted from millisecond to seconds in SuperEvent
@@ -287,7 +290,9 @@ export class MatrixHandler {
       await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
 
     } catch (e) {
-      log.error('MatrixHandler', 'onGroupMessage() rejection: %s', e.message)
+      log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)
+      // const wechatyRoom = await this.middleManager.wechatyUser(superEvent.)
+      // await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
     }
   }
 

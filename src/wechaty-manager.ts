@@ -99,7 +99,7 @@ export class WechatyManager extends Manager {
 
     if (wechatyOrmatrixConsumerId instanceof Wechaty) {
       wechaty          = wechatyOrmatrixConsumerId
-      matrixConsumerId = this.matrixOwnerId(wechaty)
+      matrixConsumerId = this.matrixConsumerId(wechaty)
     } else {
       matrixConsumerId = wechatyOrmatrixConsumerId
       wechaty       = this.wechaty(matrixConsumerId)
@@ -127,14 +127,14 @@ export class WechatyManager extends Manager {
     this.matrixWechatyDict.delete(matrixConsumerId)
   }
 
-  public matrixOwnerId (ofWechaty: Wechaty): string {
-    log.verbose('WechatyManager', 'ownerId(%s)', ofWechaty)
+  public matrixConsumerId (ofWechaty: Wechaty): string {
+    log.verbose('WechatyManager', 'consumerId(%s)', ofWechaty)
 
-    const ownerId = this.wechatyMatrixDict.get(ofWechaty)
-    if (!ownerId) {
+    const consumerId = this.wechatyMatrixDict.get(ofWechaty)
+    if (!consumerId) {
       throw new Error('matrix user id not found for wechaty ' + ofWechaty)
     }
-    return ownerId
+    return consumerId
   }
 
   public wechaty (
@@ -201,6 +201,8 @@ export class WechatyManager extends Manager {
     status  : ScanStatus,
     wechaty : Wechaty,
   ): Promise<void> {
+    log.verbose('WechatyManager', 'onScan(%s, %s)', qrcode, status)
+
     require('qrcode-terminal').generate(qrcode)  // show qrcode on console
 
     const qrcodeImageUrl = [
@@ -233,7 +235,7 @@ export class WechatyManager extends Manager {
         break
     }
 
-    await this.middleManager.directMessageFrom(wechaty.userSelf(), `${text}`)
+    await this.middleManager.directMessageToMatrixConsumer(`${text}`, wechaty)
   }
 
   protected async onLogin (
@@ -243,30 +245,27 @@ export class WechatyManager extends Manager {
 
     const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
 
-    await this.middleManager.directMessageFrom(wechatyContact, text)
+    await this.middleManager.directMessageToMatrixConsumer(text, wechatyContact)
 
     // TODO(huan): clean all store for puppeteer relogin:
     // db.remove({}, { multi: true }, function (err, numRemoved) {})
   }
 
   protected async onLogout (
-    wechatyContact   : Contact,
-    // matrixConsumerId : string,
+    wechatyContact: Contact,
   ) {
     log.verbose('WechatyManager', 'onLogout(%s)', wechatyContact)
 
     const text = 'You are now logged out from Wechat. Your user name is: ' + wechatyContact.name()
 
-    await this.middleManager.directMessageFrom(wechatyContact, text)
+    await this.middleManager.directMessageToMatrixConsumer(text, wechatyContact.wechaty)
   }
 
   protected async onMessage (
-    message          : Message,
-    // matrixConsumerId : string,
+    message: Message,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'onMessage(%s) from %s to %s with age %s (timestamp: %s)',
+    log.verbose('WechatyManager', 'onMessage("%s") from "%s" to "%s" with age "%s" (timestamp: "%s")',
       message,
-      // matrixConsumerId,
       message.from()!.id,
       message.to()!.id,
       message.age(),
@@ -306,16 +305,14 @@ export class WechatyManager extends Manager {
       throw new Error('can not found from contact for wechat message')
     }
 
-    await this.middleManager.directMessageFrom(from, onWechatyMessage.text())
+    await this.middleManager.directMessageToMatrixConsumer(onWechatyMessage.text(), from)
   }
 
   async processRoomMessage (
     onWechatyMessage  : Message,
-    // forMatrixConsumer : MatrixUser,
   ): Promise<void> {
     log.verbose('WechatyManager', 'processRoomMessage(%s)',
       onWechatyMessage,
-      // forMatrixConsumer.getId(),
     )
 
     const room = onWechatyMessage.room()

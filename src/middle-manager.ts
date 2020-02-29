@@ -1,6 +1,7 @@
 import {
   Room as WechatyRoom,
   Contact as WechatyUser,
+  Wechaty,
 }                             from 'wechaty'
 
 import {
@@ -16,7 +17,7 @@ import { AppserviceManager }  from './appservice-manager'
 import { Manager } from './manager'
 
 interface MiddleRoomData {
-  ownerId : string   // the matrix user id who is using the matrix-appservice-wechaty
+  consumerId : string   // the matrix user id who is using the matrix-appservice-wechaty
 
   /**
    * 1 or 2:
@@ -24,7 +25,7 @@ interface MiddleRoomData {
    */
 
   /*
-   * 1. If matrixUserId is set, then this room is a direct message room, between the ownerId and matrixUserId
+   * 1. If matrixUserId is set, then this room is a direct message room, between the consumerId and matrixUserId
    */
   matrixUserId? : string // for a direct message room (user to user private message, exactly 2 people)
   /**
@@ -34,7 +35,7 @@ interface MiddleRoomData {
 }
 
 interface MiddleUserData {
-  ownerId       : string  // the matrix user who is using the matrix-appservice-wechaty
+  consumerId    : string  // the matrix user who is using the matrix-appservice-wechaty
   wechatyUserId : string  // the wechaty contact id that this user linked to
 }
 
@@ -45,8 +46,8 @@ interface DirectMessageUserPair {
 
 const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
 
-const MAP_ROOM_DATA_KEY = 'wechatyBridgeRoom'
-const MAP_USER_DATA_KEY = 'wechatyBridgeUser'
+const WECHATY_ROOM_DATA_KEY = 'wechatyBridgeRoom'
+const WECHATY_USER_DATA_KEY = 'wechatyBridgeUser'
 
 export class MiddleManager extends Manager {
 
@@ -81,16 +82,16 @@ export class MiddleManager extends Manager {
       throw new Error(`matrix user id ${user} not found in store`)
     }
 
-    const wechaty = user.wechaty
-    const ownerId = this.wechatyManager.matrixOwnerId(wechaty)
+    const wechaty    = user.wechaty
+    const consumerId = this.wechatyManager.matrixConsumerId(wechaty)
 
     const userData: MiddleUserData = {
-      ownerId,
+      consumerId,
       wechatyUserId: user.id,
     }
 
     const query = this.appserviceManager.storeQuery(
-      MAP_USER_DATA_KEY,
+      WECHATY_USER_DATA_KEY,
       userData,
     )
 
@@ -105,42 +106,62 @@ export class MiddleManager extends Manager {
   }
 
   /**
-   * Get a Wechaty User from:
-   *  1. Direct Message Room, or
-   *  2. Matrix User.
+   * Get wechaty.userSelf() for consumerId
    */
+  public async wechatyUser (consumerId: string) : Promise<WechatyUser>
+  /**
+   * Get binded wechaty contact from the direct message room
+   */
+  public async wechatyUser (room: MatrixRoom)   : Promise<WechatyUser>
+  /**
+   * Get the mapped wechaty contact from the matrix user
+   */
+  public async wechatyUser (user: MatrixUser)   : Promise<WechatyUser>
+
   public async wechatyUser (
-    roomOrUser: MatrixRoom | MatrixUser,
+    idOrRoomOrUser: string | MatrixRoom | MatrixUser,
   ): Promise<WechatyUser> {
-    log.verbose('MiddleManager', 'wechatyUser(%s)', roomOrUser)
+    log.verbose('MiddleManager', 'wechatyUser(%s)',
+      typeof idOrRoomOrUser === 'string'
+        ? idOrRoomOrUser
+        : idOrRoomOrUser.getId(),
+    )
 
     let matchKey: string
 
-    if (roomOrUser instanceof MatrixRoom) {
-      matchKey = MAP_ROOM_DATA_KEY
-    } else if (roomOrUser instanceof MatrixUser) {
-      matchKey = MAP_USER_DATA_KEY
+    if (typeof idOrRoomOrUser === 'string') {
+
+      const wechaty = this.wechatyManager.wechaty(idOrRoomOrUser)
+      if (!wechaty) {
+        throw new Error('no wechaty instance for matrix user id ' + idOrRoomOrUser)
+      }
+      return wechaty.userSelf()
+
+    } else if (idOrRoomOrUser instanceof MatrixRoom) {
+      matchKey = WECHATY_ROOM_DATA_KEY
+    } else if (idOrRoomOrUser instanceof MatrixUser) {
+      matchKey = WECHATY_USER_DATA_KEY
     } else {
       throw new Error('unknown args')
     }
 
     const data = {
-      ...roomOrUser.get(matchKey),
+      ...idOrRoomOrUser.get(matchKey),
     } as Partial<MiddleUserData>
 
-    if (!data.ownerId) {
-      throw new Error('no owner id for matrix room ' + roomOrUser.getId())
+    if (!data.consumerId) {
+      throw new Error('no owner id for matrix room ' + idOrRoomOrUser.getId())
     }
     if (!data.wechatyUserId) {
-      throw new Error('no wechaty user id for matrix room ' + roomOrUser.getId())
+      throw new Error('no wechaty user id for matrix room ' + idOrRoomOrUser.getId())
     }
 
-    const ownerId       = data.ownerId
+    const consumerId       = data.consumerId
     const wechatyUserId = data.wechatyUserId
 
-    const wechaty = this.wechatyManager.wechaty(ownerId)
+    const wechaty = this.wechatyManager.wechaty(consumerId)
     if (!wechaty) {
-      throw new Error('no wechaty instance for matrix user id ' + ownerId)
+      throw new Error('no wechaty instance for matrix user id ' + consumerId)
     }
 
     const wechatyContact = await wechaty.Contact
@@ -166,9 +187,9 @@ export class MiddleManager extends Manager {
   ): Promise<MatrixRoom> {
     log.verbose('MiddleManager', 'matrixRoom(%s)', wechatyUserOrRoom)
 
-    const ownerId = this.wechatyManager.matrixOwnerId(wechatyUserOrRoom.wechaty)
+    const consumerId = this.wechatyManager.matrixConsumerId(wechatyUserOrRoom.wechaty)
 
-    const data = { ownerId } as MiddleRoomData
+    const data = { consumerId } as MiddleRoomData
 
     if (wechatyUserOrRoom instanceof WechatyUser) {
       const matrixUser = await this.matrixUser(wechatyUserOrRoom)
@@ -180,7 +201,7 @@ export class MiddleManager extends Manager {
     }
 
     const query = this.appserviceManager.storeQuery(
-      MAP_ROOM_DATA_KEY,
+      WECHATY_ROOM_DATA_KEY,
       data,
     )
 
@@ -203,20 +224,20 @@ export class MiddleManager extends Manager {
     log.verbose('MiddleManager', 'wechatyRoom(%s)', room.getId())
 
     const {
-      ownerId,
+      consumerId,
       wechatyRoomId,
     } = {
-      ...room.get(MAP_ROOM_DATA_KEY),
+      ...room.get(WECHATY_ROOM_DATA_KEY),
     } as MiddleRoomData
 
     if (!wechatyRoomId) {
       throw new Error('no wechaty room id for matrix room ' + room.getId())
     }
-    if (!ownerId) {
+    if (!consumerId) {
       throw new Error('no owner id for matrix room ' + room.getId())
     }
 
-    const wechaty = this.wechatyManager.wechaty(ownerId)
+    const wechaty = this.wechatyManager.wechaty(consumerId)
     if (!wechaty) {
       throw new Error('no wechaty instance for matrix user id ' + room.getId())
     }
@@ -243,7 +264,7 @@ export class MiddleManager extends Manager {
 
     // userData.name   = wechatyUser.name() + APPSERVICE_NAME_POSTFIX
 
-    matrixUser.set(MAP_USER_DATA_KEY, userData)
+    matrixUser.set(WECHATY_USER_DATA_KEY, userData)
     await this.appserviceManager.userStore.setMatrixUser(matrixUser)
 
     return matrixUser
@@ -263,9 +284,9 @@ export class MiddleManager extends Manager {
     )
 
     const wechaty = wechatyRoomOrUser.wechaty
-    const ownerId = this.wechatyManager.matrixOwnerId(wechaty)
+    const consumerId = this.wechatyManager.matrixConsumerId(wechaty)
 
-    const inviteeIdList = [ ownerId ]
+    const inviteeIdList = [ consumerId ]
     let   roomName: string
 
     if (wechatyRoomOrUser instanceof WechatyRoom) {
@@ -286,7 +307,7 @@ export class MiddleManager extends Manager {
 
     const matrixRoom = await this.createGroupRoom(inviteeIdList, roomName)
 
-    matrixRoom.set(MAP_ROOM_DATA_KEY, roomData)
+    matrixRoom.set(WECHATY_ROOM_DATA_KEY, roomData)
     await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
 
     return matrixRoom
@@ -299,22 +320,30 @@ export class MiddleManager extends Manager {
     matrixUserIdList : string[],
     topic            : string,
   ): Promise<MatrixRoom> {
-    log.verbose('MiddleManager', 'createGroupRoom([%s], %s)',
-      matrixUserIdList.join(','),
+    log.verbose('MiddleManager', 'createGroupRoom(["%s"], "%s")',
+      matrixUserIdList.join('","'),
       topic,
     )
 
     // use bot intent to create a group room
     const intent = this.appserviceManager.bridge.getIntent()
 
+    /**
+     * See:
+     *  Issue #4 - https://github.com/wechaty/matrix-appservice-wechaty/issues/4
+     *  Client Server API Spec - https://matrix.org/docs/spec/client_server/r0.6.0#id140
+     *  https://github.com/matrix-org/matrix-js-sdk/issues/653#issuecomment-393371939
+     */
     const roomInfo = await intent.createRoom({
       createAsClient: true,
       options: {
         invite     : matrixUserIdList,
+        is_direct  : false,
         name       : topic + APPSERVICE_NAME_POSTFIX,
         preset     : 'trusted_private_chat',
         visibility : 'private',
       },
+
     })
 
     const matrixRoom = new MatrixRoom(roomInfo.room_id)
@@ -323,39 +352,48 @@ export class MiddleManager extends Manager {
 
   public async setDirectMessageRoom (
     args: {
+      consumer   : MatrixUser,
       matrixUser : MatrixUser,
-      owner      : MatrixUser,
       matrixRoom : MatrixRoom,
     }
   ) {
-    log.verbose('MiddleManager', 'DirectMessageRoom({ownerId: %s, matrixUserId: %s, matrixRoomId: %s})',
+    log.verbose('MiddleManager', 'DirectMessageRoom({matrixId: %s, matrixUserId: %s, matrixRoomId: %s})',
+      args.consumer.getId(),
       args.matrixUser.getId(),
-      args.owner.getId(),
       args.matrixRoom.getId(),
     )
 
     const data: MiddleRoomData = {
-      ...args.matrixRoom.get(MAP_ROOM_DATA_KEY),
+      ...args.matrixRoom.get(WECHATY_ROOM_DATA_KEY),
+      consumerId   : args.consumer.getId(),
       matrixUserId : args.matrixUser.getId(),
-      ownerId      : args.owner.getId(),
     }
 
     args.matrixRoom.set(
-      MAP_ROOM_DATA_KEY,
+      WECHATY_ROOM_DATA_KEY,
       data,
     )
     await this.appserviceManager.roomStore.setMatrixRoom(args.matrixRoom)
   }
 
+  /**
+   * See: Issue #4 - https://github.com/wechaty/matrix-appservice-wechaty/issues/4
+   *  - https://github.com/matrix-org/matrix-js-sdk/issues/653#issuecomment-420808454
+   */
   public async isDirectMessageRoom (
     matrixRoom: MatrixRoom,
   ): Promise<boolean> {
     log.verbose('MiddleManager', 'isDirectMessageRoom(%s)', matrixRoom.getId())
 
+    // // getMyMembership -> "invite", "join", "leave", "ban"
+    // const membership = matrixRoom.getMyMembership()
+    // const type = matrixRoom.getDMInviter() ? 'directMessage' : 'room'
+    // return membership === 'invite' && type === 'directMessage'
+
     const {
       matrixUserId,
     } = {
-      ...matrixRoom.get(MAP_ROOM_DATA_KEY),
+      ...matrixRoom.get(WECHATY_ROOM_DATA_KEY),
     } as Partial<MiddleRoomData>
 
     const isDM = !!matrixUserId
@@ -370,11 +408,11 @@ export class MiddleManager extends Manager {
     log.verbose('MiddleManager', 'directMessageUserPair(%s)', matrixRoom.getId())
 
     const {
-      ownerId,
+      consumerId,
       matrixUserId,
     } = {
       ...matrixRoom.get(
-        MAP_ROOM_DATA_KEY
+        WECHATY_ROOM_DATA_KEY
       ),
     } as MiddleRoomData
     if (!matrixUserId) {
@@ -382,7 +420,7 @@ export class MiddleManager extends Manager {
     }
 
     const service = await this.matrixUser(matrixUserId)
-    const user    = await this.matrixUser(ownerId)
+    const user    = await this.matrixUser(consumerId)
 
     return {
       service,
@@ -390,14 +428,40 @@ export class MiddleManager extends Manager {
     }
   }
 
-  public async directMessageFrom (
-    user: WechatyUser,
-    text: string,
-  ): Promise<void> {
-    log.verbose('MiddleManager', 'directMessage(%s, %s)', user, text)
+  /**
+   * Send message from service bot to the bridge consumer
+   */
+  public async directMessageToMatrixConsumer (text: string, from: Wechaty): Promise<void>
+  /**
+   * Send message from user to the bridge consumer
+   */
+  public async directMessageToMatrixConsumer (text: string, from: WechatyUser): Promise<void>
 
-    const matrixRoom = await this.matrixRoom(user)
-    const matrixUser = await this.matrixUser(user)
+  public async directMessageToMatrixConsumer (
+    text: string,
+    from: WechatyUser | Wechaty,
+  ): Promise<void> {
+    log.verbose('MiddleManager', 'directMessageToMatrixConsumer("%s", "%s")',
+      text,
+      from
+    )
+
+    let matrixRoom
+    let matrixUser
+
+    if (from instanceof WechatyUser) {
+
+      matrixRoom = await this.matrixRoom(from)
+      matrixUser = await this.matrixUser(from)
+
+    } else if (from instanceof Wechaty) {
+
+      const consumerId = this.wechatyManager.matrixConsumerId(from)
+      matrixRoom = await this.appserviceManager.adminRoom(consumerId)
+
+    } else {
+      throw new Error('unknown args')
+    }
 
     await this.appserviceManager.sendMessage(
       text,

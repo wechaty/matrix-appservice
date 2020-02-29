@@ -25,9 +25,13 @@ export class AppserviceManager extends Manager {
   public domain!    : string
   public localpart! : string
 
+  private cachedAdminRoom: Map<string, MatrixRoom>
+
   constructor () {
     super()
     log.verbose('AppserviceManager', 'constructor()')
+
+    this.cachedAdminRoom = new Map<string, MatrixRoom>()
   }
 
   teamManager (managers: Managers) {
@@ -99,28 +103,34 @@ export class AppserviceManager extends Manager {
 
   public async sendMessage (
     withText  : string,
-    toRoom    : MatrixRoom,
+    inRoom    : MatrixRoom,
     fromUser? : MatrixUser,
   ) {
-    log.verbose('AppserviceManager', 'sendMessage(%s, %s%s)',
+    log.verbose('AppserviceManager', 'sendMessage(%s%s%s)',
       withText,
-      toRoom.getId(),
+      inRoom
+        ? ', ' + inRoom.getId()
+        : '',
       fromUser
         ? ', ' + fromUser.getId()
         : '',
     )
 
     try {
-      const matrixUserId  = fromUser && fromUser.getId()
+      let matrixUserId
+
+      if (fromUser) {
+        matrixUserId = fromUser && fromUser.getId()
+      }
 
       const intent = this.bridge.getIntent(matrixUserId)
 
       await intent.sendText(
-        toRoom.getId(),
+        inRoom.getId(),
         withText,
       )
     } catch (e) {
-      log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${toRoom.getId()}`)
+      log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
       throw e
     }
   }
@@ -154,6 +164,33 @@ export class AppserviceManager extends Manager {
     }
 
     return query
+  }
+
+  /**
+   * Direct Message Room from AppService Bot to Matrix Consumer (User)
+   */
+  public async adminRoom (
+    forConsumerId: string,
+  ): Promise<MatrixRoom> {
+    log.verbose('AppserviceManager', 'adminRoom(%s)', forConsumerId)
+
+    const cachedRoom = this.cachedAdminRoom.get(forConsumerId)
+    if (cachedRoom) {
+      return cachedRoom
+    }
+
+    // const botId = this.appserviceUserId()
+
+    let matrixRoom = await this.roomStore.getMatrixRoom('!rDJPUCLRuARtHmHBNQ:0v0.bid')
+
+    if (!matrixRoom) {
+      matrixRoom = new MatrixRoom('!rDJPUCLRuARtHmHBNQ:0v0.bid')
+      await this.roomStore.setMatrixRoom(matrixRoom)
+    }
+
+    this.cachedAdminRoom.set(forConsumerId, matrixRoom)
+
+    return matrixRoom
   }
 
 }
