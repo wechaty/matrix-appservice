@@ -38,7 +38,7 @@ export class DialogManager extends Manager {
     log.verbose('DialogManager', 'constructor()')
   }
 
-  public setManager (managers: {
+  public teamManager (managers: {
     appserviceManager : AppserviceManager,
     userManager       : UserManager,
     wechatyManager    : WechatyManager,
