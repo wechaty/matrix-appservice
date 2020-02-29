@@ -97,35 +97,30 @@ export class AppserviceManager extends Manager {
     )
   }
 
-  public async directMessage (
-    inMatrixRoom : MatrixRoom,
-    withText     : string,
-  ): Promise<void> {
-    log.verbose('AppserviceManager', 'directMessage(%s, %s)',
-      inMatrixRoom.getId(),
+  public async sendMessage (
+    withText  : string,
+    toRoom    : MatrixRoom,
+    fromUser? : MatrixUser,
+  ) {
+    log.verbose('AppserviceManager', 'sendMessage(%s, %s%s)',
       withText,
+      toRoom.getId(),
+      fromUser
+        ? ', ' + fromUser.getId()
+        : '',
     )
 
-    const {
-      directUserId,
-    } = {
-      ...inMatrixRoom.get(
-        APPSERVICE_ROOM_DATA_KEY
-      ),
-    } as AppserviceMatrixRoomData
-
-    if (!directUserId) {
-      throw new Error(`room ${inMatrixRoom.getId()} is not a direct message room set by manager`)
-    }
-
     try {
-      const intent = this.bridge.getIntent(directUserId)
+      const matrixUserId  = fromUser && fromUser.getId()
+
+      const intent = this.bridge.getIntent(matrixUserId)
+
       await intent.sendText(
-        inMatrixRoom.getId(),
+        toRoom.getId(),
         withText,
       )
     } catch (e) {
-      log.error('AppserviceManager', 'directMessage() rejection for room ' + inMatrixRoom.getId())
+      log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${toRoom.getId()}`)
       throw e
     }
   }

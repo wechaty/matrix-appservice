@@ -12,8 +12,8 @@ import {
 }                             from './config'
 
 import { AppserviceManager }  from './appservice-manager'
-import { MapManager }         from './map-manager'
-import { Manager } from './manager'
+import { MiddleManager }      from './middle-manager'
+import { Manager }            from './manager'
 
 export class WechatyManager extends Manager {
 
@@ -22,7 +22,7 @@ export class WechatyManager extends Manager {
   protected wechatyFilehelperDict: WeakMap<Wechaty, Contact>
 
   public appserviceManager!: AppserviceManager
-  public mapManager!: MapManager
+  public middleManager!: MiddleManager
 
   constructor () {
     super()
@@ -34,10 +34,10 @@ export class WechatyManager extends Manager {
 
   public teamManager (managers: {
     appserviceManager : AppserviceManager,
-    mapManager        : MapManager,
+    middleManager     : MiddleManager,
   }) {
     this.appserviceManager = managers.appserviceManager
-    this.mapManager        = managers.mapManager
+    this.middleManager     = managers.middleManager
   }
 
   public count (): number {
@@ -233,28 +233,17 @@ export class WechatyManager extends Manager {
         break
     }
 
-    const matrixRoom = await this.mapManager.matrixRoom(wechaty.userSelf())
-    await this.appserviceManager.directMessage(matrixRoom, `${text}`)
+    await this.middleManager.directMessageFrom(wechaty.userSelf(), `${text}`)
   }
 
   protected async onLogin (
-    wechatyContact   : Contact,
-    // matrixConsumerId : string,
+    wechatyContact: Contact,
   ): Promise<void> {
     log.verbose('WechatyManager', 'onLogin(%s)', wechatyContact)
 
-    // const matrixConsumer    = await this.appserviceManager.matrixUser(matrixConsumerId)
-    // const directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
-    const directMessageRoom = await this.mapManager.matrixRoom(wechatyContact)
-
-    // const text = `You are successfully logged in. Wechat user: ${wechatyContact.name()}`
     const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
 
-    // if (directMessageRoom) {
-    await this.appserviceManager.directMessage(directMessageRoom, text)
-    // } else {
-    //   log.error('WechatyManager', 'onLogin() no directMessageRoom found to %s', matrixConsumerId)
-    // }
+    await this.middleManager.directMessageFrom(wechatyContact, text)
 
     // TODO(huan): clean all store for puppeteer relogin:
     // db.remove({}, { multi: true }, function (err, numRemoved) {})
@@ -266,18 +255,9 @@ export class WechatyManager extends Manager {
   ) {
     log.verbose('WechatyManager', 'onLogout(%s)', wechatyContact)
 
-    // const matrixConsumer    = await this.appserviceManager.matrixUser(matrixConsumerId)
-    // const directMessageRoom = await this.appserviceManager.directMessageRoom(matrixConsumer)
-    const directMessageRoom = await this.mapManager.matrixRoom(wechatyContact)
-
-    // const text = `Logout successful for Wechat user ${wechatyContact.name()}`
     const text = 'You are now logged out from Wechat. Your user name is: ' + wechatyContact.name()
 
-    // if (directMessageRoom) {
-    await this.appserviceManager.directMessage(directMessageRoom, text)
-    // } else {
-    //   log.error('WechatyManager', 'onLogout() no directMessageRoom found to %s', matrixConsumerId)
-    // }
+    await this.middleManager.directMessageFrom(wechatyContact, text)
   }
 
   protected async onMessage (
@@ -326,14 +306,7 @@ export class WechatyManager extends Manager {
       throw new Error('can not found from contact for wechat message')
     }
 
-    // const virtualMatrixUser = await this.connector.matrixUser(from)
-    const matrixRoom = await this.mapManager.matrixRoom(from)
-
-    await this.appserviceManager
-      .directMessage(
-        matrixRoom,
-        onWechatyMessage.text(),
-      )
+    await this.middleManager.directMessageFrom(from, onWechatyMessage.text())
   }
 
   async processRoomMessage (
@@ -356,20 +329,25 @@ export class WechatyManager extends Manager {
 
     const text = onWechatyMessage.text()
 
-    const matrixRoom = await this.mapManager.matrixRoom(room)
-    const matrixUser = await this.mapManager.matrixUser(from)
+    const matrixRoom = await this.middleManager.matrixRoom(room)
+    const matrixUser = await this.middleManager.matrixUser(from)
 
+    await this.appserviceManager.sendMessage(
+      text,
+      matrixRoom,
+      matrixUser,
+    )
     // const matrixRoom = await this.appserviceManager.matrixRoom(room, forMatrixConsumer)
     // const matrixUser = await this.appserviceManager.matrixUser(
     //   from,
     //   forMatrixConsumer,
     // )
 
-    const intent = this.appserviceManager.bridge.getIntent(matrixUser.getId())
-    await intent.sendText(
-      matrixRoom.getId(),
-      text,
-    )
+    // const intent = this.appserviceManager.bridge.getIntent(matrixUser.getId())
+    // await intent.sendText(
+    //   matrixRoom.getId(),
+    //   text,
+    // )
   }
 
 }

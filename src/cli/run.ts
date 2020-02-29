@@ -6,7 +6,7 @@ import {
 }                   from 'matrix-appservice-bridge'
 
 import { AppserviceManager }  from '../appservice-manager'
-import { MapManager }         from '../map-manager'
+import { MiddleManager }      from '../middle-manager'
 import { DialogManager }      from '../dialog-manager'
 import { MatrixHandler }      from '../matrix-handler'
 import { UserManager }        from '../user-manager'
@@ -22,37 +22,12 @@ export async function run (
 ): Promise<void> {
   log.info('cli', 'run(port=%s,)', port)
 
-  const appserviceManager = new AppserviceManager()
-  const wechatyManager    = new WechatyManager()
-
-  const dialogManager = new DialogManager()
-  const mapManager    = new MapManager()
-  const matrixHandler = new MatrixHandler()
-  const userManager   = new UserManager()
-
-  dialogManager.teamManager({
+  const {
     appserviceManager,
+    matrixHandler,
     userManager,
     wechatyManager,
-  })
-  mapManager.teamManager({
-    appserviceManager,
-    wechatyManager,
-  })
-  matrixHandler.setManager({
-    appserviceManager,
-    dialogManager,
-    mapManager,
-    userManager,
-    wechatyManager,
-  })
-  userManager.teamManager({
-    appserviceManager,
-  })
-  wechatyManager.teamManager({
-    appserviceManager,
-    mapManager,
-  })
+  }                     = createManagers()
 
   const matrixBridge = createBridge(
     bridgeConfig,
@@ -62,7 +37,7 @@ export async function run (
   await matrixBridge.run(port, bridgeConfig)
 
   /**
-   * setBridge() need to be after the matrixBridge.run() (?)
+   * setBridge() need to be after the matrixBridge.run() (started)
    */
   appserviceManager.setBridge(matrixBridge)
 
@@ -129,4 +104,46 @@ function createBridge (
   })
 
   return bridge
+}
+
+function createManagers () {
+  const appserviceManager = new AppserviceManager()
+  const wechatyManager    = new WechatyManager()
+
+  const dialogManager = new DialogManager()
+  const middleManager = new MiddleManager()
+  const matrixHandler = new MatrixHandler()
+  const userManager   = new UserManager()
+
+  dialogManager.teamManager({
+    appserviceManager,
+    userManager,
+    wechatyManager,
+  })
+  middleManager.teamManager({
+    appserviceManager,
+    wechatyManager,
+  })
+  matrixHandler.setManager({
+    appserviceManager,
+    dialogManager,
+    middleManager,
+    userManager,
+    wechatyManager,
+  })
+  userManager.teamManager({
+    appserviceManager,
+  })
+  wechatyManager.teamManager({
+    appserviceManager,
+    middleManager,
+  })
+
+  return {
+    appserviceManager,
+    matrixHandler,
+    userManager,
+    wechatyManager,
+  }
+
 }

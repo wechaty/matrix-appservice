@@ -15,7 +15,7 @@ import { WechatyManager }     from './wechaty-manager'
 import { AppserviceManager }  from './appservice-manager'
 import { Manager } from './manager'
 
-interface MapRoomData {
+interface MiddleRoomData {
   ownerId : string   // the matrix user id who is using the matrix-appservice-wechaty
 
   /**
@@ -33,7 +33,7 @@ interface MapRoomData {
   wechatyRoomId? : string // for a group room (not direct message, >2 people)
 }
 
-interface MapUserData {
+interface MiddleUserData {
   ownerId       : string  // the matrix user who is using the matrix-appservice-wechaty
   wechatyUserId : string  // the wechaty contact id that this user linked to
 }
@@ -48,7 +48,7 @@ const APPSERVICE_NAME_POSTFIX = '(Wechaty Bridged)'
 const MAP_ROOM_DATA_KEY = 'wechatyBridgeRoom'
 const MAP_USER_DATA_KEY = 'wechatyBridgeUser'
 
-export class MapManager extends Manager {
+export class MiddleManager extends Manager {
 
   private wechatyManager!: WechatyManager
   private appserviceManager!: AppserviceManager
@@ -71,7 +71,7 @@ export class MapManager extends Manager {
   public async matrixUser (
     user: string | WechatyUser,
   ): Promise<MatrixUser> {
-    log.verbose('MapManager', 'matrixUser(%s)', user)
+    log.verbose('MiddleManager', 'matrixUser(%s)', user)
 
     if (typeof user === 'string') {
       const matrixUser = await this.appserviceManager.userStore.getMatrixUser(user)
@@ -84,7 +84,7 @@ export class MapManager extends Manager {
     const wechaty = user.wechaty
     const ownerId = this.wechatyManager.matrixOwnerId(wechaty)
 
-    const userData: MapUserData = {
+    const userData: MiddleUserData = {
       ownerId,
       wechatyUserId: user.id,
     }
@@ -112,7 +112,7 @@ export class MapManager extends Manager {
   public async wechatyUser (
     roomOrUser: MatrixRoom | MatrixUser,
   ): Promise<WechatyUser> {
-    log.verbose('MapManager', 'wechatyUser(%s)', roomOrUser)
+    log.verbose('MiddleManager', 'wechatyUser(%s)', roomOrUser)
 
     let matchKey: string
 
@@ -126,7 +126,7 @@ export class MapManager extends Manager {
 
     const data = {
       ...roomOrUser.get(matchKey),
-    } as Partial<MapUserData>
+    } as Partial<MiddleUserData>
 
     if (!data.ownerId) {
       throw new Error('no owner id for matrix room ' + roomOrUser.getId())
@@ -164,11 +164,11 @@ export class MapManager extends Manager {
   public async matrixRoom (
     wechatyUserOrRoom: WechatyUser | WechatyRoom,
   ): Promise<MatrixRoom> {
-    log.verbose('MapManager', 'matrixRoom(%s)', wechatyUserOrRoom)
+    log.verbose('MiddleManager', 'matrixRoom(%s)', wechatyUserOrRoom)
 
     const ownerId = this.wechatyManager.matrixOwnerId(wechatyUserOrRoom.wechaty)
 
-    const data = { ownerId } as MapRoomData
+    const data = { ownerId } as MiddleRoomData
 
     if (wechatyUserOrRoom instanceof WechatyUser) {
       const matrixUser = await this.matrixUser(wechatyUserOrRoom)
@@ -200,14 +200,14 @@ export class MapManager extends Manager {
   public async wechatyRoom (
     room: MatrixRoom,
   ): Promise<WechatyRoom> {
-    log.verbose('MapManager', 'wechatyRoom(%s)', room.getId())
+    log.verbose('MiddleManager', 'wechatyRoom(%s)', room.getId())
 
     const {
       ownerId,
       wechatyRoomId,
     } = {
       ...room.get(MAP_ROOM_DATA_KEY),
-    } as MapRoomData
+    } as MiddleRoomData
 
     if (!wechatyRoomId) {
       throw new Error('no wechaty room id for matrix room ' + room.getId())
@@ -231,9 +231,9 @@ export class MapManager extends Manager {
 
   protected async generateMatrixUser (
     wechatyUser : WechatyUser,
-    userData    : MapUserData,
+    userData    : MiddleUserData,
   ): Promise<MatrixUser> {
-    log.verbose('MapManager', 'generateMatrixUser(%s, "%s")',
+    log.verbose('MiddleManager', 'generateMatrixUser(%s, "%s")',
       wechatyUser.id,
       JSON.stringify(userData),
     )
@@ -255,9 +255,9 @@ export class MapManager extends Manager {
    */
   protected async generateMatrixRoom (
     wechatyRoomOrUser : WechatyRoom | WechatyUser,
-    roomData          : MapRoomData,
+    roomData          : MiddleRoomData,
   ): Promise<MatrixRoom> {
-    log.verbose('MapManager', 'generateMatrixRoom(%s, %s)',
+    log.verbose('MiddleManager', 'generateMatrixRoom(%s, %s)',
       wechatyRoomOrUser,
       JSON.stringify(roomData),
     )
@@ -299,7 +299,7 @@ export class MapManager extends Manager {
     matrixUserIdList : string[],
     topic            : string,
   ): Promise<MatrixRoom> {
-    log.verbose('MapManager', 'createGroupRoom([%s], %s)',
+    log.verbose('MiddleManager', 'createGroupRoom([%s], %s)',
       matrixUserIdList.join(','),
       topic,
     )
@@ -328,13 +328,13 @@ export class MapManager extends Manager {
       matrixRoom : MatrixRoom,
     }
   ) {
-    log.verbose('MapManager', 'DirectMessageRoom({ownerId: %s, matrixUserId: %s, matrixRoomId: %s})',
+    log.verbose('MiddleManager', 'DirectMessageRoom({ownerId: %s, matrixUserId: %s, matrixRoomId: %s})',
       args.matrixUser.getId(),
       args.owner.getId(),
       args.matrixRoom.getId(),
     )
 
-    const data: MapRoomData = {
+    const data: MiddleRoomData = {
       ...args.matrixRoom.get(MAP_ROOM_DATA_KEY),
       matrixUserId : args.matrixUser.getId(),
       ownerId      : args.owner.getId(),
@@ -350,24 +350,24 @@ export class MapManager extends Manager {
   public async isDirectMessageRoom (
     matrixRoom: MatrixRoom,
   ): Promise<boolean> {
-    log.verbose('MapManager', 'isDirectMessageRoom(%s)', matrixRoom.getId())
+    log.verbose('MiddleManager', 'isDirectMessageRoom(%s)', matrixRoom.getId())
 
     const {
       matrixUserId,
     } = {
       ...matrixRoom.get(MAP_ROOM_DATA_KEY),
-    } as Partial<MapRoomData>
+    } as Partial<MiddleRoomData>
 
     const isDM = !!matrixUserId
 
-    log.silly('MapManager', 'isDirectMessageRoom() -> %s', isDM)
+    log.silly('MiddleManager', 'isDirectMessageRoom() -> %s', isDM)
     return isDM
   }
 
   public async directMessageUserPair (
     matrixRoom: MatrixRoom,
   ): Promise<DirectMessageUserPair> {
-    log.verbose('MapManager', 'directMessageUserPair(%s)', matrixRoom.getId())
+    log.verbose('MiddleManager', 'directMessageUserPair(%s)', matrixRoom.getId())
 
     const {
       ownerId,
@@ -376,7 +376,7 @@ export class MapManager extends Manager {
       ...matrixRoom.get(
         MAP_ROOM_DATA_KEY
       ),
-    } as MapRoomData
+    } as MiddleRoomData
     if (!matrixUserId) {
       throw new Error('no matrix user id found)')
     }
@@ -388,6 +388,22 @@ export class MapManager extends Manager {
       service,
       user,
     }
+  }
+
+  public async directMessageFrom (
+    user: WechatyUser,
+    text: string,
+  ): Promise<void> {
+    log.verbose('MiddleManager', 'directMessage(%s, %s)', user, text)
+
+    const matrixRoom = await this.matrixRoom(user)
+    const matrixUser = await this.matrixUser(user)
+
+    await this.appserviceManager.sendMessage(
+      text,
+      matrixRoom,
+      matrixUser,
+    )
   }
 
 }
