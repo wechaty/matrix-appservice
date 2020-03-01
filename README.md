@@ -105,7 +105,7 @@ matrix-appservice-wechaty \
   --file    wechaty-registration.yaml
 ```
 
-> Note: apply for token of wechaty-puppet-padplus from [here](https://github.com/wechaty/wechaty/wiki/Support-Developers)
+> Note: [Wechaty](https://github.com/wechaty/wechaty) is a very powerful framework that supporting Web, iPad, Win32, Mac, iOS protocols of WeChat. Learn more about WeChaty protocols at our [Wechaty Puppet Directory](https://github.com/wechaty/wechaty-puppet/wiki/Directory), and you can apply for a token for using [wechaty-puppet-padplus](https://github.com/wechaty/wechaty-puppet-padplus) at our [Support Developers Program](https://github.com/wechaty/wechaty/wiki/Support-Developers)
 
 The bridge should start working shortly afterwards.
 
@@ -258,6 +258,11 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 ## History
 
 ### master
+
+### v0.8 Mar 1, 2020
+
+1. Code Refactoring
+1. Add `!logout` command
 
 ### v0.6 (Beta) Feb 25, 2020
 
