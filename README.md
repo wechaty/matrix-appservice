@@ -2,13 +2,13 @@
 
 Wechat (微信) Matrix Application Services Bridge
 
-![Matrix + Wechaty](https://wechaty.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
+![Matrix + Wechaty](https://chatie.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.jpg)
 > Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
 
 [![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://github.com/wechaty/wechaty)
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
-![NPM](https://github.com/wechaty/matrix-appservice-wechaty/workflows/NPM/badge.svg)
-![Docker](https://github.com/wechaty/matrix-appservice-wechaty/workflows/Docker/badge.svg)
+![NPM](https://github.com/chatie/matrix-appservice-wechaty/workflows/NPM/badge.svg)
+![Docker](https://github.com/chatie/matrix-appservice-wechaty/workflows/Docker/badge.svg)
 [![Greenkeeper badge](https://badges.greenkeeper.io/wechaty/matrix-appservice-wechaty.svg)](https://greenkeeper.io/)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 
@@ -53,7 +53,7 @@ sudo npm install -g matrix-appservice-wechaty
 
 ### 1 Configure `config.yaml`
 
-Copy [config/config.sample.yaml](https://github.com/wechaty/matrix-appservice-wechaty/blob/master/config/config.sample.yaml) to `config.yaml` and update it to match your setup.
+Copy [config/config.sample.yaml](https://github.com/chatie/matrix-appservice-wechaty/blob/master/config/config.sample.yaml) to `config.yaml` and update it to match your setup.
 
 1. `domain` needs to change to your domain name, which should points to your homeserver.
 1. `homeserverUrl` needs to change to your homeserver url, with the port number included.
@@ -263,6 +263,7 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 1. Code Refactoring
 1. Add `!logout` command
+1. Tested with iPad API([wechaty-puppet-padplus](https://github.com/wechaty/wechaty-puppet-padplus))
 
 ### v0.6 (Beta) Feb 25, 2020
 
