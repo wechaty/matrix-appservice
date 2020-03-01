@@ -75,8 +75,8 @@ export class MatrixHandler {
 
     try {
 
-      console.info('[event.request]:', request)
-      console.info('[event.context]:', context)
+      // console.info('[event.request]:', request)
+      // console.info('[event.context]:', context)
 
       await this.process(superEvent)
 
@@ -167,11 +167,13 @@ export class MatrixHandler {
     if (memberNum === 2) {
       log.silly('MatrixHandler', 'process() room has 2 members, treat it as a direct room')
 
-      await this.middleManager.setDirectMessageRoom({
-        consumer   : sender,
-        matrixRoom : room,
-        matrixUser : superEvent.target()!,
-      })
+      await this.middleManager.setDirectMessageRoom(
+        room,
+        {
+          consumerId   : sender.getId(),
+          matrixUserId : superEvent.target()!.getId(),
+        },
+      )
 
       const text = 'This room has been registered as your bridge management/status room.'
       await this.appserviceManager.sendMessage(
@@ -240,6 +242,9 @@ export class MatrixHandler {
 
     const room = superEvent.room()
     const { user, service } = await this.middleManager.directMessageUserPair(room)
+
+    // console.info('user:', user)
+    // console.info('service:', service)
 
     const wechatyEnabled    = await this.userManager.isEnabled(user)
 

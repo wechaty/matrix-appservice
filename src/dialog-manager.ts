@@ -53,7 +53,7 @@ export class DialogManager extends Manager {
   ): Promise<void> {
     log.verbose('MatrixHandler', 'gotoEnableDialog()')
 
-    const room = superEvent.room()
+    const room       = superEvent.room()
     const matrixUser = superEvent.sender()
 
     const intent = this.appserviceManager.bridge

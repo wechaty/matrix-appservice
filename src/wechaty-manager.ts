@@ -212,7 +212,7 @@ export class WechatyManager extends Manager {
 
     const statusName = ScanStatus[status]
 
-    log.verbose('WechatyManager', 'onScan(%s,%s(%s), %s)',
+    log.verbose('WechatyManager', 'onScan(%s, %s(%s), %s)',
       qrcodeImageUrl, statusName, status, wechaty)
 
     let text: string
