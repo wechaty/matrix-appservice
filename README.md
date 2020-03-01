@@ -161,7 +161,7 @@ matrix-appservice-wechaty:
   environment:
   - WECHATY_PUPPET_PADPLUS_TOKEN=puppet_padplus_<token>
   - WECHATY_PUPPET=wechaty-puppet-padplus
-  command: ["-c", "/data/config.yaml", "-f", "/data/wechaty-registration.yaml", "-p", "8788"]
+  command: ["--config", "/data/config.yaml", "--file", "/data/wechaty-registration.yaml", "--port", "8788"]
 ```
 
 ## Beidge Usage
