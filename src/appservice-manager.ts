@@ -25,13 +25,9 @@ export class AppserviceManager extends Manager {
   public domain!    : string
   public localpart! : string
 
-  private cachedAdminRoom: Map<string, MatrixRoom>
-
   constructor () {
     super()
     log.verbose('AppserviceManager', 'constructor()')
-
-    this.cachedAdminRoom = new Map<string, MatrixRoom>()
   }
 
   teamManager (managers: Managers) {
@@ -167,29 +163,43 @@ export class AppserviceManager extends Manager {
   }
 
   /**
-   * Direct Message Room from AppService Bot to Matrix Consumer (User)
+   * The matrix room will be created by the specified creater.
    */
-  public async adminRoom (
-    forConsumerId: string,
+  public async createRoom (
+    userIdList : string[],
+    args: {
+      creatorId? : string,
+      name?      : string,
+      topic?     : string,
+    } = {},
   ): Promise<MatrixRoom> {
-    log.verbose('AppserviceManager', 'adminRoom(%s)', forConsumerId)
+    log.verbose('AppserviceManager', 'createRoom(["%s"], "%s")',
+      userIdList.join('","'),
+      JSON.stringify(args),
+    )
 
-    const cachedRoom = this.cachedAdminRoom.get(forConsumerId)
-    if (cachedRoom) {
-      return cachedRoom
-    }
+    const intent = this.bridge.getIntent(args.creatorId)
 
-    // const botId = this.appserviceUserId()
+    /**
+     * See:
+     *  Issue #4 - https://github.com/wechaty/matrix-appservice-wechaty/issues/4
+     *  Client Server API Spec - https://matrix.org/docs/spec/client_server/r0.6.0#id140
+     *  https://github.com/matrix-org/matrix-js-sdk/issues/653#issuecomment-393371939
+     */
+    const roomInfo = await intent.createRoom({
+      createAsClient: true,
+      options: {
+        invite     : userIdList,
+        is_direct  : userIdList.length <= 2,
+        name       : args.name,
+        preset     : 'trusted_private_chat',
+        topic      : args.topic,
+        visibility : 'private',
+      },
 
-    let matrixRoom = await this.roomStore.getMatrixRoom('!rDJPUCLRuARtHmHBNQ:0v0.bid')
+    })
 
-    if (!matrixRoom) {
-      matrixRoom = new MatrixRoom('!rDJPUCLRuARtHmHBNQ:0v0.bid')
-      await this.roomStore.setMatrixRoom(matrixRoom)
-    }
-
-    this.cachedAdminRoom.set(forConsumerId, matrixRoom)
-
+    const matrixRoom = new MatrixRoom(roomInfo.room_id)
     return matrixRoom
   }
 

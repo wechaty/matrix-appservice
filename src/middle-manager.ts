@@ -75,11 +75,12 @@ export class MiddleManager extends Manager {
     log.verbose('MiddleManager', 'matrixUser(%s)', user)
 
     if (typeof user === 'string') {
-      const matrixUser = await this.appserviceManager.userStore.getMatrixUser(user)
-      if (matrixUser) {
-        return matrixUser
+      let matrixUser = await this.appserviceManager.userStore.getMatrixUser(user)
+      if (!matrixUser) {
+        matrixUser = new MatrixUser(user)
+        await this.appserviceManager.userStore.setMatrixUser(matrixUser)
       }
-      throw new Error(`matrix user id ${user} not found in store`)
+      return matrixUser
     }
 
     const wechaty    = user.wechaty
@@ -288,9 +289,11 @@ export class MiddleManager extends Manager {
 
     const inviteeIdList = [ consumerId ]
     let   roomName: string
+    let   creatorId: string
 
     if (wechatyRoomOrUser instanceof WechatyRoom) {
       // Room: group
+      creatorId = this.appserviceManager.appserviceUserId()
       roomName = await wechatyRoomOrUser.topic()
       for await (const member of wechatyRoomOrUser) {
         const matrixUser = await this.matrixUser(member)
@@ -300,53 +303,24 @@ export class MiddleManager extends Manager {
       // User: direct message
       roomName = wechatyRoomOrUser.name()
       const matrixUser = await this.matrixUser(wechatyRoomOrUser)
+      creatorId = matrixUser.getId()
       inviteeIdList.push(matrixUser.getId())
     } else {
       throw new Error('unknown args')
     }
 
-    const matrixRoom = await this.createGroupRoom(inviteeIdList, roomName)
+    const matrixRoom = await this.appserviceManager.createRoom(
+      inviteeIdList,
+      {
+        creatorId,
+        name: roomName,
+        topic: APPSERVICE_NAME_POSTFIX,
+      },
+    )
 
     matrixRoom.set(WECHATY_ROOM_DATA_KEY, roomData)
     await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
 
-    return matrixRoom
-  }
-
-  /**
-   * The group room will be created by the bot itself.
-   */
-  protected async createGroupRoom (
-    matrixUserIdList : string[],
-    topic            : string,
-  ): Promise<MatrixRoom> {
-    log.verbose('MiddleManager', 'createGroupRoom(["%s"], "%s")',
-      matrixUserIdList.join('","'),
-      topic,
-    )
-
-    // use bot intent to create a group room
-    const intent = this.appserviceManager.bridge.getIntent()
-
-    /**
-     * See:
-     *  Issue #4 - https://github.com/wechaty/matrix-appservice-wechaty/issues/4
-     *  Client Server API Spec - https://matrix.org/docs/spec/client_server/r0.6.0#id140
-     *  https://github.com/matrix-org/matrix-js-sdk/issues/653#issuecomment-393371939
-     */
-    const roomInfo = await intent.createRoom({
-      createAsClient: true,
-      options: {
-        invite     : matrixUserIdList,
-        is_direct  : false,
-        name       : topic + APPSERVICE_NAME_POSTFIX,
-        preset     : 'trusted_private_chat',
-        visibility : 'private',
-      },
-
-    })
-
-    const matrixRoom = new MatrixRoom(roomInfo.room_id)
     return matrixRoom
   }
 
@@ -414,9 +388,12 @@ export class MiddleManager extends Manager {
       ...matrixRoom.get(
         WECHATY_ROOM_DATA_KEY
       ),
-    } as MiddleRoomData
+    } as Partial<MiddleRoomData>
     if (!matrixUserId) {
       throw new Error('no matrix user id found)')
+    }
+    if (!consumerId) {
+      throw new Error('no consumer id found')
     }
 
     const service = await this.matrixUser(matrixUserId)
@@ -457,7 +434,7 @@ export class MiddleManager extends Manager {
     } else if (from instanceof Wechaty) {
 
       const consumerId = this.wechatyManager.matrixConsumerId(from)
-      matrixRoom = await this.appserviceManager.adminRoom(consumerId)
+      matrixRoom = await this.adminRoom(consumerId)
 
     } else {
       throw new Error('unknown args')
@@ -468,6 +445,59 @@ export class MiddleManager extends Manager {
       matrixRoom,
       matrixUser,
     )
+  }
+
+  /**
+   * Direct Message Room from AppService Bot to Matrix Consumer (User)
+   */
+  public async adminRoom (
+    forConsumerIdOrWechaty: string | Wechaty,
+  ): Promise<MatrixRoom> {
+    log.verbose('AppserviceManager', 'adminRoom(%s)', forConsumerIdOrWechaty)
+
+    let botId = this.appserviceManager.appserviceUserId()
+    let consumerId: string
+
+    if (forConsumerIdOrWechaty instanceof Wechaty)  {
+      consumerId = this.wechatyManager.matrixConsumerId(forConsumerIdOrWechaty)
+    } else {
+      consumerId = forConsumerIdOrWechaty
+    }
+
+    const roomData: MiddleRoomData = {
+      consumerId,
+      matrixUserId: botId,
+    }
+
+    const query = this.appserviceManager.storeQuery(
+      WECHATY_ROOM_DATA_KEY,
+      roomData,
+    )
+
+    const matrixRoomList = await this.appserviceManager.roomStore
+      .getEntriesByMatrixRoomData(query)
+
+    let matrixRoom: MatrixRoom
+
+    if (matrixRoomList.length > 0) {
+      if (!matrixRoomList[0].matrix) {
+        throw new Error(`matrix room not found for roomData: "${JSON.stringify(roomData)}`)
+      }
+      matrixRoom = matrixRoomList[0].matrix
+
+    } else {
+      matrixRoom = await this.appserviceManager.createRoom(
+        [ botId, consumerId ],
+        {
+          creatorId: botId,
+          name: 'Wechaty AppService Bot',
+          topic: 'Wechaty AppService Management',
+        },
+      )
+      matrixRoom.set(WECHATY_ROOM_DATA_KEY, roomData)
+      await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
+    }
+    return matrixRoom
   }
 
 }

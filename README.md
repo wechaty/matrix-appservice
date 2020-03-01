@@ -249,6 +249,12 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 >
 > &mdash; <cite>Huan, May 2019</cite>
 
+## Todo/Question List
+
+- [ ] How to get room list from the matrix homeserver from matrix-appservice-bridge ?
+- [ ] How to get members from a room from the homeserver matrix-appservice-bridge ?
+- [ ] Use Matrix Remote Room for linking WeChat Room with Matrix Room.
+
 ## History
 
 ### master
