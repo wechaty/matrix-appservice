@@ -16,13 +16,10 @@ import { WechatyManager }     from './wechaty-manager'
 import { AppserviceManager }  from './appservice-manager'
 import { Manager } from './manager'
 
-interface MiddleRoomData {
-  consumerId : string   // the matrix user id who is using the matrix-appservice-wechaty
+interface WechatyRoomData {
+  consumerId?: string   // the matrix user id who is using the matrix-appservice-wechaty
 
-  /**
-   * 1 or 2:
-   *  directUserId & wechatyRoomId should only be set one, and leave the other one to be undefined.
-   */
+  direct?: boolean  // whether the room is a direct message room
 
   /*
    * 1. If matrixUserId is set, then this room is a direct message room, between the consumerId and matrixUserId
@@ -34,7 +31,7 @@ interface MiddleRoomData {
   wechatyRoomId? : string // for a group room (not direct message, >2 people)
 }
 
-interface MiddleUserData {
+interface WechatyUserData {
   consumerId    : string  // the matrix user who is using the matrix-appservice-wechaty
   wechatyUserId : string  // the wechaty contact id that this user linked to
 }
@@ -86,7 +83,7 @@ export class MiddleManager extends Manager {
     const wechaty    = user.wechaty
     const consumerId = this.wechatyManager.matrixConsumerId(wechaty)
 
-    const userData: MiddleUserData = {
+    const userData: WechatyUserData = {
       consumerId,
       wechatyUserId: user.id,
     }
@@ -148,7 +145,7 @@ export class MiddleManager extends Manager {
 
     const data = {
       ...idOrRoomOrUser.get(matchKey),
-    } as Partial<MiddleUserData>
+    } as Partial<WechatyUserData>
 
     if (!data.consumerId) {
       throw new Error('no owner id for matrix room ' + idOrRoomOrUser.getId())
@@ -190,13 +187,19 @@ export class MiddleManager extends Manager {
 
     const consumerId = this.wechatyManager.matrixConsumerId(wechatyUserOrRoom.wechaty)
 
-    const data = { consumerId } as MiddleRoomData
+    const data = { consumerId } as WechatyRoomData
 
     if (wechatyUserOrRoom instanceof WechatyUser) {
       const matrixUser = await this.matrixUser(wechatyUserOrRoom)
+
       data.matrixUserId = matrixUser.getId()
+      data.direct       = true
+
     } else if (wechatyUserOrRoom instanceof WechatyRoom) {
+
       data.wechatyRoomId = wechatyUserOrRoom.id
+      data.direct        = false
+
     } else {
       throw new Error('unknown args')
     }
@@ -229,7 +232,7 @@ export class MiddleManager extends Manager {
       wechatyRoomId,
     } = {
       ...room.get(WECHATY_ROOM_DATA_KEY),
-    } as MiddleRoomData
+    } as WechatyRoomData
 
     if (!wechatyRoomId) {
       throw new Error('no wechaty room id for matrix room ' + room.getId())
@@ -253,7 +256,7 @@ export class MiddleManager extends Manager {
 
   protected async generateMatrixUser (
     wechatyUser : WechatyUser,
-    userData    : MiddleUserData,
+    userData    : WechatyUserData,
   ): Promise<MatrixUser> {
     log.verbose('MiddleManager', 'generateMatrixUser(%s, "%s")',
       wechatyUser.id,
@@ -277,7 +280,7 @@ export class MiddleManager extends Manager {
    */
   protected async generateMatrixRoom (
     wechatyRoomOrUser : WechatyRoom | WechatyUser,
-    roomData          : MiddleRoomData,
+    roomData          : WechatyRoomData,
   ): Promise<MatrixRoom> {
     log.verbose('MiddleManager', 'generateMatrixRoom(%s, %s)',
       wechatyRoomOrUser,
@@ -325,29 +328,23 @@ export class MiddleManager extends Manager {
   }
 
   public async setDirectMessageRoom (
-    args: {
-      consumer   : MatrixUser,
-      matrixUser : MatrixUser,
-      matrixRoom : MatrixRoom,
-    }
+    matrixRoom : MatrixRoom,
+    data       : WechatyRoomData,
   ) {
-    log.verbose('MiddleManager', 'DirectMessageRoom({matrixId: %s, matrixUserId: %s, matrixRoomId: %s})',
-      args.consumer.getId(),
-      args.matrixUser.getId(),
-      args.matrixRoom.getId(),
+    log.verbose('MiddleManager', 'setDirectMessageRoom("%s", "%s")',
+      matrixRoom.getId(),
+      JSON.stringify(data),
     )
 
-    const data: MiddleRoomData = {
-      ...args.matrixRoom.get(WECHATY_ROOM_DATA_KEY),
-      consumerId   : args.consumer.getId(),
-      matrixUserId : args.matrixUser.getId(),
-    }
-
-    args.matrixRoom.set(
+    matrixRoom.set(
       WECHATY_ROOM_DATA_KEY,
-      data,
+      {
+        ...matrixRoom.get(WECHATY_ROOM_DATA_KEY),
+        ...data,
+        direct       : true,
+      } as WechatyRoomData,
     )
-    await this.appserviceManager.roomStore.setMatrixRoom(args.matrixRoom)
+    await this.appserviceManager.roomStore.setMatrixRoom(matrixRoom)
   }
 
   /**
@@ -364,16 +361,73 @@ export class MiddleManager extends Manager {
     // const type = matrixRoom.getDMInviter() ? 'directMessage' : 'room'
     // return membership === 'invite' && type === 'directMessage'
 
-    const {
-      matrixUserId,
-    } = {
+    const roomData = {
       ...matrixRoom.get(WECHATY_ROOM_DATA_KEY),
-    } as Partial<MiddleRoomData>
+    } as Partial<WechatyRoomData>
 
-    const isDM = !!matrixUserId
+    /**
+     * If the room has no direct data set, then set it for the first time.
+     */
+    if (typeof roomData.direct === 'undefined') {
+      log.silly('MiddleManager', 'isDirectMessageRoom(%s) not initialized', matrixRoom.getId())
 
-    log.silly('MiddleManager', 'isDirectMessageRoom() -> %s', isDM)
-    return isDM
+      // default not a direct room
+      roomData.direct = false
+
+      const memberIdList = await this.appserviceManager
+        .roomMembers(matrixRoom.getId())
+
+      if (memberIdList.length === 2) {
+        log.silly('MiddleManager', 'isDirectMessageRoom(%s) has 2 members', matrixRoom.getId())
+
+        const botId = this.appserviceManager.appserviceUserId()
+        const i = memberIdList.indexOf(botId)
+        if (i > -1) {
+          log.silly('MiddleManager', 'isDirectMessageRoom(%s) has 2 members that includes the bot, confirmed a direct message room', matrixRoom.getId())
+
+          roomData.matrixUserId = memberIdList.splice(i, 1)[0]
+          roomData.consumerId   = memberIdList[0]
+          /**
+             * Direct Message Room
+             */
+          roomData.direct = true
+
+        }
+      }
+
+      await this.setDirectMessageRoom(matrixRoom, roomData)
+    }
+
+    log.silly('MiddleManager', 'isDirectMessageRoom() -> %s', roomData.direct)
+    return roomData.direct
+  }
+
+  /**
+   * FIXME: Huan(202003) study how to know a matrix room is direct message room
+   */
+  protected async fixmeTest (matrixRoom: MatrixRoom): Promise<void> {
+    const botId = this.appserviceManager.appserviceUserId()
+    const client = this.appserviceManager.bridge.getClientFactory().getClientAs()
+
+    const stateList = await client.roomState(matrixRoom.getId()) as unknown as any[]
+    console.info('state:',
+      stateList.filter(state =>
+        state.prev_content && state.prev_content.is_direct
+        && [
+          state.sender,
+          state.state_key,
+          state.user_id,
+        ].every(s => s === botId)
+      )
+    )
+
+    // const event = await this.appserviceManager.bridge.getIntent().getStateEvent(
+    //   matrixRoom.getId(),
+    //   'm.room.member',
+    //   // '@wechaty:0v0.bid',
+    // )
+    // console.info('event:', event)
+
   }
 
   public async directMessageUserPair (
@@ -385,10 +439,9 @@ export class MiddleManager extends Manager {
       consumerId,
       matrixUserId,
     } = {
-      ...matrixRoom.get(
-        WECHATY_ROOM_DATA_KEY
-      ),
-    } as Partial<MiddleRoomData>
+      ...matrixRoom.get(WECHATY_ROOM_DATA_KEY),
+    } as WechatyRoomData
+
     if (!matrixUserId) {
       throw new Error('no matrix user id found)')
     }
@@ -464,7 +517,7 @@ export class MiddleManager extends Manager {
       consumerId = forConsumerIdOrWechaty
     }
 
-    const roomData: MiddleRoomData = {
+    const roomData: WechatyRoomData = {
       consumerId,
       matrixUserId: botId,
     }

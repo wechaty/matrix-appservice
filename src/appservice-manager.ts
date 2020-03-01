@@ -203,4 +203,14 @@ export class AppserviceManager extends Manager {
     return matrixRoom
   }
 
+  public async roomMembers (roomId: string): Promise<string[]> {
+    const client = this.bridge.getClientFactory().getClientAs()
+    const result = await (client.getJoinedRoomMembers as any)(roomId)
+
+    // { joined:
+    //   { '@huan:0v0.bid': { avatar_url: null, display_name: 'huan' },
+    //     '@wechaty:0v0.bid': { avatar_url: null, display_name: 'wechaty' } } }
+    return Object.keys(result.joined)
+  }
+
 }
