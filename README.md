@@ -18,20 +18,20 @@ Wechat (微信) Matrix Application Services Bridge
 >
 > Pidgin try to IM all your friends in one place in Linux, and with Matrix you can have your Phone clinet with your private server which is highly customized. Matrix did not use XMPP protocol, it's server uses REST so that it could be more easy to extend.
 
-### [Matrix] Clients
+The [Matrix] client [Riot](https://riot.im/app/) is a universal secure chat app entirely under your control. It supports all types of the platforms, including Web/Browser, Android, and iPhone.
 
-I'd like to recommend using Riot for using Matrix. Riot is a universal secure chat app entirely under your control. It supports all types of the platforms, including Web/Browser, Android, and iPhone.
+## What is `matrix-appservice-wechaty`
 
-Riot: <https://riot.im/app/>
+`matrix-appservice-wechaty` is a WeChat (微信) Matrix AppService for bridging the Matrix user with WeChat user.
 
-### `matrix-appservice-wechaty` on [Matrix]
+It has been officially listed at:
 
 1. [[Matrix] Bridge List for Wechaty](https://matrix.org/bridges/#we-chat)
 1. [[Matrix] Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty)
 
-## Features
-
 According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), Wechaty Bot in Matrix will create an [Simple Puppeted Bridge](https://matrix.org/docs/guides/types-of-bridging#simple-puppeted-bridge) with [Portal Rooms](https://matrix.org/docs/guides/types-of-bridging#portal-rooms) because we want to bring all conversations from Wechat to Matrix, and let the Matrix user control his account on Wechat.
+
+## Features
 
 1. Support connect to Wechat via [Web](https://github.com/wechaty/wechaty-puppet-puppeteer)/[iPad](https://github.com/wechaty/wechaty-puppet-padplus)/[Hostie](https://github.com/wechaty/wechaty-puppet-hostie)/Windows/Mac Protocol, with the power of [Wechaty](https://github.com/wechaty)
 1. Map all Wechat users/room/official accounts to Matrix virtual users
@@ -39,6 +39,7 @@ According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridgin
 ## Requirements
 
 1. A Matrix homeserver that supports application services (e.g. [Synapse](https://github.com/matrix-org/synapse))
+1. Node.js wit NPM, or Docker
 
 ## Installation
 
@@ -174,12 +175,10 @@ After scan the QR Code and confirm on your phone, everything will be setup autom
 
 ### Authentication
 
-This part is __"steal"__ from <https://github.com/tulir/mautrix-whatsapp/wiki/Authentication>
-
 #### Logging in
 
 1. Start a chat with the bridge bot. The bot should say _"This room has been registered as your bridge management/status room."_ if you started the chat correctly.
-1. Run `login`
+1. Run `!login`
 1. Log in by scanning the QR code. If the code expires before you scan it, the bridge will send an error to notify you.
     1. Open Wechat on your phone.
     1. Tap Menu or Settings and select Scan.
@@ -188,7 +187,7 @@ This part is __"steal"__ from <https://github.com/tulir/mautrix-whatsapp/wiki/Au
 
 #### Logging out
 
-Simply run the `logout` management command.
+Simply run the `!logout` management command.
 
 ## Install Matrix Server
 
@@ -273,7 +272,7 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 ### v0.4 (Alpha) July 14, 2019
 
 1. Support receive/send Wechat message in Matrix. (individuals and rooms)
-1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/wechaty/wechaty-puppet-puppeteer)) and Pad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
+1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/wechaty/wechaty-puppet-puppeteer)) and iPad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
 
 #### Known Issues
 
@@ -294,9 +293,9 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ## Disclaimer
 
-Copied from disclaimer part from [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer):
+I accept no responsibility if Tencent ban your IP, Account or even your details on their system. They have never given official support on custom clients.
 
-> I accept no responsibility if Tencent ban your IP, Account or even your details on their system. They have never given official support on custom clients.
+> &mdash; Credit: [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer)
 
 ## Author
 
@@ -306,6 +305,6 @@ Copied from disclaimer part from [matrix-appservice-discord](https://github.com/
 
 ## Copyright & License
 
-- Code & Docs © 2019 - now Huan (李卓桓) <zixia@zixia.net>
+- Code & Docs © 2019-now Huan (李卓桓) <zixia@zixia.net>
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
