@@ -246,7 +246,7 @@ export class MatrixHandler {
     // console.info('user:', user)
     // console.info('service:', service)
 
-    const wechatyEnabled    = await this.userManager.isEnabled(user)
+    const wechatyEnabled = await this.userManager.isEnabled(user)
 
     if (!wechatyEnabled) {
       await this.dialogManager.gotoEnableWechatyDialog(superEvent)

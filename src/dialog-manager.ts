@@ -83,6 +83,15 @@ export class DialogManager extends Manager {
       await this.gotoLoginWechatyDialog(matrixUser.getId())
     } else {
     }
+
+    const text = superEvent.event.content!.body || ''
+
+    log.verbose('MatrixHandler', 'gotoSetupDialog() text: "%s"', text)
+
+    if (/^!logout$/i.test(text)) {
+      log.verbose('MatrixHandler', 'gotoSetupDialog() logout')
+      await wechaty.logout()
+    }
   }
 
   private gotoLoginWechatyDialog (matrixUserId: string): void {
