@@ -240,10 +240,12 @@ export class WechatyManager extends Manager {
 
     const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
 
-    await this.middleManager.directMessageToMatrixConsumer(text, wechatyContact)
+    const room = await this.middleManager.adminRoom(wechatyContact.wechaty)
 
-    // TODO(huan): clean all store for puppeteer relogin:
-    // db.remove({}, { multi: true }, function (err, numRemoved) {})
+    await this.appserviceManager.sendMessage(
+      text,
+      room,
+    )
   }
 
   protected async onLogout (

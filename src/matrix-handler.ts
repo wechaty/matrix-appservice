@@ -271,9 +271,12 @@ export class MatrixHandler {
     } catch (e) {
       const adminRoom = await this.middleManager.adminRoom(user.getId())
       const errorMsg = [
-        `MatrixHandler - processDirectMessage() failed from ${service.getId()} to ${user.getId()}: `,
-        'Exception(might not logged in to WeChat? ' + e && e.message,
+        'MatrixHandler - processDirectMessage() failed! ',
+        `from ${service.getId()} to ${user.getId()} with content "${superEvent.text()}": `,
+        'Exception(might not logged in to WeChat?) ',
+        e && e.message,
       ].join('')
+
       await this.appserviceManager.sendMessage(
         errorMsg,
         adminRoom,

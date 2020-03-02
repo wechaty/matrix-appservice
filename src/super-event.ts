@@ -37,6 +37,10 @@ export class SuperEvent {
     this.event = request.getData()
   }
 
+  public text (): string {
+    return this.event.content!.body || ''
+  }
+
   /**
    * Return event age in seconds.
    */
