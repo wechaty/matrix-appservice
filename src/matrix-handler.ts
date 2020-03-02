@@ -257,16 +257,27 @@ export class MatrixHandler {
      * Enabled
      */
 
-    if (this.appserviceManager.isBot(service.getId())) {
+    try {
+      if (this.appserviceManager.isBot(service.getId())) {
+        await this.dialogManager.gotoSetupDialog(superEvent)
 
-      await this.dialogManager.gotoSetupDialog(superEvent)
+      } else if (this.appserviceManager.isVirtual(service.getId())) {
+        await this.bridgeToWechatIndividual(superEvent)
 
-    } else if (this.appserviceManager.isVirtual(service.getId())) {
+      } else {
+        throw new Error('unknown service id ' + service.getId())
 
-      await this.bridgeToWechatIndividual(superEvent)
-
-    } else {
-      throw new Error('unknown service id ' + service.getId())
+      }
+    } catch (e) {
+      const adminRoom = await this.middleManager.adminRoom(user.getId())
+      const errorMsg = [
+        `MatrixHandler - processDirectMessage() failed from ${service.getId()} to ${user.getId()}: `,
+        'Exception(might not logged in to WeChat? ' + e && e.message,
+      ].join('')
+      await this.appserviceManager.sendMessage(
+        errorMsg,
+        adminRoom,
+      )
     }
 
   }

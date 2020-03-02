@@ -102,26 +102,30 @@ export class WechatyManager extends Manager {
       wechaty       = this.wechaty(matrixConsumerId)
     }
 
-    /**
-      * 1. Delete wechaty if exist
-      */
-    if (wechaty) {
+    if (!wechaty) {
+      log.error('WechatyManager', 'destroy() can not get wechaty for id "%s"', matrixConsumerId)
+      this.matrixWechatyDict.delete(matrixConsumerId)
+      return
+    }
+    if (!matrixConsumerId) {
+      log.error('WechatyManager', 'destroy() can not get id for wechaty "%s"', wechaty)
       try {
         await wechaty.stop()
       } catch (e) {
         log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
       }
-
       this.wechatyMatrixDict.delete(wechaty)
-
-    } else {
-      log.error('WechatyManager', 'destroy() can not get wechaty for id: ' + matrixConsumerId)
+      return
     }
 
-    /**
-      * 2. Delete matrix consumer id
-      */
-    this.matrixWechatyDict.delete(matrixConsumerId)
+    try {
+      await wechaty.stop()
+    } catch (e) {
+      log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
+    } finally {
+      this.wechatyMatrixDict.delete(wechaty)
+      this.matrixWechatyDict.delete(matrixConsumerId)
+    }
   }
 
   public matrixConsumerId (ofWechaty: Wechaty): string {

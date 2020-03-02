@@ -71,20 +71,12 @@ export class DialogManager extends Manager {
 
     const matrixUser = superEvent.sender()
     const text = superEvent.event.content!.body || ''
-    log.verbose('MatrixHandler', 'gotoSetupDialog() text: "%s"', text)
 
     if (/^!logout$/i.test(text)) {
 
       log.verbose('MatrixHandler', 'gotoSetupDialog() !logout')
 
-      const wechaty = this.wechatyManager.wechaty(matrixUser.getId())
-      if (wechaty) {
-        if (wechaty.logonoff()) {
-          await wechaty.logout()
-        }
-        await wechaty.stop()
-        await this.wechatyManager.destroy(wechaty)
-      }
+      await this.wechatyManager.destroy(matrixUser.getId())
 
       await this.appserviceManager.sendMessage(
         'logout success.',
