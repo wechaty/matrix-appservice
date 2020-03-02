@@ -205,7 +205,7 @@ export class AppserviceManager extends Manager {
 
   public async roomMembers (roomId: string): Promise<string[]> {
     const client = this.bridge.getClientFactory().getClientAs()
-    const result = await (client.getJoinedRoomMembers as any)(roomId)
+    const result = await client.getJoinedRoomMembers(roomId)
 
     // { joined:
     //   { '@huan:0v0.bid': { avatar_url: null, display_name: 'huan' },
