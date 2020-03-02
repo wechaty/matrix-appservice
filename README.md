@@ -145,7 +145,7 @@ protocols:
 
 ```yaml
 domain: chatie.io
-homeserverUrl: http://matrix.chatie.io:8008
+homeserverUrl: https://matrix.chatie.io
 registration: wechaty-registration.yaml
 ```
 
