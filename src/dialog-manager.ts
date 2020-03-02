@@ -73,17 +73,17 @@ export class DialogManager extends Manager {
     const text = superEvent.event.content!.body || ''
     log.verbose('MatrixHandler', 'gotoSetupDialog() text: "%s"', text)
 
-    let wechaty = this.wechatyManager.wechaty(matrixUser.getId())
-
     if (/^!logout$/i.test(text)) {
 
       log.verbose('MatrixHandler', 'gotoSetupDialog() !logout')
 
+      const wechaty = this.wechatyManager.wechaty(matrixUser.getId())
       if (wechaty) {
         if (wechaty.logonoff()) {
           await wechaty.logout()
         }
         await wechaty.stop()
+        await this.wechatyManager.destroy(wechaty)
       }
 
       await this.appserviceManager.sendMessage(
@@ -94,23 +94,19 @@ export class DialogManager extends Manager {
     } else if (/^!login$/i.test(text)) {
       log.verbose('MatrixHandler', 'gotoSetupDialog() !login')
 
+      let wechaty = this.wechatyManager.wechaty(matrixUser.getId())
       if (!wechaty) {
         wechaty = this.wechatyManager.create(matrixUser.getId())
-        await wechaty.start()
         // throw new Error('no wechaty for id: ' + matrixUser.getId())
-      }
-
-      // message to wechaty virtual users
-      if (!wechaty.logonoff()) {
-        await this.gotoLoginWechatyDialog(matrixUser.getId())
-      } else {
       }
 
       await this.appserviceManager.sendMessage(
         'Starting Wechaty Bridge...',
         superEvent.room(),
       )
+
       await wechaty.start()
+
       await this.appserviceManager.sendMessage(
         'Wechaty Bridge started.',
         superEvent.room(),
@@ -128,8 +124,8 @@ export class DialogManager extends Manager {
     }
   }
 
-  private gotoLoginWechatyDialog (matrixUserId: string): void {
-    log.verbose('MatrixHandler', 'gotoLoginWechatDialog(%s)', matrixUserId)
-  }
+  // private gotoLoginWechatyDialog (matrixUserId: string): void {
+  //   log.verbose('MatrixHandler', 'gotoLoginWechatDialog(%s)', matrixUserId)
+  // }
 
 }

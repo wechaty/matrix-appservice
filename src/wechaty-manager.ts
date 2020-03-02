@@ -19,7 +19,6 @@ export class WechatyManager extends Manager {
 
   protected matrixWechatyDict: Map<string, Wechaty>
   protected wechatyMatrixDict: WeakMap<Wechaty, string>
-  protected wechatyFilehelperDict: WeakMap<Wechaty, Contact>
 
   public appserviceManager!: AppserviceManager
   public middleManager!: MiddleManager
@@ -29,7 +28,6 @@ export class WechatyManager extends Manager {
     log.verbose('WechatyManager', 'constructor()')
     this.matrixWechatyDict     = new Map<string,      Wechaty>()
     this.wechatyMatrixDict     = new WeakMap<Wechaty, string>()
-    this.wechatyFilehelperDict = new WeakMap<Wechaty, Contact>()
   }
 
   public teamManager (managers: {
@@ -62,15 +60,14 @@ export class WechatyManager extends Manager {
       name: matrixConsumerId,
     })
 
-    const onScan = (qrcode: string, status: ScanStatus) => this.onScan(
+    const onLogin   = (user: Contact) => this.onLogin(user)
+    const onLogout  = (user: Contact) => this.onLogout(user)
+    const onMessage = (message: Message) => this.onMessage(message)
+    const onScan    = (qrcode: string, status: ScanStatus) => this.onScan(
       qrcode,
       status,
       wechaty,
     )
-
-    const onLogin = (user: Contact) => this.onLogin(user)
-    const onLogout = (user: Contact) => this.onLogout(user)
-    const onMessage = (message: Message) => this.onMessage(message)
 
     wechaty.on('login',   onLogin)
     wechaty.on('logout',  onLogout)
@@ -105,6 +102,9 @@ export class WechatyManager extends Manager {
       wechaty       = this.wechaty(matrixConsumerId)
     }
 
+    /**
+      * 1. Delete wechaty if exist
+      */
     if (wechaty) {
       try {
         await wechaty.stop()
@@ -112,9 +112,6 @@ export class WechatyManager extends Manager {
         log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
       }
 
-      /**
-       * 1. Delete wechaty if exist
-       */
       this.wechatyMatrixDict.delete(wechaty)
 
     } else {
@@ -122,8 +119,8 @@ export class WechatyManager extends Manager {
     }
 
     /**
-     * 2. Delete matrix consumer id
-     */
+      * 2. Delete matrix consumer id
+      */
     this.matrixWechatyDict.delete(matrixConsumerId)
   }
 
@@ -154,7 +151,7 @@ export class WechatyManager extends Manager {
   }
 
   public async filehelperOf (matrixConsumerId: string) : Promise<null | Contact>
-  public async filehelperOf (wechaty: Wechaty)      : Promise<null | Contact>
+  public async filehelperOf (wechaty: Wechaty)         : Promise<null | Contact>
 
   public async filehelperOf (
     wechatyOrmatrixConsumerId: string | Wechaty,
@@ -178,14 +175,8 @@ export class WechatyManager extends Manager {
       return null
     }
 
-    let filehelper = this.wechatyFilehelperDict.get(wechaty) || null
+    const filehelper = await wechaty.Contact.find({ id: 'filehelper' })
 
-    if (!filehelper) {
-      filehelper = await wechaty.Contact.find({ id: 'filehelper' })
-      if (filehelper) {
-        this.wechatyFilehelperDict.set(wechaty, filehelper)
-      }
-    }
     if (!filehelper) {
       throw new Error('filehelper can not be found. maybe the wechaty is not full loaded.')
     }
