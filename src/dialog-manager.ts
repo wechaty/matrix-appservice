@@ -75,9 +75,7 @@ export class DialogManager extends Manager {
     if (/^!logout$/i.test(text)) {
 
       log.verbose('MatrixHandler', 'gotoSetupDialog() !logout')
-
       await this.wechatyManager.destroy(matrixUser.getId())
-
       await this.appserviceManager.sendMessage(
         'logout success.',
         superEvent.room(),
