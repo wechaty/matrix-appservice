@@ -2,10 +2,11 @@
 
 set -eo pipefail
 
-source .env
+source ../.env
 
 export WECHATY_LOG=silly
-export WECHATY_PUPPET=wechaty-puppet-padplus
+# export WECHATY_PUPPET=wechaty-puppet-padplus
+# export WECHATY_PUPPET_PADPLUS_TOKEN=xxxx
 
 ts-node ../bin/matrix-appservice-wechaty \
   --config config.yaml \

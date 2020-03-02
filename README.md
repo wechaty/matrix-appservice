@@ -65,27 +65,36 @@ Copy [config/config.sample.yaml](https://github.com/chatie/matrix-appservice-wec
 After we setup the `config.yaml`, then we can generate the `wechaty-registration.yaml` file for  registing to the home server:
 
 ```sh
-export APP_SERVER_ENDPOINT='http://localhost:8788'
+export APP_SERVICE_ENDPOINT='http://localhost:8788'
 
 matrix-appservice-wechaty \
   --config  config.yaml \
-  --url     "$APP_SERVER_ENDPOINT" \
+  --url     "$APP_SERVICE_ENDPOINT" \
   --generate-registration
 ```
 
-Note: The URL `APP_SERVER_ENDPIOINT` is used by the home server to communite with appservice, in this example is: `http://localhost:8788`. If you have other appservices, or other requirements, pick an appropriate hostname and port.
+Note: The URL `APP_SERVICE_ENDPIOINT` is used by the home server to communite with appservice, in this example is: `http://localhost:8788`. If you have other appservices, or other requirements, pick an appropriate hostname and port.
 
 ### 3 Register the App Service
 
 Edit your `homeserver.yaml` file and update the `app_service_config_files` entry with the path to the `wechaty-registration.yaml` file.
 
 ```json
-app_service_config_files: ["wechaty-registration.yaml"]
+app_service_config_files: ["/data/wechaty-registration.yaml"]
 ```
 
 ### 4 Restart Home Server (Synapse)
 
 You will then need to restart the synapse server.
+
+For docker users:
+
+```sh
+export SYNAPSE_CONTAINER_ID=$(docker ps | grep synapse | awk '{print $1}')
+docker restart $SYNAPSE_CONTAINER_ID
+```
+
+Or if you are not using docker:
 
 ```sh
 synctl restart
@@ -261,7 +270,7 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 ### v0.8 Mar 1, 2020
 
 1. Code Refactoring
-1. Add `!logout` command
+1. Add `!login`, `!logout` command with help message
 1. Tested with iPad API([wechaty-puppet-padplus](https://github.com/wechaty/wechaty-puppet-padplus))
 
 ### v0.6 (Beta) Feb 25, 2020

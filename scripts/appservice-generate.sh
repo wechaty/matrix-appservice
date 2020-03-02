@@ -2,9 +2,9 @@
 
 set -eo pipefail
 
-source .env
+source ../.env
 
 ts-node ../bin/matrix-appservice-wechaty \
   --config config.yaml \
   --generate-registration \
-  --url "$APP_SERVER_ENDPOINT"
+  --url "$APP_SERVICE_ENDPOINT"

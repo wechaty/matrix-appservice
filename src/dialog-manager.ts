@@ -89,8 +89,18 @@ export class DialogManager extends Manager {
     log.verbose('MatrixHandler', 'gotoSetupDialog() text: "%s"', text)
 
     if (/^!logout$/i.test(text)) {
+
       log.verbose('MatrixHandler', 'gotoSetupDialog() !logout')
-      await wechaty.logout()
+      if (wechaty.logonoff()) {
+        await wechaty.logout()
+      }
+      await wechaty.stop()
+
+      await this.appserviceManager.sendMessage(
+        'logout success.',
+        superEvent.room(),
+      )
+
     } else if (/^!login$/i.test(text)) {
       log.verbose('MatrixHandler', 'gotoSetupDialog() !login')
       await this.appserviceManager.sendMessage(
@@ -103,6 +113,15 @@ export class DialogManager extends Manager {
         superEvent.room(),
       )
 
+    } else {
+      const help = [
+        'Avaiable commands: !login, !logout',
+      ].join('')
+
+      await this.appserviceManager.sendMessage(
+        help,
+        superEvent.room(),
+      )
     }
   }
 
