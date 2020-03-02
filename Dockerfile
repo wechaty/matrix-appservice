@@ -25,7 +25,8 @@ RUN npm install \
   && rm -fr /tmp/* ~/.npm
 
 COPY . .
-RUN ./scripts/generate-version.sh \
+RUN npm test \
+  && ./scripts/generate-version.sh \
   && npm run dist \
   && npm link
 
