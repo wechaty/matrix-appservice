@@ -1,9 +1,3 @@
-/**
- * To make ts-node happy without --files args
- * Note: this <reference ... /> must be put before all code, or it will be ignored.
- */
-/// <reference path="./typings/matrix-appservice-bridge.d.ts" />
-
 import path from 'path'
 
 /**
