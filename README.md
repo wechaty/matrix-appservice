@@ -266,6 +266,8 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ### v0.8 Mar 1, 2020
 
+Finished  [#13](https://github.com/Chatie/matrix-appservice-wechaty/issues/13): [TypeScript] Add typing system to `matrix-js-sdk` and `matrix-appservice-bridge`.
+
 1. Code Refactoring
 1. Add `!login`, `!logout` command with help message
 1. Tested with iPad API([wechaty-puppet-padplus](https://github.com/wechaty/wechaty-puppet-padplus))
