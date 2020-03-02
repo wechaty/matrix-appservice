@@ -3,7 +3,6 @@
  * Note: this <reference ... /> must be put before all code, or it will be ignored.
  */
 /// <reference path="./typings/matrix-appservice-bridge.d.ts" />
-/// <reference path="./typings/matrix-js-sdk.d.ts" />
 
 import path from 'path'
 
