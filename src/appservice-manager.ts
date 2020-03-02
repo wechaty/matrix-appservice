@@ -103,7 +103,7 @@ export class AppserviceManager extends Manager {
     fromUser? : MatrixUser,
   ) {
     log.verbose('AppserviceManager', 'sendMessage(%s%s%s)',
-      withText,
+      withText.substr(0, 100),
       inRoom
         ? ', ' + inRoom.getId()
         : '',
