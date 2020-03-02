@@ -89,8 +89,20 @@ export class DialogManager extends Manager {
     log.verbose('MatrixHandler', 'gotoSetupDialog() text: "%s"', text)
 
     if (/^!logout$/i.test(text)) {
-      log.verbose('MatrixHandler', 'gotoSetupDialog() logout')
+      log.verbose('MatrixHandler', 'gotoSetupDialog() !logout')
       await wechaty.logout()
+    } else if (/^!login$/i.test(text)) {
+      log.verbose('MatrixHandler', 'gotoSetupDialog() !login')
+      await this.appserviceManager.sendMessage(
+        'Starting Wechaty Bridge...',
+        superEvent.room(),
+      )
+      await wechaty.start()
+      await this.appserviceManager.sendMessage(
+        'Wechaty Bridge started.',
+        superEvent.room(),
+      )
+
     }
   }
 

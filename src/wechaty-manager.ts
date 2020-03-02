@@ -256,9 +256,15 @@ export class WechatyManager extends Manager {
   ) {
     log.verbose('WechatyManager', 'onLogout(%s)', wechatyContact)
 
-    const text = 'You are now logged out from Wechat. Your user name is: ' + wechatyContact.name()
+    const text = [
+      'You are now logged out from Wechat.',
+      ` Your user name is: ${wechatyContact.name()}.`,
+      ' send `!login` to me to get a new QR Code to scan for logging in.',
+    ].join('')
 
     await this.middleManager.directMessageToMatrixConsumer(text, wechatyContact.wechaty)
+
+    await wechatyContact.wechaty.stop()
   }
 
   protected async onMessage (
