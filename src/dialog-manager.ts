@@ -2,6 +2,7 @@ import { SuperEvent } from './super-event'
 
 import {
   log,
+  VERSION,
 }           from './config'
 
 import { AppserviceManager }  from './appservice-manager'
@@ -102,6 +103,12 @@ export class DialogManager extends Manager {
         superEvent.room(),
       )
 
+    } else if (/^!version$/i.test(text)) {
+      log.verbose('MatrixHandler', 'gotoSetupDialog() !version')
+      await this.appserviceManager.sendMessage(
+        `version: ${VERSION}`,
+        superEvent.room(),
+      )
     } else {
       const help = [
         'Avaiable commands: !login, !logout',
