@@ -3,7 +3,7 @@
 Wechat (微信) Matrix Application Services Bridge
 
 ![Matrix + Wechaty](https://chatie.github.io/matrix-appservice-wechaty/images/matrix-wechaty-1280x720.png)
-> Photo credit: [Matrix Club](https://www.nowshenzhen.com/tag/matrix-club/)
+> Image credit: [Gnosis](https://blog.gnosis.pm/we-are-moving-our-open-gnosis-community-chat-to-matrix-542e9017499)
 
 [![Powered by Wechaty](https://img.shields.io/badge/Powered%20By-Wechaty-brightgreen.svg)](https://github.com/wechaty/wechaty)
 [![NPM Version](https://badge.fury.io/js/matrix-appservice-wechaty.svg)](https://badge.fury.io/js/matrix-appservice-wechaty)
