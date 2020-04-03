@@ -1,4 +1,4 @@
-# matrix-appservice-wechaty [![[M] Matrix](https://img.shields.io/badge/[M]%20Matrix-8788%20users-brightgreen.svg)](https://matrix.to/#/#matrix-appservice-wechaty:matrix.org)
+# matrix-appservice-wechaty [![[M] Matrix](https://img.shields.io/matrix/matrix-appservice-wechaty:matrix.org)](https://matrix.to/#/#matrix-appservice-wechaty:matrix.org)
 
 Wechat (微信) Matrix Application Services Bridge
 
