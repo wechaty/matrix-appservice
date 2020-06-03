@@ -60,7 +60,7 @@
     "shx": "^0.3.2",
     "sloc": "^0.2.1",
     "tstest": "^0.4.10",
-    "wechaty-puppet-padplus": "^0.5.12"
+    "wechaty-puppet-padplus": "^0.6.3"
   },
   "bin": {
     "matrix-appservice-wechaty": "dist/bin/matrix-appservice-wechaty.js"
