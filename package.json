@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@chatie/eslint-config": "^0.8.1",
-    "@chatie/git-scripts": "^0.2.5",
+    "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.10.1",
     "@types/matrix-appservice-bridge": "^1.11.1",
