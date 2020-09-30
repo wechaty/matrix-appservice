@@ -53,7 +53,7 @@
     "@types/matrix-appservice-bridge": "^1.11.1",
     "@types/matrix-js-sdk": "^5.0.1",
     "@types/nedb": "^1.8.9",
-    "@types/update-notifier": "^4.1.0",
+    "@types/update-notifier": "^5.0.0",
     "nodemon": "^2.0.2",
     "pkg-jq": "^0.2.4",
     "qrcode-terminal": "^0.12.0",
