@@ -50,7 +50,7 @@
     "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.10.1",
-    "@types/matrix-appservice-bridge": "^1.11.1",
+    "@types/matrix-appservice-bridge": "^2.0.0",
     "@types/matrix-js-sdk": "^5.0.1",
     "@types/nedb": "^1.8.9",
     "@types/update-notifier": "^4.1.0",
