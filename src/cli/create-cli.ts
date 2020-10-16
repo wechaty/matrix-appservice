@@ -14,7 +14,7 @@ import {
   run,
 }                           from './run'
 
-export function createCli (): Cli {
+export function createCli (): Cli<any> {
 
   const port             = DEFAULT_PORT
   const registrationPath = REGISTRATION_FILE
@@ -25,11 +25,11 @@ export function createCli (): Cli {
   }
 
   const cli = new Cli({
-    bridgeConfig,
+    bridgeConfig: bridgeConfig as any, // FIXME: Huan(202010) any
     generateRegistration,
     port,
     registrationPath,
-    run,
+    run: run as any,  // FIXME: Huan(202010) any
   })
 
   return cli

@@ -2,7 +2,7 @@ import {
   BridgeContext,
   Request,
   MatrixUser,
-  ProvisionedUser,
+  WeakEvent,
 }                   from 'matrix-appservice-bridge'
 
 import {
@@ -46,12 +46,12 @@ export class MatrixHandler {
   }
 
   public async onEvent (
-    request : Request,
-    context : BridgeContext,
+    request  : Request<WeakEvent>,
+    context? : BridgeContext,
   ): Promise<void> {
     log.verbose('MatrixHandler', 'onEvent({type: "%s"}, {userId: "%s"})',
-      request.data.type,
-      context.senders.matrix.getId(),
+      request.getData().type,
+      context?.senders.matrix.getId(),
     )
     // log.silly('MatrixHandler', 'onEvent("%s", "%s")',
     //   JSON.stringify(request),
@@ -91,7 +91,7 @@ export class MatrixHandler {
    */
   public async onUserQuery (
     queriedUser: MatrixUser,
-  ): Promise<ProvisionedUser> {
+  ): Promise<any> {
     log.verbose('MatrixHandler', 'onUserQuery("%s")', JSON.stringify(queriedUser))
 
     // FIXME:
@@ -306,7 +306,7 @@ export class MatrixHandler {
       //   superEvent.sender(),    // FIXME: should be consumer
       // )
 
-      await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
+      await wechatyRoom.say(superEvent.event.content!.body as string || 'undefined')
 
     } catch (e) {
       log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)

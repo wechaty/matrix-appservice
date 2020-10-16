@@ -3,6 +3,7 @@ import {
   Request,
   BridgeContext,
   MatrixUser,
+  WeakEvent,
 }                   from 'matrix-appservice-bridge'
 
 import { AppserviceManager }  from '../appservice-manager'
@@ -75,8 +76,8 @@ function createBridge (
   // const registrationFile  = REGISTRATION_FILE
 
   const onEvent = (
-    request: Request,
-    context: BridgeContext
+    request: Request<WeakEvent>,
+    context?: BridgeContext
   ) => matrixHandler.onEvent(
     request,
     context,
