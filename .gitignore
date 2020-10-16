@@ -64,3 +64,5 @@ t/
 *-registration.yaml
 *-store.db
 
+.DS_Store
+.idea
