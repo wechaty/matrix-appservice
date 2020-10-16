@@ -146,7 +146,7 @@ export class WechatyManager extends Manager {
       this.matrixWechatyDict.size,
     )
 
-    let wechaty = this.matrixWechatyDict.get(ofMatrixConsumerId)
+    const wechaty = this.matrixWechatyDict.get(ofMatrixConsumerId)
     if (!wechaty) {
       return null
     }

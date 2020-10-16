@@ -71,7 +71,7 @@ export class DialogManager extends Manager {
     log.verbose('MatrixHandler', 'gotoSetupDialog()')
 
     const matrixUser = superEvent.sender()
-    const text = superEvent.event.content!.body || ''
+    const text = superEvent.event.content!.body as string || ''
 
     if (/^!logout$/i.test(text)) {
 

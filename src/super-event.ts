@@ -1,11 +1,10 @@
 import {
   BridgeContext,
-  Event,
   MatrixRoom,
   MatrixUser,
   Request,
+  WeakEvent,
 }                   from 'matrix-appservice-bridge'
-import { EventType } from 'matrix-js-sdk'
 
 import {
   log,
@@ -21,51 +20,51 @@ export interface DirectMessageUserPair {
 
 export class SuperEvent {
 
-  public event: Event
+  public event: WeakEvent
 
   constructor (
-    public request           : Request,
-    public context           : BridgeContext,
+    public request           : Request<WeakEvent>,
+    public context           : undefined | BridgeContext,
     public appserviceManager : AppserviceManager,
     public wechatyManager    : WechatyManager,
   ) {
     log.verbose('SuperEvent', 'constructor(request[event_id]="%s", context[sender]="%s", appserviceManager, wechatyManager.count()=%s)',
       request.getData().event_id,
-      context.senders.matrix.getId(),
+      context?.senders.matrix.getId(),
       wechatyManager.count(),
     )
     this.event = request.getData()
   }
 
   public text (): string {
-    return this.event.content!.body || ''
+    return this.event.content!.body as string || ''
   }
 
   /**
    * Return event age in seconds.
    */
   public age (): number {
-    return this.event.unsigned.age / 1000
+    return this.event.unsigned?.age ?? 0 / 1000
   }
 
   public sender (): MatrixUser {
-    return this.context.senders.matrix
+    return this.context!.senders!.matrix
   }
 
   public target (): null | MatrixUser {
-    return this.context.targets.matrix
+    return this.context?.targets?.matrix || null
   }
 
   public room (): MatrixRoom {
-    return this.context.rooms.matrix
+    return this.context!.rooms!.matrix
   }
 
-  public type (): EventType {
+  public type (): string {
     return this.event.type
   }
 
   public targetIsBot (): boolean {
-    if (!this.context.targets.matrix) {
+    if (!this.context?.targets.matrix) {
       return false
     }
 
@@ -92,8 +91,8 @@ export class SuperEvent {
    * from @wechaty:
    */
   public senderIsBot (): boolean {
-    const matrixUserId = this.context.senders.matrix.getId()
-    return this.appserviceManager.isBot(matrixUserId)
+    const matrixUserId = this.context?.senders.matrix.getId()
+    return this.appserviceManager.isBot(matrixUserId!)
   }
 
   /**

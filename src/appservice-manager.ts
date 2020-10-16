@@ -6,6 +6,7 @@ import {
   RoomBridgeStore,
   UserBridgeStore,
   MatrixRoom,
+  AppServiceRegistration,
 }                       from 'matrix-appservice-bridge'
 
 import {
@@ -44,7 +45,9 @@ export class AppserviceManager extends Manager {
 
     this.bridge    = matrixBridge
     this.domain    = matrixBridge.opts.domain
-    this.localpart = matrixBridge.opts.registration.sender_localpart
+
+    // FIXME: Huan(202010) any
+    this.localpart = (matrixBridge.opts.registration as AppServiceRegistration).getSenderLocalpart()!
 
     const userBridgeStore = matrixBridge.getUserStore()
     const roomBridgeStore = matrixBridge.getRoomStore()
@@ -155,7 +158,7 @@ export class AppserviceManager extends Manager {
 
     const query = {} as { [key: string]: string }
 
-    for (let [key, value] of Object.entries(filterData)) {
+    for (const [key, value] of Object.entries(filterData)) {
       query[`${dataKey}.${key}`] = value
     }
 

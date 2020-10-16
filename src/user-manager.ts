@@ -125,7 +125,9 @@ export class UserManager extends Manager {
     const that = this
 
     if (wechatyOptions) {
-      return setWechatyOptions()
+      setWechatyOptions()
+        .catch(console.error)
+      return Promise.resolve()
     } else {
       return getWechatyOptions()
     }
