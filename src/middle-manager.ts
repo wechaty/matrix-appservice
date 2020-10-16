@@ -290,7 +290,7 @@ export class MiddleManager extends Manager {
     const wechaty = wechatyRoomOrUser.wechaty
     const consumerId = this.wechatyManager.matrixConsumerId(wechaty)
 
-    const inviteeIdList = [ consumerId ]
+    const inviteeIdList = [consumerId]
     let   roomName: string
     let   creatorId: string
 
@@ -508,7 +508,7 @@ export class MiddleManager extends Manager {
   ): Promise<MatrixRoom> {
     log.verbose('AppserviceManager', 'adminRoom(%s)', forConsumerIdOrWechaty)
 
-    let botId = this.appserviceManager.appserviceUserId()
+    const botId = this.appserviceManager.appserviceUserId()
     let consumerId: string
 
     if (forConsumerIdOrWechaty instanceof Wechaty)  {
@@ -540,7 +540,7 @@ export class MiddleManager extends Manager {
 
     } else {
       matrixRoom = await this.appserviceManager.createRoom(
-        [ botId, consumerId ],
+        [botId, consumerId],
         {
           creatorId: botId,
           name: 'Wechaty AppService Bot',

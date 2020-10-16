@@ -155,7 +155,7 @@ export class AppserviceManager extends Manager {
 
     const query = {} as { [key: string]: string }
 
-    for (let [key, value] of Object.entries(filterData)) {
+    for (const [key, value] of Object.entries(filterData)) {
       query[`${dataKey}.${key}`] = value
     }
 
