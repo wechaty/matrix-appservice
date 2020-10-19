@@ -48,7 +48,7 @@ export class AppserviceManager extends Manager {
 
     if (matrixBridge.opts.registration instanceof AppServiceRegistration) {
       this.localpart = (matrixBridge.opts.registration as AppServiceRegistration).getSenderLocalpart()!
-    } else {
+    } else if ((matrixBridge.opts.registration instanceof Object)) {
       this.localpart = matrixBridge.opts.registration.sender_localpart
     }
 
