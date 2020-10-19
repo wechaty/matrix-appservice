@@ -46,10 +46,11 @@ export class AppserviceManager extends Manager {
     this.bridge    = matrixBridge
     this.domain    = matrixBridge.opts.domain
 
-    if (matrixBridge.opts.registration instanceof AppServiceRegistration) {
-      this.localpart = (matrixBridge.opts.registration as AppServiceRegistration).getSenderLocalpart()!
-    } else if (typeof matrixBridge.opts.registration === 'object') {
-      this.localpart = matrixBridge.opts.registration.sender_localpart
+    const registration = matrixBridge.opts.registration
+    if (registration instanceof AppServiceRegistration) {
+      this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
+    } else if (typeof registration === 'object' && registration.hasOwnProperty('sender_localpart')) {
+      this.localpart = registration.sender_localpart
     }
 
     const userBridgeStore = matrixBridge.getUserStore()
