@@ -2,6 +2,7 @@
 
 import { test }  from 'tstest'
 import Sinon from 'sinon'
+import {Registration} from './registration'
 
 import {
   RoomBridgeStore,
@@ -24,7 +25,7 @@ class AppserviceManagerMock extends AppserviceManager {
 function getMockAppserviceManager () {
   const appserviceManager = new AppserviceManagerMock()
 
-  let myRegistration = new Registration(MOCK_LOCALPART);
+  const myRegistration = new Registration(MOCK_LOCALPART)
   const mockBridge = {
     getIntent: Sinon.spy(),
     getRoomStore: () => new RoomBridgeStore(new Nedb()),

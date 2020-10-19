@@ -16,6 +16,7 @@ import {
   Manager,
   Managers,
 }                         from './manager'
+import {Registration} from './registration'
 
 export class AppserviceManager extends Manager {
 
