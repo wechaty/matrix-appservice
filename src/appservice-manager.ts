@@ -51,7 +51,7 @@ export class AppserviceManager extends Manager {
       this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
     } else if (typeof registration === 'string') {
 
-    } else if (typeof registration === 'object' && 'sender_localpart' in registration) {
+    } else if (registration != null && typeof registration === 'object' && 'sender_localpart' in registration) {
       this.localpart = registration.sender_localpart
     }
 
