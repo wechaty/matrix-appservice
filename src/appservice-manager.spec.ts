@@ -24,15 +24,14 @@ class AppserviceManagerMock extends AppserviceManager {
 function getMockAppserviceManager () {
   const appserviceManager = new AppserviceManagerMock()
 
+  let myRegistration = new Registration(MOCK_LOCALPART);
   const mockBridge = {
     getIntent: Sinon.spy(),
     getRoomStore: () => new RoomBridgeStore(new Nedb()),
     getUserStore: () => new UserBridgeStore(new Nedb()),
     opts: {
       domain: MOCK_DOMAIN,
-      registration: {
-        sender_localpart: MOCK_LOCALPART,
-      },
+      registration: myRegistration,
     },
   } as any
 
