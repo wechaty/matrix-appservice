@@ -49,8 +49,6 @@ export class AppserviceManager extends Manager {
     const registration = matrixBridge.opts.registration
     if (registration instanceof AppServiceRegistration) {
       this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
-    } else if (typeof registration === 'string') {
-
     } else if (registration != null && typeof registration === 'object' && 'sender_localpart' in registration) {
       this.localpart = registration!.sender_localpart
     }
