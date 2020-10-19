@@ -6,9 +6,8 @@ import {
   RoomBridgeStore,
   UserBridgeStore,
   MatrixRoom,
+  AppServiceRegistration,
 }                       from 'matrix-appservice-bridge'
-
-import { AppServiceRegistration } from 'matrix-appservice'
 
 import {
   log,
@@ -48,7 +47,7 @@ export class AppserviceManager extends Manager {
     this.domain    = matrixBridge.opts.domain
 
     // FIXME: Huan(202010) any
-    this.localpart = (matrixBridge.opts.registration as AppServiceRegistration).getSenderLocalpart()!
+    this.localpart = (<AppServiceRegistration>matrixBridge.opts.registration).getSenderLocalpart()!
 
     const userBridgeStore = matrixBridge.getUserStore()
     const roomBridgeStore = matrixBridge.getRoomStore()
