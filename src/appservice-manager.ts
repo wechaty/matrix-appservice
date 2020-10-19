@@ -16,7 +16,7 @@ import {
   Manager,
   Managers,
 }                         from './manager'
-import {Registration} from './registration'
+import { Registration } from './registration'
 
 export class AppserviceManager extends Manager {
 
@@ -51,7 +51,7 @@ export class AppserviceManager extends Manager {
     if (registration instanceof AppServiceRegistration) {
       this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
     } else if (registration instanceof Registration) {
-      this.localpart = (registration as Registration).sender_localpart
+      this.localpart = (registration as Registration).senderLocalpart
     }
 
     const userBridgeStore = matrixBridge.getUserStore()
