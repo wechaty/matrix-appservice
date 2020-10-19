@@ -1,4 +1,4 @@
-class Registration {
+export class Registration {
   // 字段
   sender_localpart:string;
 
