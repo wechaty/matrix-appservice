@@ -6,8 +6,9 @@ import {
   RoomBridgeStore,
   UserBridgeStore,
   MatrixRoom,
-  AppServiceRegistration,
 }                       from 'matrix-appservice-bridge'
+
+import { AppServiceRegistration } from "matrix-appservice";
 
 import {
   log,
