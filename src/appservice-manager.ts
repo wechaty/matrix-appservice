@@ -46,8 +46,9 @@ export class AppserviceManager extends Manager {
     this.bridge    = matrixBridge
     this.domain    = matrixBridge.opts.domain
 
-    // FIXME: Huan(202010) any
-    this.localpart = (<AppServiceRegistration>matrixBridge.opts.registration).getSenderLocalpart()!
+    if(matrixBridge.opts.registration instanceof AppServiceRegistration) {
+      this.localpart = (matrixBridge.opts.registration as AppServiceRegistration).getSenderLocalpart()!
+    }
 
     const userBridgeStore = matrixBridge.getUserStore()
     const roomBridgeStore = matrixBridge.getRoomStore()
