@@ -4,12 +4,12 @@ export class Registration {
   senderLocalpart: string;
 
   // 构造函数
-  constructor( senderLocalpart: string ) {
+  constructor (senderLocalpart: string) {
     this.senderLocalpart = senderLocalpart
   }
 
   // 方法
-  getSenderLocalpart( ): string {
+  getSenderLocalpart (): string {
     return this.senderLocalpart
   }
 
