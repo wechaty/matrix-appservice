@@ -52,7 +52,7 @@ export class AppserviceManager extends Manager {
     } else if (typeof registration === 'string') {
 
     } else if (registration != null && typeof registration === 'object' && 'sender_localpart' in registration) {
-      this.localpart = registration.sender_localpart
+      this.localpart = registration!.sender_localpart
     }
 
     const userBridgeStore = matrixBridge.getUserStore()
