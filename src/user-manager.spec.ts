@@ -2,7 +2,7 @@
 
 import { test }  from 'tstest'
 import Sinon from 'sinon'
-import {Registration} from './registration'
+import { Registration } from './registration'
 
 import {
   MatrixUser,
