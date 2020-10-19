@@ -8,7 +8,7 @@ import {
   MatrixRoom,
 }                       from 'matrix-appservice-bridge'
 
-import { AppServiceRegistration } from 'matrix-appservice';
+import { AppServiceRegistration } from 'matrix-appservice'
 
 import {
   log,
