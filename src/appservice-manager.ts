@@ -16,6 +16,7 @@ import {
   Manager,
   Managers,
 }                         from './manager'
+import { Registration } from './registration'
 
 export class AppserviceManager extends Manager {
 
@@ -46,8 +47,12 @@ export class AppserviceManager extends Manager {
     this.bridge    = matrixBridge
     this.domain    = matrixBridge.opts.domain
 
-    // FIXME: Huan(202010) any
-    this.localpart = (matrixBridge.opts.registration as AppServiceRegistration).getSenderLocalpart()!
+    const registration = matrixBridge.opts.registration
+    if (registration instanceof AppServiceRegistration) {
+      this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
+    } else {
+      this.localpart = (registration as unknown as Registration).senderLocalpart!
+    }
 
     const userBridgeStore = matrixBridge.getUserStore()
     const roomBridgeStore = matrixBridge.getRoomStore()
