@@ -43,7 +43,7 @@
     "matrix-appservice-bridge": "^2.2.0",
     "read-pkg-up": "^7.0.1",
     "update-notifier": "^5.0.0",
-    "wechaty": "^0.48.13"
+    "wechaty": "^0.50.4"
   },
   "devDependencies": {
     "@chatie/eslint-config": "^0.12.1",
