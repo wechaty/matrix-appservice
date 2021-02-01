@@ -5,7 +5,7 @@
 #   License:    Apache-2.0
 #   Copyright:  2019, Huan LI <zixia@zixia.net>
 #
-FROM zixia/wechaty
+FROM wechaty/wechaty
 LABEL maintainer="Huan LI (李卓桓) <zixia@zixia.net>"
 
 RUN apt-get update \
