@@ -53,7 +53,7 @@ export class AppserviceManager extends Manager {
     } else if (typeof registration === 'string') {
       this.localpart = matrixBridge.getBot().getUserId().split(':')[0].replace('@', '')
     } else {
-      this.localpart =  (registration as unknown as Registration).senderLocalpart!
+      this.localpart = (registration as unknown as Registration).senderLocalpart!
     }
 
     const userBridgeStore = matrixBridge.getUserStore()
