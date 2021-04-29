@@ -1,0 +1,13 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "21:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: wechaty
+    versions:
+    - 0.60.3
+    - 0.60.4
