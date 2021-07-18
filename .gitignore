@@ -67,3 +67,5 @@ config/config.yaml
 
 .DS_Store
 .idea
+
+debug-matrix-message.js

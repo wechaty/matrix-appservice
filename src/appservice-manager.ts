@@ -7,25 +7,27 @@ import {
   UserBridgeStore,
   MatrixRoom,
   AppServiceRegistration,
-}                       from 'matrix-appservice-bridge'
+} from 'matrix-appservice-bridge'
+import { Message } from 'wechaty'
+import { MessageType } from 'wechaty-puppet'
 
 import {
   log,
-}                       from './config'
+} from './config'
 import {
   Manager,
   Managers,
-}                         from './manager'
+} from './manager'
 import { Registration } from './registration'
 
 export class AppserviceManager extends Manager {
 
-  public bridge!    : Bridge
-  public roomStore! : RoomBridgeStore
-  public userStore! : UserBridgeStore
+  public bridge!: Bridge
+  public roomStore!: RoomBridgeStore
+  public userStore!: UserBridgeStore
 
-  public domain!    : string
-  public localpart! : string
+  public domain!: string
+  public localpart!: string
 
   constructor () {
     super()
@@ -44,8 +46,8 @@ export class AppserviceManager extends Manager {
       throw new Error('bridge can not be set twice!')
     }
 
-    this.bridge    = matrixBridge
-    this.domain    = matrixBridge.opts.domain
+    this.bridge = matrixBridge
+    this.domain = matrixBridge.opts.domain
 
     const registration = matrixBridge.opts.registration
     if (registration instanceof AppServiceRegistration) {
@@ -103,17 +105,22 @@ export class AppserviceManager extends Manager {
   public isUser (matrixUserId: string): boolean {
     return !(
       this.isBot(matrixUserId)
-        || this.isVirtual(matrixUserId)
+      || this.isVirtual(matrixUserId)
     )
   }
 
+  /**
+   * If the message type is text, send it directly.
+   * If the message is not pure text upload it and return the url pointing the resource.
+   *
+   * @returns {string}
+   */
   public async sendMessage (
-    withText  : string,
-    inRoom    : MatrixRoom,
-    fromUser? : MatrixUser,
+    message: string | Message,
+    inRoom: MatrixRoom,
+    fromUser?: MatrixUser,
   ) {
-    log.verbose('AppserviceManager', 'sendMessage(%s%s%s)',
-      withText.substr(0, 100),
+    log.verbose('AppserviceManager', 'sendMessage(%s%s)',
       inRoom
         ? ', ' + inRoom.getId()
         : '',
@@ -121,19 +128,65 @@ export class AppserviceManager extends Manager {
         ? ', ' + fromUser.getId()
         : '',
     )
+    let matrixUserId
 
-    try {
-      let matrixUserId
+    if (fromUser) {
+      matrixUserId = fromUser && fromUser.getId()
+    }
 
-      if (fromUser) {
-        matrixUserId = fromUser && fromUser.getId()
+    const intent = this.bridge.getIntent(matrixUserId)
+    let text = ''
+    if (typeof (message) === 'string') {
+      text = message
+    } else {
+      switch (message.type()) {
+        // case MessageType.Unknown:
+
+        //   break
+        // case MessageType.Attachment:
+
+        //   break
+        // case MessageType.Audio:
+
+        //   break
+        // case MessageType.Contact:
+
+        //   break
+        // case MessageType.Emoticon:
+
+        //   break
+        case MessageType.Image:
+          try {
+            const file = await message.toFileBox()
+            const buffer = await file.toBuffer()
+            // XXX It is recommended to use a digital summary to construct the file name to avoid repeated uploads.
+            const url = await intent.uploadContent(buffer, {
+              name: file.name,
+              type: file.mimeType,
+            })
+            await intent.sendMessage(
+              inRoom.getId(),
+              {
+                body: 'Image',
+                info: {},
+                msgtype: 'm.image',
+                url: url,
+              }
+            )
+          } catch (e) {
+            log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+            throw e
+          }
+          return
+        default:
+          text = message.text()
+          break
       }
-
-      const intent = this.bridge.getIntent(matrixUserId)
-
+    }
+    try {
       await intent.sendText(
         inRoom.getId(),
-        withText,
+        text,
       )
     } catch (e) {
       log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
@@ -153,8 +206,8 @@ export class AppserviceManager extends Manager {
   }
 
   public storeQuery (
-    dataKey    : string,
-    filterData : object,
+    dataKey: string,
+    filterData: object,
   ): {
     [key: string]: string,
   } {
@@ -176,11 +229,11 @@ export class AppserviceManager extends Manager {
    * The matrix room will be created by the specified creater.
    */
   public async createRoom (
-    userIdList : string[],
+    userIdList: string[],
     args: {
-      creatorId? : string,
-      name?      : string,
-      topic?     : string,
+      creatorId?: string,
+      name?: string,
+      topic?: string,
     } = {},
   ): Promise<MatrixRoom> {
     log.verbose('AppserviceManager', 'createRoom(["%s"], "%s")',
@@ -199,12 +252,12 @@ export class AppserviceManager extends Manager {
     const roomInfo = await intent.createRoom({
       createAsClient: true,
       options: {
-        invite     : userIdList,
-        is_direct  : userIdList.length <= 2,
-        name       : args.name,
-        preset     : 'trusted_private_chat',
-        topic      : args.topic,
-        visibility : 'private',
+        invite: userIdList,
+        is_direct: userIdList.length <= 2,
+        name: args.name,
+        preset: 'trusted_private_chat',
+        topic: args.topic,
+        visibility: 'private',
       },
 
     })

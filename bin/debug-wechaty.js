@@ -9,7 +9,8 @@ https://stackoverflow.com/questions/53997175/puppeteer-error-chromium-revision-i
 I avoid it by install chrome and modify memory data, but it should be fixed in futrue.
 */
 
-
+const dotenv = require('dotenv')
+dotenv.config()
 const { Wechaty } = require('wechaty');
 
 const name = 'wechat-puppet-wechat';

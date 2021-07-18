@@ -5,18 +5,21 @@ import {
   createCli,
   log,
   VERSION,
-}                     from '../src/'
+} from '../src/'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 async function main () {
   if (process.env.LOG_LEVEL) {
     log.level(process.env.LOG_LEVEL as any)
   }
-  
-  if(process.env.SIMULATED){
+
+  if (process.env.SIMULATED) {
     // XXX This is aim to use the chrome referred by /usr/bin/chromium-browser as dependency of wechaty.node_modules.puppeteer module.
     Object.defineProperty(process, 'arch', {
       value: process.env.SIMULATED,
-    });
+    })
   }
 
   log.info('matrix-appservice-wechaty', `v${VERSION}`)
