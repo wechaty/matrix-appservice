@@ -160,6 +160,7 @@ export class AppserviceManager extends Manager {
             const file = await message.toFileBox()
             const buffer = await file.toBuffer()
             // XXX It is recommended to use a digital summary to construct the file name to avoid repeated uploads.
+            // digital summary consuming too much computing resources, use the url to lable it is better.
             const url = await intent.uploadContent(buffer, {
               name: file.name,
               type: file.mimeType,
