@@ -12,6 +12,13 @@ async function main () {
     log.level(process.env.LOG_LEVEL as any)
   }
 
+  if (process.env.SIMULATED) {
+    // XXX This is aim to use the chrome referred by /usr/bin/chromium-browser as dependency of wechaty.node_modules.puppeteer module.
+    Object.defineProperty(process, 'arch', {
+      value: process.env.SIMULATED,
+    })
+  }
+
   log.info('matrix-appservice-wechaty', `v${VERSION}`)
 
   checkUpdate()
