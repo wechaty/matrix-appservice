@@ -46,6 +46,11 @@ export class WechatyManager extends Manager {
     matrixConsumerId : string,
     wechatyOptions?  : WechatyOptions,
   ): Wechaty {
+    if (process.env.WECHATY_PUPPET_PUPPETEER_ENDPOINT) {
+      wechatyOptions = wechatyOptions || {}
+      wechatyOptions.puppetOptions = wechatyOptions.puppetOptions || {}
+      wechatyOptions.puppetOptions.endpoint = wechatyOptions.puppetOptions.endpoint || process.env.WECHATY_PUPPET_PUPPETEER_ENDPOINT
+    }
     log.verbose('WechatyManager', 'create(%s, "%s")',
       matrixConsumerId,
       JSON.stringify(wechatyOptions),
