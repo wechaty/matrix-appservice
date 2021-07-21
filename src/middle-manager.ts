@@ -317,7 +317,8 @@ export class MiddleManager extends Manager {
       roomName = await wechatyRoomOrUser.topic()
       for await (const member of wechatyRoomOrUser) {
         const matrixUser = await this.matrixUser(member)
-        inviteeIdList.push(matrixUser.getId())
+        this.wechatyManager.ifSelfWechaty(member.id)
+        || inviteeIdList.push(matrixUser.getId())
       }
     } else if (wechatyRoomOrUser instanceof WechatyUser) {
       // User: direct message
