@@ -1,4 +1,5 @@
 import cuid from 'cuid'
+import { ReadStream } from 'fs'
 
 import {
   Bridge,
@@ -7,6 +8,7 @@ import {
   UserBridgeStore,
   MatrixRoom,
   AppServiceRegistration,
+  FileUploadOpts,
 }                       from 'matrix-appservice-bridge'
 
 import {
@@ -234,8 +236,16 @@ export class AppserviceManager extends Manager {
 
   public async setProfile (userId: string, avataUrl: string, displayName: string): Promise<void> {
     const intent = this.bridge.getIntent(userId)
-    void intent.setAvatarUrl(avataUrl)
-    void intent.setDisplayName(displayName)
+    await intent.setAvatarUrl(avataUrl)
+    await intent.setDisplayName(displayName)
+  }
+
+  public async uploadContent (
+    content: string | Buffer | ReadStream,
+    userId?: string,
+    opts?: FileUploadOpts | undefined
+  ): Promise<string> {
+    return this.bridge.getIntent(userId).uploadContent(content, opts)
   }
 
 }

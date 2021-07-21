@@ -264,8 +264,17 @@ export class MiddleManager extends Manager {
     )
 
     const matrixUserId = this.appserviceManager.generateVirtualUserId()
+
+    const avatarFile = await wechatyUser.avatar()
+    const avatarBuffer = await avatarFile.toBuffer()
+    const avatarUrl = await this.appserviceManager.uploadContent(
+      avatarBuffer,
+      matrixUserId,
+      { type: avatarFile.mimeType },
+    )
+
     const matrixUser   = new MatrixUser(matrixUserId, {
-      avatarUrl: 'mxc://little-printf.top/oXbgywOBYFUpfmeWlneyrdOZ',
+      avatarUrl,
       displayName: wechatyUser.name(),
     })
 
@@ -275,7 +284,7 @@ export class MiddleManager extends Manager {
     await this.appserviceManager.userStore.setMatrixUser(matrixUser)
     void this.appserviceManager.setProfile(
       matrixUserId,
-      'mxc://little-printf.top/oXbgywOBYFUpfmeWlneyrdOZ',
+      avatarUrl,
       wechatyUser.name()
     )
 
