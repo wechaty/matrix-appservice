@@ -212,6 +212,9 @@ export class AppserviceManager extends Manager {
     })
 
     const matrixRoom = new MatrixRoom(roomInfo.room_id)
+    for await (const userId of userIdList.slice(1)) {
+      await this.bridge.getIntent(userId).join(matrixRoom.getId())
+    }
     return matrixRoom
   }
 
