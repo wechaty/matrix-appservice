@@ -43,7 +43,7 @@
   "dependencies": {
     "cuid": "^2.1.8",
     "dotenv": "^10.0.0",
-    "matrix-appservice-bridge": "^2.4.1",
+    "matrix-appservice-bridge": "^2.7.0",
     "read-pkg-up": "^7.0.1",
     "update-notifier": "^5.1.0",
     "wechaty": "^0.62.3"

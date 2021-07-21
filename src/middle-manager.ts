@@ -264,12 +264,20 @@ export class MiddleManager extends Manager {
     )
 
     const matrixUserId = this.appserviceManager.generateVirtualUserId()
-    const matrixUser   = new MatrixUser(matrixUserId)
+    const matrixUser   = new MatrixUser(matrixUserId, {
+      avatarUrl: 'mxc://little-printf.top/oXbgywOBYFUpfmeWlneyrdOZ',
+      displayName: wechatyUser.name(),
+    })
 
     // userData.name   = wechatyUser.name() + APPSERVICE_NAME_POSTFIX
 
     matrixUser.set(WECHATY_USER_DATA_KEY, userData)
     await this.appserviceManager.userStore.setMatrixUser(matrixUser)
+    void this.appserviceManager.setProfile(
+      matrixUserId,
+      'mxc://little-printf.top/oXbgywOBYFUpfmeWlneyrdOZ',
+      wechatyUser.name()
+    )
 
     return matrixUser
   }

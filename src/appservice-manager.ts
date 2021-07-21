@@ -232,4 +232,10 @@ export class AppserviceManager extends Manager {
     return Object.keys(result.joined)
   }
 
+  public async setProfile (userId: string, avataUrl: string, displayName: string): Promise<void> {
+    const intent = this.bridge.getIntent(userId)
+    void intent.setAvatarUrl(avataUrl)
+    void intent.setDisplayName(displayName)
+  }
+
 }
