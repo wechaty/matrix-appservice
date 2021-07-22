@@ -19,6 +19,7 @@ export class WechatyManager extends Manager {
 
   protected matrixWechatyDict: Map<string, Wechaty>
   protected wechatyMatrixDict: WeakMap<Wechaty, string>
+  protected selfWechaty: Wechaty | undefined
 
   public appserviceManager!: AppserviceManager
   public middleManager!: MiddleManager
@@ -237,6 +238,7 @@ export class WechatyManager extends Manager {
     wechatyContact: Contact,
   ): Promise<void> {
     log.verbose('WechatyManager', 'onLogin(%s)', wechatyContact)
+    this.selfWechaty = wechatyContact.wechaty
 
     const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
 
@@ -270,7 +272,7 @@ export class WechatyManager extends Manager {
     log.verbose('WechatyManager', 'onMessage("%s") from "%s" to "%s" with age "%s" (timestamp: "%s")',
       message,
       message.from()!.id,
-      message.to()!.id,
+      (message.to() || message.room())!.id,
       message.age(),
       (message as any).payload.timestamp,
     )
@@ -348,6 +350,10 @@ export class WechatyManager extends Manager {
     //   matrixRoom.getId(),
     //   text,
     // )
+  }
+
+  public ifSelfWechaty (wechatyId:string):boolean {
+    return this.selfWechaty!.puppet.selfId() === wechatyId
   }
 
 }

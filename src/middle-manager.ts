@@ -264,12 +264,29 @@ export class MiddleManager extends Manager {
     )
 
     const matrixUserId = this.appserviceManager.generateVirtualUserId()
-    const matrixUser   = new MatrixUser(matrixUserId)
+
+    const avatarFile = await wechatyUser.avatar()
+    const avatarBuffer = await avatarFile.toBuffer()
+    const avatarUrl = await this.appserviceManager.uploadContent(
+      avatarBuffer,
+      matrixUserId,
+      { type: avatarFile.mimeType },
+    )
+
+    const matrixUser   = new MatrixUser(matrixUserId, {
+      avatarUrl,
+      displayName: wechatyUser.name(),
+    })
 
     // userData.name   = wechatyUser.name() + APPSERVICE_NAME_POSTFIX
 
     matrixUser.set(WECHATY_USER_DATA_KEY, userData)
     await this.appserviceManager.userStore.setMatrixUser(matrixUser)
+    void this.appserviceManager.setProfile(
+      matrixUserId,
+      avatarUrl,
+      wechatyUser.name()
+    )
 
     return matrixUser
   }
@@ -300,7 +317,8 @@ export class MiddleManager extends Manager {
       roomName = await wechatyRoomOrUser.topic()
       for await (const member of wechatyRoomOrUser) {
         const matrixUser = await this.matrixUser(member)
-        inviteeIdList.push(matrixUser.getId())
+        this.wechatyManager.ifSelfWechaty(member.id)
+        || inviteeIdList.push(matrixUser.getId())
       }
     } else if (wechatyRoomOrUser instanceof WechatyUser) {
       // User: direct message
