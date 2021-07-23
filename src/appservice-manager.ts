@@ -1,4 +1,5 @@
 import cuid from 'cuid'
+import { ReadStream } from 'fs'
 
 import {
   Bridge,
@@ -7,6 +8,7 @@ import {
   UserBridgeStore,
   MatrixRoom,
   AppServiceRegistration,
+  FileUploadOpts,
 }                       from 'matrix-appservice-bridge'
 
 import { Message } from 'wechaty'
@@ -246,6 +248,9 @@ export class AppserviceManager extends Manager {
     })
 
     const matrixRoom = new MatrixRoom(roomInfo.room_id)
+    for await (const userId of userIdList.slice(1)) {
+      await this.bridge.getIntent(userId).join(matrixRoom.getId())
+    }
     return matrixRoom
   }
 
@@ -266,6 +271,20 @@ export class AppserviceManager extends Manager {
     //   { '@huan:0v0.bid': { avatar_url: null, display_name: 'huan' },
     //     '@wechaty:0v0.bid': { avatar_url: null, display_name: 'wechaty' } } }
     return Object.keys(result.joined)
+  }
+
+  public async setProfile (userId: string, avataUrl: string, displayName: string): Promise<void> {
+    const intent = this.bridge.getIntent(userId)
+    await intent.setAvatarUrl(avataUrl)
+    await intent.setDisplayName(displayName)
+  }
+
+  public async uploadContent (
+    content: string | Buffer | ReadStream,
+    userId?: string,
+    opts?: FileUploadOpts | undefined
+  ): Promise<string> {
+    return this.bridge.getIntent(userId).uploadContent(content, opts)
   }
 
 }
