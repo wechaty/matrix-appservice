@@ -329,13 +329,11 @@ export class WechatyManager extends Manager {
       throw new Error('no from')
     }
 
-    const text = onWechatyMessage.text()
-
     const matrixRoom = await this.middleManager.matrixRoom(room)
     const matrixUser = await this.middleManager.matrixUser(from)
 
     await this.appserviceManager.sendMessage(
-      text,
+      onWechatyMessage,
       matrixRoom,
       matrixUser,
     )

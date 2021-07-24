@@ -307,7 +307,9 @@ export class MatrixHandler {
       //   superEvent.sender(),    // FIXME: should be consumer
       // )
 
-      await wechatyRoom.say(superEvent.event.content!.body as string || 'undefined')
+      const message = await this.superEvent2Message(superEvent)
+      // XXX removing the overload declarations may be a better choice.
+      await wechatyRoom.say(message as any)
 
     } catch (e) {
       log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)
@@ -327,6 +329,15 @@ export class MatrixHandler {
     const contact = await this.middleManager.wechatyUser(service)
     // const contact = await this.wechatyManager
     //   .wechatyContact(service, user)
+
+    const message = await this.superEvent2Message(superEvent)
+    // XXX removing the overload declarations may be a better choice.
+    await contact.say(message as any)
+  }
+
+  protected async superEvent2Message (
+    superEvent: SuperEvent,
+  ):Promise<string|number|Message|Contact|FileBox|MiniProgram|UrlLink> {
     const content = superEvent.event.content!
     let mxcUrl = ''
     let httpsUrl = ''
@@ -347,8 +358,7 @@ export class MatrixHandler {
             : `${mxcUrl.split('/').pop()}.gif`,
         )
     }
-    // XXX removing the overload declarations may be a better choice.
-    await contact.say(message as any)
+    return message
   }
 
 }
