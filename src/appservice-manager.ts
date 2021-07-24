@@ -287,4 +287,11 @@ export class AppserviceManager extends Manager {
     return this.bridge.getIntent(userId).uploadContent(content, opts)
   }
 
+  public async mxcUrlToHttp (
+    mxcUrl: string,
+  ): Promise<string> {
+    // also can use getHttpUriForMxc(this.baseUrl, mxcUrl, width, height, resizeMethod, allowDirectLinks);
+    return this.bridge.getIntent().client.mxcUrlToHttp(mxcUrl)
+  }
+
 }

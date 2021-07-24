@@ -479,14 +479,8 @@ export class MiddleManager extends Manager {
 
   /**
    * Send message from service bot to the bridge consumer
-   */
-  public async directMessageToMatrixConsumer (message: string, from: Wechaty): Promise<void>
-  /**
    * Send message from user to the bridge consumer
    */
-  public async directMessageToMatrixConsumer (message: string, from: WechatyUser): Promise<void>
-  public async directMessageToMatrixConsumer (message: Message, from: WechatyUser): Promise<void>
-
   public async directMessageToMatrixConsumer (
     message: string | Message,
     from: WechatyUser | Wechaty,
@@ -501,11 +495,13 @@ export class MiddleManager extends Manager {
     let matrixUser
 
     if (from instanceof WechatyUser) {
+      // receive message (in user side)
 
       matrixRoom = await this.matrixRoom(from)
       matrixUser = await this.matrixUser(from)
 
     } else if (from instanceof Wechaty) {
+      // send message (in user side)
 
       const consumerId = this.wechatyManager.matrixConsumerId(from)
       matrixRoom = await this.adminRoom(consumerId)
