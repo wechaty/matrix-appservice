@@ -134,13 +134,11 @@ export class AppserviceManager extends Manager {
       switch (message.type()) {
         case MessageType.Unknown:
           break
-        case MessageType.Attachment:
-          break
         case MessageType.Audio:
           break
         case MessageType.Contact: // image in ipad protocol is Emoticon
           break
-        case MessageType.Emoticon: case MessageType.Image:
+        case MessageType.Emoticon: case MessageType.Image: case MessageType.Attachment:
         // image in web protocol is Image, in ipad protocol is Emoticon
           try {
             const file = await message.toFileBox()
@@ -154,9 +152,9 @@ export class AppserviceManager extends Manager {
             await intent.sendMessage(
               inRoom.getId(),
               {
-                body: 'Image',
+                body: file.name,
                 info: {},
-                msgtype: 'm.image',
+                msgtype: message.type() === MessageType.Attachment ? 'm.file' : 'm.image',
                 url: url,
               }
             )
