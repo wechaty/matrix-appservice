@@ -495,13 +495,13 @@ export class MiddleManager extends Manager {
     let matrixUser
 
     if (from instanceof WechatyUser) {
-      // receive message (in user side)
+      // receive messages from wecahty users(your friends)
 
       matrixRoom = await this.matrixRoom(from)
       matrixUser = await this.matrixUser(from)
 
     } else if (from instanceof Wechaty) {
-      // send message (in user side)
+      // xxx This block will not be called on the code now, send message (the messages said by your self on other device)
 
       const consumerId = this.wechatyManager.matrixConsumerId(from)
       matrixRoom = await this.adminRoom(consumerId)
