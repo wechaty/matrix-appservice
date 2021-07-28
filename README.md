@@ -263,36 +263,44 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ### master
 
+Finished [Display user's nickname and avatar in group #66](https://github.com/wechaty/matrix-appservice-wechaty/issues/66) and [Support image and file messages #86](https://github.com/wechaty/matrix-appservice-wechaty/issues/86)
+
+1. Support the display of the nickname and name of the contact
+2. Support image and file messages
+3. Other details:
+   1. [fix a deprecated function warning](https://github.com/wechaty/matrix-appservice-wechaty/pull/82/commits/88b1d64cf53018a537397defd596f55447e9080a)
+   2. [avoid inviting your own wechaty acount to matrix room](https://github.com/wechaty/matrix-appservice-wechaty/pull/83/commits/ad3aebed0de4bb129f7c43523225c3065d321526)
+
 ### v0.8 Mar 1, 2020
 
 Finished  [#13](https://github.com/Chatie/matrix-appservice-wechaty/issues/13): [TypeScript] Add typing system to `matrix-js-sdk` and `matrix-appservice-bridge`.
 
 1. Code Refactoring
-1. Add `!login`, `!logout` command with help message
-1. Tested with iPad API([wechaty-puppet-padplus](https://github.com/wechaty/wechaty-puppet-padplus))
+2. Add `!login`, `!logout` command with help message
+3. Tested with iPad API([wechaty-puppet-padplus](https://github.com/wechaty/wechaty-puppet-padplus))
 
 ### v0.6 (Beta) Feb 25, 2020
 
 1. added docker-compose.yaml example. (thanks @[ericmigi](https://github.com/ericmigi))
-1. Added install documentation
+2. Added install documentation
 
 ### v0.4 (Alpha) July 14, 2019
 
 1. Support receive/send Wechat message in Matrix. (individuals and rooms)
-1. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/wechaty/wechaty-puppet-puppeteer)) and iPad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
+2. Tested with Web API([wechaty-puppet-puppeteer](https://github.com/wechaty/wechaty-puppet-puppeteer)) and iPad API([wechaty-puppet-padpro](https://github.com/botorange/wechaty-puppet-padpro))
 
 #### Known Issues
 
 1. The names/avatars of Wechat users/groups are not set right on Matrix.
-1. Only support text message, Image/Audio/Video message is not supported yet. (Will be supported in the future version)
-1. Appservice will create more than one matrix room for a Wechat room when receiving messages from it for the very first time. (It will stop creating new rooms after you accepted the invitation)
-1. Login QR Code should not use the 3rd party API for security considerations. A better way is to upload the QR Code image to matrix server instead.
+2. Only support text message, Image/Audio/Video message is not supported yet. (Will be supported in the future version)
+3. Appservice will create more than one matrix room for a Wechat room when receiving messages from it for the very first time. (It will stop creating new rooms after you accepted the invitation)
+4. Login QR Code should not use the 3rd party API for security considerations. A better way is to upload the QR Code image to matrix server instead.
 
 ### v0.2 July 6,  2019
 
 1. Enable your matrix account to start using `matrix-appservice-wechaty` by talk to the bot `@wechaty:your.domain`
-1. After you talk to `@wechaty`, it will send you Wechat Login QR Code. Scan it to login Wechat
-1. All Wechat messages will be bridged to the Matrix system, in the room that you talk to the bot at the very first time.
+2. After you talk to `@wechaty`, it will send you Wechat Login QR Code. Scan it to login Wechat
+3. All Wechat messages will be bridged to the Matrix system, in the room that you talk to the bot at the very first time.
 
 ### v0.0.1 May 2019
 
