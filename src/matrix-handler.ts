@@ -18,6 +18,7 @@ import { DialogManager }      from './dialog-manager'
 import { MiddleManager }      from './middle-manager'
 import { WechatyManager }     from './wechaty-manager'
 import { UserManager }        from './user-manager'
+import { Contact, FileBox, Message, MiniProgram, UrlLink } from 'wechaty'
 
 export class MatrixHandler {
 
@@ -306,7 +307,9 @@ export class MatrixHandler {
       //   superEvent.sender(),    // FIXME: should be consumer
       // )
 
-      await wechatyRoom.say(superEvent.event.content!.body as string || 'undefined')
+      const message = await this.superEvent2Message(superEvent)
+      // XXX removing the overload declarations may be a better choice.
+      await wechatyRoom.say(message as any)
 
     } catch (e) {
       log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)
@@ -327,8 +330,35 @@ export class MatrixHandler {
     // const contact = await this.wechatyManager
     //   .wechatyContact(service, user)
 
-    const text = superEvent.event.content!.body
-    await contact.say(text + '')
+    const message = await this.superEvent2Message(superEvent)
+    // XXX removing the overload declarations may be a better choice.
+    await contact.say(message as any)
+  }
+
+  protected async superEvent2Message (
+    superEvent: SuperEvent,
+  ):Promise<string|number|Message|Contact|FileBox|MiniProgram|UrlLink> {
+    const content = superEvent.event.content!
+    let mxcUrl = ''
+    let httpsUrl = ''
+    const body = superEvent.text()
+    let message : string|number|Message|Contact|FileBox|MiniProgram|UrlLink
+    = body
+    switch (content.msgtype) {
+      case 'm.text':
+        break
+      case 'm.image': case 'm.file':
+        mxcUrl = content.url as string
+        httpsUrl = await this.appserviceManager.mxcUrlToHttp(mxcUrl)
+        // XXX can't show Animation well in wechat.
+        message = FileBox.fromUrl(
+          httpsUrl,
+          body.indexOf('.') > -1 || content.msgtype !== 'm.image'
+            ? body
+            : `${mxcUrl.split('/').pop()}.gif`,
+        )
+    }
+    return message
   }
 
 }
