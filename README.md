@@ -263,6 +263,13 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ### master
 
+Finished [Display user's nickname and avatar in group #66](https://github.com/wechaty/matrix-appservice-wechaty/issues/66) and [Support image and file messages #86](https://github.com/wechaty/matrix-appservice-wechaty/issues/86).
+
+1. Support the display of the nickname and name of the contact.
+1. Support image and file messages.
+1. [fix a deprecated function warning](https://github.com/wechaty/matrix-appservice-wechaty/pull/82/commits/88b1d64cf53018a537397defd596f55447e9080a).
+1. [avoid inviting your own wechaty acount to matrix room](https://github.com/wechaty/matrix-appservice-wechaty/pull/83/commits/ad3aebed0de4bb129f7c43523225c3065d321526).
+
 ### v0.8 Mar 1, 2020
 
 Finished  [#13](https://github.com/Chatie/matrix-appservice-wechaty/issues/13): [TypeScript] Add typing system to `matrix-js-sdk` and `matrix-appservice-bridge`.
