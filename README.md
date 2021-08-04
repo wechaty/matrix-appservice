@@ -319,14 +319,19 @@ Wechaty community has setup the Matrix service([#94](https://github.com/wechaty/
 
 Learn more about Beeper from [Beeper Brings iMessage to Android - No more green bubbles, LG's exit, Android 12, Oneplus and Oppo](https://www.youtube.com/watch?v=eyHqRVTvDw8)
 
-## Author
+## Maintainers
 
-[Huan](https://github.com/huan) [(李卓桓)](http://linkedin.com/in/zixia) Tencent TVP of Chatbot, <zixia@zixia.net>
+- [@huan](https://wechaty.js.org/contributors/huan) [(李卓桓)](http://linkedin.com/in/zixia) Tencent TVP of Chatbot, <zixia@zixia.net>
+- [@zhangchunsheng](https://wechaty.js.org/contributors/zhangchunsheng) Peter ZHANG
+- [@yswtrue](https://wechaty.js.org/contributors/yswtrue) Roy
+- [@lprintf](https://wechaty.js.org/contributors/lprintf) Yujing LIN
 
-[![Profile of Huan LI (李卓桓) on StackOverflow](https://stackexchange.com/users/flair/265499.png)](https://stackexchange.com/users/265499)
+[Matrix] Server Admin:
+
+- [@lprintf](https://wechaty.js.org/contributors/lprintf) Yujing LIN
 
 ## Copyright & License
 
-- Code & Docs © 2019-now Huan (李卓桓) <zixia@zixia.net>
+- Code & Docs © 2019-now Huan and Wechaty Contributors <https://wechaty.js.org>
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
