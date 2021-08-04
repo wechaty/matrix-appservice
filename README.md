@@ -304,6 +304,12 @@ I accept no responsibility if Tencent ban your IP, Account or even your details 
 
 > &mdash; Credit: [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer)
 
+## Thanks
+
+Wechaty community has setup the Matrix service([#94](https://github.com/wechaty/matrix-appservice-wechaty/issues/94)) which the server is sponsored by [@ericmigi](https://github.com/ericmigi), who is the founder of [Beeper](https://www.beeper.com), [Partner of Y Combinator](https://blog.ycombinator.com/author/eric-migicovsky/). He founded Pebble Technology (YC W11), which was acquired by Fitbit in 2016.
+
+Learn more about Beeper from [Beeper Brings iMessage to Android - No more green bubbles, LG's exit, Android 12, Oneplus and Oppo](https://www.youtube.com/watch?v=eyHqRVTvDw8)
+
 ## Author
 
 [Huan](https://github.com/huan) [(李卓桓)](http://linkedin.com/in/zixia) Tencent TVP of Chatbot, <zixia@zixia.net>
