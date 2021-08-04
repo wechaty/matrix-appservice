@@ -324,7 +324,7 @@ Learn more about Beeper from [Beeper Brings iMessage to Android - No more green 
 - [@huan](https://wechaty.js.org/contributors/huan) [(李卓桓)](http://linkedin.com/in/zixia) Tencent TVP of Chatbot, <zixia@zixia.net>
 - [@zhangchunsheng](https://wechaty.js.org/contributors/zhangchunsheng) Peter ZHANG
 - [@yswtrue](https://wechaty.js.org/contributors/yswtrue) Roy
-- [@lprintf](https://wechaty.js.org/contributors/lprintf) Yujing LIN
+- [@lprintf](https://wechaty.js.org/contributors/lprintf) Yujing LIN (see: [wechaty/summer#59](https://github.com/wechaty/summer/issues/59))
 
 [Matrix] Server Admin:
 
