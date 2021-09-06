@@ -52,7 +52,7 @@
     "@chatie/eslint-config": "^0.12.3",
     "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^0.16.2",
+    "@chatie/tsconfig": "^0.20.2",
     "@types/nedb": "^1.8.11",
     "@types/update-notifier": "^5.0.0",
     "nodemon": "^2.0.7",
