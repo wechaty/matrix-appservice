@@ -112,7 +112,7 @@ export class WechatyManager extends Manager {
       log.error('WechatyManager', 'destroy() can not get id for wechaty "%s"', wechaty)
       try {
         await wechaty.stop()
-      } catch (e) {
+      } catch (e: any) {
         log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
       }
       this.wechatyMatrixDict.delete(wechaty)
@@ -121,7 +121,7 @@ export class WechatyManager extends Manager {
 
     try {
       await wechaty.stop()
-    } catch (e) {
+    } catch (e: any) {
       log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
     } finally {
       this.wechatyMatrixDict.delete(wechaty)

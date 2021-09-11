@@ -80,7 +80,7 @@ export class MatrixHandler {
 
       await this.process(superEvent)
 
-    } catch (e) {
+    } catch (e: any) {
       log.error('MatrixHandler', 'onEvent() rejection: %s', e && e.message)
       console.error(e)
     }
@@ -221,7 +221,7 @@ export class MatrixHandler {
       if (filehelper) {
         await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!.body}"`)
       }
-    } catch (e) {
+    } catch (e: any) {
       log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', e.message)
     }
 
@@ -268,7 +268,7 @@ export class MatrixHandler {
         throw new Error('unknown service id ' + service.getId())
 
       }
-    } catch (e) {
+    } catch (e: any) {
       const adminRoom = await this.middleManager.adminRoom(user.getId())
       const errorMsg = [
         'MatrixHandler - processDirectMessage() failed! ',
@@ -308,7 +308,7 @@ export class MatrixHandler {
 
       await wechatyRoom.say(superEvent.event.content!.body as string || 'undefined')
 
-    } catch (e) {
+    } catch (e: any) {
       log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)
       // const wechatyRoom = await this.middleManager.wechatyUser(superEvent.)
       // await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
