@@ -263,6 +263,15 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ### master
 
+### v0.9 Aug 1, 2021
+
+Finished [Display user's nickname and avatar in group #66](https://github.com/wechaty/matrix-appservice-wechaty/issues/66) and [Support image and file messages #86](https://github.com/wechaty/matrix-appservice-wechaty/issues/86).
+
+1. Support the display of the nickname and name of the contact.
+1. Support image and file messages.
+1. [fix a deprecated function warning](https://github.com/wechaty/matrix-appservice-wechaty/pull/82/commits/88b1d64cf53018a537397defd596f55447e9080a).
+1. [avoid inviting your own wechaty acount to matrix room](https://github.com/wechaty/matrix-appservice-wechaty/pull/83/commits/ad3aebed0de4bb129f7c43523225c3065d321526).
+
 ### v0.8 Mar 1, 2020
 
 Finished  [#13](https://github.com/Chatie/matrix-appservice-wechaty/issues/13): [TypeScript] Add typing system to `matrix-js-sdk` and `matrix-appservice-bridge`.
@@ -304,14 +313,25 @@ I accept no responsibility if Tencent ban your IP, Account or even your details 
 
 > &mdash; Credit: [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer)
 
-## Author
+## Special Thanks
 
-[Huan](https://github.com/huan) [(李卓桓)](http://linkedin.com/in/zixia) Tencent TVP of Chatbot, <zixia@zixia.net>
+Wechaty community has setup the Matrix service([#94](https://github.com/wechaty/matrix-appservice-wechaty/issues/94)) which the server is sponsored by [@ericmigi](https://github.com/ericmigi), who is the founder of [Beeper](https://www.beeper.com), [Partner of Y Combinator](https://blog.ycombinator.com/author/eric-migicovsky/). He has also founded Pebble Technology (YC W11), which was acquired by Fitbit in 2016.
 
-[![Profile of Huan LI (李卓桓) on StackOverflow](https://stackexchange.com/users/flair/265499.png)](https://stackexchange.com/users/265499)
+Learn more about Beeper from [Beeper Brings iMessage to Android - No more green bubbles, LG's exit, Android 12, Oneplus and Oppo](https://www.youtube.com/watch?v=eyHqRVTvDw8)
+
+## Maintainers
+
+- [@huan](https://wechaty.js.org/contributors/huan) [(李卓桓)](http://linkedin.com/in/zixia) Tencent TVP of Chatbot, <zixia@zixia.net>
+- [@zhangchunsheng](https://wechaty.js.org/contributors/zhangchunsheng) Peter ZHANG
+- [@yswtrue](https://wechaty.js.org/contributors/yswtrue) Roy
+- [@lprintf](https://wechaty.js.org/contributors/lprintf) Yujing LIN (see: [wechaty/summer#59](https://github.com/wechaty/summer/issues/59))
+
+[Matrix] Server Admin:
+
+- [@lprintf](https://wechaty.js.org/contributors/lprintf) Yujing LIN
 
 ## Copyright & License
 
-- Code & Docs © 2019-now Huan (李卓桓) <zixia@zixia.net>
+- Code & Docs © 2019-now Huan and Wechaty Contributors <https://wechaty.js.org>
 - Code released under the Apache-2.0 License
 - Docs released under Creative Commons
