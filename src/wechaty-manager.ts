@@ -11,8 +11,8 @@ import {
   log,
 }                             from './config'
 
-import { AppserviceManager }  from './appservice-manager'
-import { MiddleManager }      from './middle-manager'
+import type { AppserviceManager }  from './appservice-manager'
+import type { MiddleManager }      from './middle-manager'
 import { Manager }            from './manager'
 
 export class WechatyManager extends Manager {

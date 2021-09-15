@@ -1,5 +1,5 @@
 import cuid from 'cuid'
-import { ReadStream } from 'fs'
+import type { ReadStream } from 'fs'
 
 import {
   Bridge,
@@ -11,7 +11,7 @@ import {
   FileUploadOpts,
 }                       from 'matrix-appservice-bridge'
 
-import { Message } from 'wechaty'
+import type { Message } from 'wechaty'
 import { MessageType } from 'wechaty-puppet'
 
 import {
@@ -21,7 +21,7 @@ import {
   Manager,
   Managers,
 }                         from './manager'
-import { Registration } from './registration'
+import type { Registration } from './registration'
 
 export class AppserviceManager extends Manager {
 
@@ -56,7 +56,7 @@ export class AppserviceManager extends Manager {
     if (registration instanceof AppServiceRegistration) {
       this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
     } else if (typeof registration === 'string') {
-      this.localpart = matrixBridge.getBot().getUserId().split(':')[0].replace('@', '')
+      this.localpart = matrixBridge.getBot().getUserId().split(':')[0]!.replace('@', '')
     } else {
       this.localpart = (registration as unknown as Registration).senderLocalpart!
     }

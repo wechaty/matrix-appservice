@@ -1,13 +1,13 @@
-import { SuperEvent } from './super-event'
+import type { SuperEvent } from './super-event'
 
 import {
   log,
   VERSION,
 }           from './config'
 
-import { AppserviceManager }  from './appservice-manager'
-import { UserManager }        from './user-manager'
-import { WechatyManager }     from './wechaty-manager'
+import type { AppserviceManager }  from './appservice-manager'
+import type { UserManager }        from './user-manager'
+import type { WechatyManager }     from './wechaty-manager'
 import { Manager }            from './manager'
 
 export class DialogManager extends Manager {
@@ -71,7 +71,7 @@ export class DialogManager extends Manager {
     log.verbose('MatrixHandler', 'gotoSetupDialog()')
 
     const matrixUser = superEvent.sender()
-    const text = superEvent.event.content!.body as string || ''
+    const text = superEvent.event.content!['body'] as string || ''
 
     if (/^!logout$/i.test(text)) {
 

@@ -18,7 +18,7 @@ const MOCK_LOCALPART = 'wechaty'
 
 class AppserviceManagerMock extends AppserviceManager {
 
-  public generateVirtualUserId () { return super.generateVirtualUserId() }
+  public override generateVirtualUserId () { return super.generateVirtualUserId() }
 
 }
 

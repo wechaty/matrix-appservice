@@ -9,7 +9,7 @@ import {
   RoomBridgeStore,
   UserBridgeStore,
 }                     from 'matrix-appservice-bridge'
-import {
+import type {
   WechatyOptions,
 }                     from 'wechaty'
 
@@ -24,7 +24,7 @@ const MOCK_LOCALPART = 'wechaty'
 
 class AppserviceManagerMock extends AppserviceManager {
 
-  public generateVirtualUserId () { return super.generateVirtualUserId() }
+  public override generateVirtualUserId () { return super.generateVirtualUserId() }
 
 }
 

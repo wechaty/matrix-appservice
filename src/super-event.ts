@@ -1,4 +1,4 @@
-import {
+import type {
   BridgeContext,
   MatrixRoom,
   MatrixUser,
@@ -10,8 +10,8 @@ import {
   log,
 }                           from './config'
 
-import { AppserviceManager }  from './appservice-manager'
-import { WechatyManager }     from './wechaty-manager'
+import type { AppserviceManager }  from './appservice-manager'
+import type { WechatyManager }     from './wechaty-manager'
 
 export interface DirectMessageUserPair {
   user    : MatrixUser,
@@ -37,7 +37,7 @@ export class SuperEvent {
   }
 
   public text (): string {
-    return this.event.content!.body as string || ''
+    return this.event.content!['body'] as string || ''
   }
 
   /**
@@ -115,7 +115,7 @@ export class SuperEvent {
     log.verbose('SuperEvent', 'isRoomInvitation() for event id: %s', this.event.event_id)
     const ret = !!(
       this.event.type === 'm.room.member'
-      && this.event.content && this.event.content.membership === 'invite'
+      && this.event.content && this.event.content['membership'] === 'invite'
       && this.event.state_key
     )
     log.silly('SuperEvent', 'isRoomInvitation() -> %s', ret)

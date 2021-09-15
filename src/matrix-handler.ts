@@ -1,4 +1,4 @@
-import {
+import type {
   BridgeContext,
   Request,
   MatrixUser,
@@ -13,11 +13,11 @@ import {
 
 import { SuperEvent }         from './super-event'
 
-import { AppserviceManager }  from './appservice-manager'
-import { DialogManager }      from './dialog-manager'
-import { MiddleManager }      from './middle-manager'
-import { WechatyManager }     from './wechaty-manager'
-import { UserManager }        from './user-manager'
+import type { AppserviceManager }  from './appservice-manager'
+import type { DialogManager }      from './dialog-manager'
+import type { MiddleManager }      from './middle-manager'
+import type { WechatyManager }     from './wechaty-manager'
+import type { UserManager }        from './user-manager'
 import { Contact, FileBox, Message, MiniProgram, UrlLink } from 'wechaty'
 
 export class MatrixHandler {
@@ -220,7 +220,7 @@ export class MatrixHandler {
         .filehelperOf(matrixUser.getId())
 
       if (filehelper) {
-        await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!.body}"`)
+        await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!['body']}"`)
       }
     } catch (e :any) {
       log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', e.message)
@@ -344,16 +344,16 @@ export class MatrixHandler {
     const body = superEvent.text()
     let message : string|number|Message|Contact|FileBox|MiniProgram|UrlLink
     = body
-    switch (content.msgtype) {
+    switch (content['msgtype']) {
       case 'm.text':
         break
       case 'm.image': case 'm.file':
-        mxcUrl = content.url as string
+        mxcUrl = content['url'] as string
         httpsUrl = await this.appserviceManager.mxcUrlToHttp(mxcUrl)
         // XXX can't show Animation well in wechat.
         message = FileBox.fromUrl(
           httpsUrl,
-          body.indexOf('.') > -1 || content.msgtype !== 'm.image'
+          body.indexOf('.') > -1 || content['msgtype'] !== 'm.image'
             ? body
             : `${mxcUrl.split('/').pop()}.gif`,
         )

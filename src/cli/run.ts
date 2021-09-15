@@ -15,7 +15,7 @@ import { WechatyManager }     from '../wechaty-manager'
 
 import { log }                from '../config'
 
-import { BridgeConfig }       from './bridge-config-schema'
+import type { BridgeConfig }       from './bridge-config-schema'
 
 export async function run (
   port         : number,

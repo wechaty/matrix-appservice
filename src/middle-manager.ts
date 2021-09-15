@@ -13,8 +13,8 @@ import {
 import {
   log,
 }                            from './config'
-import { WechatyManager }     from './wechaty-manager'
-import { AppserviceManager }  from './appservice-manager'
+import type { WechatyManager }     from './wechaty-manager'
+import type { AppserviceManager }  from './appservice-manager'
 import { Manager } from './manager'
 
 interface WechatyRoomData {
@@ -101,7 +101,7 @@ export class MiddleManager extends Manager {
       ? matrixUserList[0]
       : this.generateMatrixUser(user, userData)
 
-    return matrixUser
+    return matrixUser!
   }
 
   /**
@@ -213,7 +213,7 @@ export class MiddleManager extends Manager {
     const entryList = await this.appserviceManager.roomStore
       .getEntriesByMatrixRoomData(query)
 
-    const matrixRoom = entryList.length > 0
+    const matrixRoom = entryList[0]
       ? entryList[0].matrix
       : await this.generateMatrixRoom(wechatyUserOrRoom, data)
 
@@ -549,7 +549,7 @@ export class MiddleManager extends Manager {
 
     let matrixRoom: MatrixRoom
 
-    if (matrixRoomList.length > 0) {
+    if (matrixRoomList[0]) {
       if (!matrixRoomList[0].matrix) {
         throw new Error(`matrix room not found for roomData: "${JSON.stringify(roomData)}`)
       }

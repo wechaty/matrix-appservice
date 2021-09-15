@@ -1,15 +1,15 @@
-import {
+import type {
   WechatyOptions,
 }                     from 'wechaty'
 
-import {
+import type {
   MatrixUser,
 }                     from 'matrix-appservice-bridge'
 
 import {
   log,
 }           from './config'
-import { AppserviceManager } from './appservice-manager'
+import type { AppserviceManager } from './appservice-manager'
 import { Manager } from './manager'
 
 const WECHATY_BRIDGE_DATA_KEY = 'wechatyBridge'
