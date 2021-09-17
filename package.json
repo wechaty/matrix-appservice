@@ -3,6 +3,7 @@
   "version": "0.9.5",
   "description": "Matrix Application Services Bridge for Wechat",
   "main": "dist/src/index.js",
+  "type": "module",
   "typings": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
@@ -19,7 +20,7 @@
     "pack": "npm pack",
     "sloc": "sloc bin scripts src tests --details --format cli-table --keys total,source,comment && sloc bin scripts src tests",
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
-    "test:unit": "blue-tape -r ts-node/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
+    "test:unit": "tap --node-arg=--loader=ts-node/esm --node-arg=--no-warnings 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
     "test": "npm run lint && npm run test:unit",
     "watch": "nodemon --watch src/ --ext ts --ignore 'src/**/*.spec.ts' --exec npm run dist"
   },
@@ -49,7 +50,7 @@
     "wechaty": "^0.62.3"
   },
   "devDependencies": {
-    "@chatie/eslint-config": "^0.12.3",
+    "@chatie/eslint-config": "^0.14.1",
     "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.20.2",
