@@ -16,12 +16,12 @@ import { MessageType } from 'wechaty-puppet'
 
 import {
   log,
-}                       from './config'
+}                       from './config.js'
 import {
   Manager,
   Managers,
-}                         from './manager'
-import type { Registration } from './registration'
+}                         from './manager.js'
+import type { Registration } from './registration.js'
 
 export class AppserviceManager extends Manager {
 
@@ -34,16 +34,16 @@ export class AppserviceManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('AppserviceManager', 'constructor()')
+    log.verbose('Appservicemanager.js', 'constructor()')
   }
 
   teamManager (managers: Managers) {
     // I'm the solo one!
-    log.verbose('AppserviceManager', 'setManager(%s)', managers)
+    log.verbose('Appservicemanager.js', 'setManager(%s)', managers)
   }
 
   public setBridge (matrixBridge: Bridge): void {
-    log.verbose('AppserviceManager', 'setBridge(bridge)')
+    log.verbose('Appservicemanager.js', 'setBridge(bridge)')
 
     if (this.bridge) {
       throw new Error('bridge can not be set twice!')
@@ -118,7 +118,7 @@ export class AppserviceManager extends Manager {
     fromUser? : MatrixUser,
   ) {
     const text = typeof (message) === 'string' ? message : message.text()
-    log.verbose('AppserviceManager', 'sendMessage(%s%s%s)',
+    log.verbose('Appservicemanager.js', 'sendMessage(%s%s%s)',
       text.substr(0, 100),
       inRoom
         ? ', ' + inRoom.getId()
@@ -159,7 +159,7 @@ export class AppserviceManager extends Manager {
               }
             )
           } catch (e) {
-            log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+            log.error(`Appservicemanager.js', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
             throw e
           }
           return
@@ -172,7 +172,7 @@ export class AppserviceManager extends Manager {
         text,
       )
     } catch (e) {
-      log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+      log.error(`Appservicemanager.js', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
       throw e
     }
   }
@@ -194,7 +194,7 @@ export class AppserviceManager extends Manager {
   ): {
     [key: string]: string,
   } {
-    log.verbose('AppserviceManager', 'storeQuery(%s, "%s")',
+    log.verbose('Appservicemanager.js', 'storeQuery(%s, "%s")',
       dataKey,
       JSON.stringify(filterData),
     )
@@ -219,7 +219,7 @@ export class AppserviceManager extends Manager {
       topic?     : string,
     } = {},
   ): Promise<MatrixRoom> {
-    log.verbose('AppserviceManager', 'createRoom(["%s"], "%s")',
+    log.verbose('Appservicemanager.js', 'createRoom(["%s"], "%s")',
       userIdList.join('","'),
       JSON.stringify(args),
     )

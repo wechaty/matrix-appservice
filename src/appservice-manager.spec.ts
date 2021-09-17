@@ -1,8 +1,8 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env -S node --no-warnings --loader ts-node/esm
 
 import { test }  from 'tstest'
 import Sinon from 'sinon'
-import { Registration } from './registration'
+import { Registration } from './registration.js'
 
 import {
   RoomBridgeStore,
@@ -11,7 +11,7 @@ import {
 
 import Nedb     from 'nedb'
 
-import { AppserviceManager } from './appservice-manager'
+import { AppserviceManager } from './appservice-manager.js'
 
 const MOCK_DOMAIN = 'domain.tld'
 const MOCK_LOCALPART = 'wechaty'

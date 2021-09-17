@@ -1,8 +1,9 @@
+import path from 'path'
 import readPkgUp            from 'read-pkg-up'
 import { UpdateNotifier }   from 'update-notifier'
 
 export function checkUpdate (): void {
-  readPkgUp({ cwd: __dirname })
+  readPkgUp({ cwd: path.resolve() })
     .then(pack => {
       if (!pack) {
         throw new Error('package.json not found')

@@ -6,14 +6,14 @@ import {
   WeakEvent,
 }                   from 'matrix-appservice-bridge'
 
-import { AppserviceManager }  from '../appservice-manager'
-import { MiddleManager }      from '../middle-manager'
-import { DialogManager }      from '../dialog-manager'
+import { AppserviceManager }  from '../appservice-manager.js'
+import { MiddleManager }      from '../middle-manager.js'
+import { DialogManager }      from '../dialog-manager.js'
 import { MatrixHandler }      from '../matrix-handler'
-import { UserManager }        from '../user-manager'
-import { WechatyManager }     from '../wechaty-manager'
+import { UserManager }        from '../user-manager.js'
+import { WechatyManager }     from '../wechaty-manager.js'
 
-import { log }                from '../config'
+import { log }                from '../config.js'
 
 import type { BridgeConfig }       from './bridge-config-schema'
 
@@ -63,7 +63,7 @@ function createBridge (
   bridgeConfig  : BridgeConfig,
   matrixHandler : MatrixHandler,
 ): Bridge {
-  log.verbose('AppServiceManager', 'createBridge("%s")', JSON.stringify(bridgeConfig))
+  log.verbose('AppServicemanager.js', 'createBridge("%s")', JSON.stringify(bridgeConfig))
 
   const {
     domain,

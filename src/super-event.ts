@@ -8,10 +8,10 @@ import type {
 
 import {
   log,
-}                           from './config'
+}                           from './config.js'
 
-import type { AppserviceManager }  from './appservice-manager'
-import type { WechatyManager }     from './wechaty-manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
 
 export interface DirectMessageUserPair {
   user    : MatrixUser,

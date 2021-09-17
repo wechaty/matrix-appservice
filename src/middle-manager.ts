@@ -12,10 +12,10 @@ import {
 
 import {
   log,
-}                            from './config'
-import type { WechatyManager }     from './wechaty-manager'
-import type { AppserviceManager }  from './appservice-manager'
-import { Manager } from './manager'
+}                            from './config.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import type { AppserviceManager }  from './appservice-manager.js'
+import { Manager } from './manager.js'
 
 interface WechatyRoomData {
   consumerId?: string   // the matrix user id who is using the matrix-appservice-wechaty
@@ -70,7 +70,7 @@ export class MiddleManager extends Manager {
   public async matrixUser (
     user: string | WechatyUser,
   ): Promise<MatrixUser> {
-    log.verbose('MiddleManager', 'matrixUser(%s)', user)
+    log.verbose('Middlemanager.js', 'matrixUser(%s)', user)
 
     if (typeof user === 'string') {
       let matrixUser = await this.appserviceManager.userStore.getMatrixUser(user)
@@ -120,7 +120,7 @@ export class MiddleManager extends Manager {
   public async wechatyUser (
     idOrRoomOrUser: string | MatrixRoom | MatrixUser,
   ): Promise<WechatyUser> {
-    log.verbose('MiddleManager', 'wechatyUser(%s)',
+    log.verbose('Middlemanager.js', 'wechatyUser(%s)',
       typeof idOrRoomOrUser === 'string'
         ? idOrRoomOrUser
         : idOrRoomOrUser.getId(),
@@ -184,7 +184,7 @@ export class MiddleManager extends Manager {
   public async matrixRoom (
     wechatyUserOrRoom: WechatyUser | WechatyRoom,
   ): Promise<MatrixRoom> {
-    log.verbose('MiddleManager', 'matrixRoom(%s)', wechatyUserOrRoom)
+    log.verbose('Middlemanager.js', 'matrixRoom(%s)', wechatyUserOrRoom)
 
     const consumerId = this.wechatyManager.matrixConsumerId(wechatyUserOrRoom.wechaty)
 
@@ -226,7 +226,7 @@ export class MiddleManager extends Manager {
   public async wechatyRoom (
     room: MatrixRoom,
   ): Promise<WechatyRoom> {
-    log.verbose('MiddleManager', 'wechatyRoom(%s)', room.getId())
+    log.verbose('Middlemanager.js', 'wechatyRoom(%s)', room.getId())
 
     const {
       consumerId,
@@ -259,7 +259,7 @@ export class MiddleManager extends Manager {
     wechatyUser : WechatyUser,
     userData    : WechatyUserData,
   ): Promise<MatrixUser> {
-    log.verbose('MiddleManager', 'generateMatrixUser(%s, "%s")',
+    log.verbose('Middlemanager.js', 'generateMatrixUser(%s, "%s")',
       wechatyUser.id,
       JSON.stringify(userData),
     )
@@ -300,7 +300,7 @@ export class MiddleManager extends Manager {
     wechatyRoomOrUser : WechatyRoom | WechatyUser,
     roomData          : WechatyRoomData,
   ): Promise<MatrixRoom> {
-    log.verbose('MiddleManager', 'generateMatrixRoom(%s, %s)',
+    log.verbose('Middlemanager.js', 'generateMatrixRoom(%s, %s)',
       wechatyRoomOrUser,
       JSON.stringify(roomData),
     )
@@ -350,7 +350,7 @@ export class MiddleManager extends Manager {
     matrixRoom : MatrixRoom,
     data       : WechatyRoomData,
   ) {
-    log.verbose('MiddleManager', 'setDirectMessageRoom("%s", "%s")',
+    log.verbose('Middlemanager.js', 'setDirectMessageRoom("%s", "%s")',
       matrixRoom.getId(),
       JSON.stringify(data),
     )
@@ -373,7 +373,7 @@ export class MiddleManager extends Manager {
   public async isDirectMessageRoom (
     matrixRoom: MatrixRoom,
   ): Promise<boolean> {
-    log.verbose('MiddleManager', 'isDirectMessageRoom(%s)', matrixRoom.getId())
+    log.verbose('Middlemanager.js', 'isDirectMessageRoom(%s)', matrixRoom.getId())
 
     // // getMyMembership -> "invite", "join", "leave", "ban"
     // const membership = matrixRoom.getMyMembership()
@@ -388,7 +388,7 @@ export class MiddleManager extends Manager {
      * If the room has no direct data set, then set it for the first time.
      */
     if (typeof roomData.direct === 'undefined') {
-      log.silly('MiddleManager', 'isDirectMessageRoom(%s) not initialized', matrixRoom.getId())
+      log.silly('Middlemanager.js', 'isDirectMessageRoom(%s) not initialized', matrixRoom.getId())
 
       // default not a direct room
       roomData.direct = false
@@ -397,12 +397,12 @@ export class MiddleManager extends Manager {
         .roomMembers(matrixRoom.getId())
 
       if (memberIdList.length === 2) {
-        log.silly('MiddleManager', 'isDirectMessageRoom(%s) has 2 members', matrixRoom.getId())
+        log.silly('Middlemanager.js', 'isDirectMessageRoom(%s) has 2 members', matrixRoom.getId())
 
         const botId = this.appserviceManager.appserviceUserId()
         const i = memberIdList.indexOf(botId)
         if (i > -1) {
-          log.silly('MiddleManager', 'isDirectMessageRoom(%s) has 2 members that includes the bot, confirmed a direct message room', matrixRoom.getId())
+          log.silly('Middlemanager.js', 'isDirectMessageRoom(%s) has 2 members that includes the bot, confirmed a direct message room', matrixRoom.getId())
 
           roomData.matrixUserId = memberIdList.splice(i, 1)[0]
           roomData.consumerId   = memberIdList[0]
@@ -417,7 +417,7 @@ export class MiddleManager extends Manager {
       await this.setDirectMessageRoom(matrixRoom, roomData)
     }
 
-    log.silly('MiddleManager', 'isDirectMessageRoom() -> %s', roomData.direct)
+    log.silly('Middlemanager.js', 'isDirectMessageRoom() -> %s', roomData.direct)
     return roomData.direct
   }
 
@@ -452,7 +452,7 @@ export class MiddleManager extends Manager {
   public async directMessageUserPair (
     matrixRoom: MatrixRoom,
   ): Promise<DirectMessageUserPair> {
-    log.verbose('MiddleManager', 'directMessageUserPair(%s)', matrixRoom.getId())
+    log.verbose('Middlemanager.js', 'directMessageUserPair(%s)', matrixRoom.getId())
 
     const {
       consumerId,
@@ -486,7 +486,7 @@ export class MiddleManager extends Manager {
     from: WechatyUser | Wechaty,
   ): Promise<void> {
     const text = typeof (message) === 'string' ? message : message.text()
-    log.verbose('MiddleManager', 'directMessageToMatrixConsumer("%s", "%s")',
+    log.verbose('Middlemanager.js', 'directMessageToMatrixConsumer("%s", "%s")',
       text,
       from
     )
@@ -523,7 +523,7 @@ export class MiddleManager extends Manager {
   public async adminRoom (
     forConsumerIdOrWechaty: string | Wechaty,
   ): Promise<MatrixRoom> {
-    log.verbose('AppserviceManager', 'adminRoom(%s)', forConsumerIdOrWechaty)
+    log.verbose('Appservicemanager.js', 'adminRoom(%s)', forConsumerIdOrWechaty)
 
     const botId = this.appserviceManager.appserviceUserId()
     let consumerId: string

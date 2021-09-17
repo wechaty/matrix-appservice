@@ -9,15 +9,15 @@ import {
   AGE_LIMIT_SECONDS,
 
   log,
-}                     from './config'
+}                     from './config.js'
 
 import { SuperEvent }         from './super-event'
 
-import type { AppserviceManager }  from './appservice-manager'
-import type { DialogManager }      from './dialog-manager'
-import type { MiddleManager }      from './middle-manager'
-import type { WechatyManager }     from './wechaty-manager'
-import type { UserManager }        from './user-manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { DialogManager }      from './dialog-manager.js'
+import type { MiddleManager }      from './middle-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import type { UserManager }        from './user-manager.js'
 import { Contact, FileBox, Message, MiniProgram, UrlLink } from 'wechaty'
 
 export class MatrixHandler {

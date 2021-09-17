@@ -6,4 +6,4 @@ export {
 export {
   log,
   VERSION,
-}               from './config'
+}               from './config.js'
