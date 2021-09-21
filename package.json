@@ -13,7 +13,7 @@
     "lint:md": "markdownlint README.md",
     "lint:es": "eslint --ignore-pattern tests/fixtures/ '{bin,src,tests}/**/*.ts' ",
     "lint:ts": "tsc --noEmit",
-    "dev": "LOG_LEVEL=silly ts-node bin/matrix-appservice-wechaty.ts",
+    "dev": "LOG_LEVEL=silly node --loader=ts-node/esm bin/matrix-appservice-wechaty.ts",
     "dev:genarate-registration": "node --loader=ts-node/esm bin/matrix-appservice-wechaty.ts --config wechaty-config.yaml --url http://localhost:8788 --generate-registration",
     "dev:service": "node --loader=ts-node/esm bin/matrix-appservice-wechaty.ts --config wechaty-config.yaml --file wechaty-registration.yaml",
     "dev:watch": "LOG_LEVEL=silly npx nodemon --watch '{bin,src,tests}/**/*.ts' --exec './node_modules/.bin/ts-node' bin/matrix-appservice-wechaty.ts",
