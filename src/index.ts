@@ -1,7 +1,7 @@
 export {
   createCli,
   checkUpdate,
-}               from './cli/'
+}               from './cli/index.js'
 
 export {
   log,

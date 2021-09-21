@@ -1,4 +1,4 @@
-import type { SuperEvent } from './super-event'
+import type { SuperEvent } from './super-event.js'
 
 import {
   log,

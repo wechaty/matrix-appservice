@@ -1,2 +1,2 @@
-export { checkUpdate }  from './check-update'
-export { createCli }    from './create-cli'
+export { checkUpdate }  from './check-update.js'
+export { createCli }    from './create-cli.js'

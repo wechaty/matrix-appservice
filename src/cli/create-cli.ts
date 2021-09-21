@@ -9,10 +9,10 @@ import {
 }                           from '../config.js'
 import {
   generateRegistration,
-}                           from './generate-registration'
+}                           from './generate-registration.js'
 import {
   run,
-}                           from './run'
+}                           from './run.js'
 
 export function createCli (): Cli<any> {
 

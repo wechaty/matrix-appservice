@@ -9,7 +9,7 @@ import {
 import { AppserviceManager }  from '../appservice-manager.js'
 import { MiddleManager }      from '../middle-manager.js'
 import { DialogManager }      from '../dialog-manager.js'
-import { MatrixHandler }      from '../matrix-handler'
+import { MatrixHandler }      from '../matrix-handler.js'
 import { UserManager }        from '../user-manager.js'
 import { WechatyManager }     from '../wechaty-manager.js'
 

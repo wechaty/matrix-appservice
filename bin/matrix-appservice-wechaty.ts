@@ -5,7 +5,7 @@ import {
   createCli,
   log,
   VERSION,
-}                     from '../src/'
+}                     from '../src/index.js'
 import dotenv         from 'dotenv'
 
 dotenv.config()

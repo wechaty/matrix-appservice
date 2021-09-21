@@ -11,7 +11,7 @@ import {
   log,
 }                     from './config.js'
 
-import { SuperEvent }         from './super-event'
+import { SuperEvent }         from './super-event.js'
 
 import type { AppserviceManager }  from './appservice-manager.js'
 import type { DialogManager }      from './dialog-manager.js'
