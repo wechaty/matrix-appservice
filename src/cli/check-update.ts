@@ -1,9 +1,11 @@
-import path from 'path'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
 import readPkgUp            from 'read-pkg-up'
 import { UpdateNotifier }   from 'update-notifier'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
 export function checkUpdate (): void {
-  readPkgUp({ cwd: path.resolve() })
+  readPkgUp({ cwd: __dirname })
     .then(pack => {
       if (!pack) {
         throw new Error('package.json not found')
