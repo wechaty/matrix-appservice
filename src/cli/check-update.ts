@@ -1,9 +1,10 @@
-import path from 'path'
 import readPkgUp            from 'read-pkg-up'
 import { UpdateNotifier }   from 'update-notifier'
 
+import { codeRoot } from '../config.js'
+
 export function checkUpdate (): void {
-  readPkgUp({ cwd: path.resolve() })
+  readPkgUp({ cwd: codeRoot })
     .then(pack => {
       if (!pack) {
         throw new Error('package.json not found')

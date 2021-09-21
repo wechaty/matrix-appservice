@@ -8,15 +8,15 @@ import {
 }                 from 'matrix-appservice-wechaty'
 
 async function main () {
-  if (VERSION === '0.0.0') {
-    throw new Error('version not set right before publish!')
-  }
-
   const output = await promisify(exec)('./node_modules/.bin/matrix-appservice-wechaty --help')
   if (/matrix-appservice-wechaty/i.test(output.stdout)) {
     console.info('matrix-appservice-wechaty', 'CLI OK')
   } else {
     throw new Error('cli failed!')
+  }
+
+  if (VERSION === '0.0.0') {
+    throw new Error('version not set right before publish!')
   }
 
   return 0
