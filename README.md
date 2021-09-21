@@ -262,6 +262,7 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 ## History
 
 ### master
+
 1. ES Modules support
 
 ### v0.9 Aug 1, 2021
