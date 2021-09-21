@@ -34,16 +34,16 @@ export class AppserviceManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('Appservicemanager.js', 'constructor()')
+    log.verbose('Appservicemanager', 'constructor()')
   }
 
   teamManager (managers: Managers) {
     // I'm the solo one!
-    log.verbose('Appservicemanager.js', 'setManager(%s)', managers)
+    log.verbose('Appservicemanager', 'setManager(%s)', managers)
   }
 
   public setBridge (matrixBridge: Bridge): void {
-    log.verbose('Appservicemanager.js', 'setBridge(bridge)')
+    log.verbose('Appservicemanager', 'setBridge(bridge)')
 
     if (this.bridge) {
       throw new Error('bridge can not be set twice!')
@@ -118,7 +118,7 @@ export class AppserviceManager extends Manager {
     fromUser? : MatrixUser,
   ) {
     const text = typeof (message) === 'string' ? message : message.text()
-    log.verbose('Appservicemanager.js', 'sendMessage(%s%s%s)',
+    log.verbose('Appservicemanager', 'sendMessage(%s%s%s)',
       text.substr(0, 100),
       inRoom
         ? ', ' + inRoom.getId()
@@ -194,7 +194,7 @@ export class AppserviceManager extends Manager {
   ): {
     [key: string]: string,
   } {
-    log.verbose('Appservicemanager.js', 'storeQuery(%s, "%s")',
+    log.verbose('Appservicemanager', 'storeQuery(%s, "%s")',
       dataKey,
       JSON.stringify(filterData),
     )
@@ -219,7 +219,7 @@ export class AppserviceManager extends Manager {
       topic?     : string,
     } = {},
   ): Promise<MatrixRoom> {
-    log.verbose('Appservicemanager.js', 'createRoom(["%s"], "%s")',
+    log.verbose('Appservicemanager', 'createRoom(["%s"], "%s")',
       userIdList.join('","'),
       JSON.stringify(args),
     )

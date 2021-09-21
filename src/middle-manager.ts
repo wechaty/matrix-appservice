@@ -523,7 +523,7 @@ export class MiddleManager extends Manager {
   public async adminRoom (
     forConsumerIdOrWechaty: string | Wechaty,
   ): Promise<MatrixRoom> {
-    log.verbose('Appservicemanager.js', 'adminRoom(%s)', forConsumerIdOrWechaty)
+    log.verbose('Appservicemanager', 'adminRoom(%s)', forConsumerIdOrWechaty)
 
     const botId = this.appserviceManager.appserviceUserId()
     let consumerId: string

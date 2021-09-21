@@ -63,7 +63,7 @@ function createBridge (
   bridgeConfig  : BridgeConfig,
   matrixHandler : MatrixHandler,
 ): Bridge {
-  log.verbose('AppServicemanager.js', 'createBridge("%s")', JSON.stringify(bridgeConfig))
+  log.verbose('Appservicemanager', 'createBridge("%s")', JSON.stringify(bridgeConfig))
 
   const {
     domain,
