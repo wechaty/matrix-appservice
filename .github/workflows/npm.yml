@@ -8,9 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: 15
+          node-version: 16
+          cache: npm
+          cache-dependency-path: package.json
 
       - name: Install Dependencies
         run: npm install
@@ -25,11 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: 15
+          node-version: 16
+          cache: npm
+          cache-dependency-path: package.json
+
       - run: npm install
-      - run: ./scripts/generate-version.sh
+      - name: Generate Package JSON
+        run: ./scripts/generate-package-json.sh
       - run: ./scripts/npm-pack-testing.sh
 
   publish:
@@ -39,12 +45,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: 15
+          node-version: 16
           registry-url: https://registry.npmjs.org/
+          cache: npm
+          cache-dependency-path: package.json
+
       - run: npm install
-      - run: ./scripts/generate-version.sh
+      - name: Generate Package JSON
+        run: ./scripts/generate-package-json.sh
       - run: ./scripts/package-publish-config-tag.sh
       - run: npm run dist
 

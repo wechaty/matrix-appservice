@@ -11,8 +11,7 @@ import {
   FileUploadOpts,
 }                       from 'matrix-appservice-bridge'
 
-import type { Message } from 'wechaty'
-import { MessageType } from 'wechaty-puppet'
+import { Message } from 'wechaty'
 
 import {
   log,
@@ -132,13 +131,13 @@ export class AppserviceManager extends Manager {
 
     if (typeof (message) !== 'string') {
       switch (message.type()) {
-        case MessageType.Unknown:
+        case Message.Type.Unknown:
           break
-        case MessageType.Audio:
+        case Message.Type.Audio:
           break
-        case MessageType.Contact: // image in ipad protocol is Emoticon
+        case Message.Type.Contact: // image in ipad protocol is Emoticon
           break
-        case MessageType.Emoticon: case MessageType.Image: case MessageType.Attachment:
+        case Message.Type.Emoticon: case Message.Type.Image: case Message.Type.Attachment:
         // image in web protocol is Image, in ipad protocol is Emoticon
           try {
             const file = await message.toFileBox()
@@ -154,7 +153,7 @@ export class AppserviceManager extends Manager {
               {
                 body: file.name,
                 info: {},
-                msgtype: message.type() === MessageType.Attachment ? 'm.file' : 'm.image',
+                msgtype: message.type() === Message.Type.Attachment ? 'm.file' : 'm.image',
                 url: url,
               }
             )
