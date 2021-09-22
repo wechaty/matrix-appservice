@@ -263,6 +263,8 @@ Distill steps to setup the matrix server from <https://github.com/spantaleev/mat
 
 ### master
 
+1. ES Modules support
+
 ### v0.9 Aug 1, 2021
 
 Finished [Display user's nickname and avatar in group #66](https://github.com/wechaty/matrix-appservice-wechaty/issues/66) and [Support image and file messages #86](https://github.com/wechaty/matrix-appservice-wechaty/issues/86).
