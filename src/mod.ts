@@ -6,4 +6,5 @@ export {
 export {
   log,
   VERSION,
+  LOG_LEVEL,
 }               from './config.js'

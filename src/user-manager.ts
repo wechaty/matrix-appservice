@@ -25,7 +25,7 @@ export class UserManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('Usermanager.js', 'constructor()')
+    log.verbose('Usermanager', 'constructor()')
   }
 
   public teamManager (managers: {
@@ -35,7 +35,7 @@ export class UserManager extends Manager {
   }
 
   public async list (): Promise<MatrixUser[]> {
-    log.verbose('Usermanager.js', 'list()')
+    log.verbose('Usermanager', 'list()')
 
     const data = {
       enabled: true,
@@ -47,7 +47,7 @@ export class UserManager extends Manager {
     )
 
     const matrixUserList = await this.appserviceManager.userStore.getByMatrixData(query)
-    log.silly('Usermanager.js', 'enabledUserList() total number %s', matrixUserList.length)
+    log.silly('Usermanager', 'enabledUserList() total number %s', matrixUserList.length)
 
     return matrixUserList
   }
@@ -55,7 +55,7 @@ export class UserManager extends Manager {
   public isEnabled (
     matrixUser: MatrixUser,
   ): boolean {
-    log.verbose('Usermanager.js', 'isEnabled(%s)', matrixUser.getId())
+    log.verbose('Usermanager', 'isEnabled(%s)', matrixUser.getId())
 
     const data = {
       ...matrixUser.get(
@@ -64,12 +64,12 @@ export class UserManager extends Manager {
     } as WechatyBridgeData
 
     const enabled = !!data.enabled
-    log.silly('Usermanager.js', 'isEnable(%s) -> %s', matrixUser.getId(), enabled)
+    log.silly('Usermanager', 'isEnable(%s) -> %s', matrixUser.getId(), enabled)
     return !!enabled
   }
 
   public async enable (matrixUser: MatrixUser): Promise<void> {
-    log.verbose('Usermanager.js', 'enable(%s)', matrixUser.getId())
+    log.verbose('Usermanager', 'enable(%s)', matrixUser.getId())
 
     if (this.isEnabled(matrixUser)) {
       throw new Error(`matrixUserId ${matrixUser.getId()} has already enabled`)
@@ -91,7 +91,7 @@ export class UserManager extends Manager {
   }
 
   public async disable (matrixUser: MatrixUser): Promise<void> {
-    log.verbose('Usermanager.js', 'disable(%s)', matrixUser.getId())
+    log.verbose('Usermanager', 'disable(%s)', matrixUser.getId())
 
     const data = {
       ...matrixUser.get(
@@ -115,7 +115,7 @@ export class UserManager extends Manager {
     matrixUser      : MatrixUser,
     wechatyOptions? : WechatyOptions,
   ): Promise<void> | WechatyOptions {
-    log.verbose('Usermanager.js', 'wechatyOptions(%s,%s)',
+    log.verbose('Usermanager', 'wechatyOptions(%s,%s)',
       matrixUser.getId(),
       wechatyOptions
         ? JSON.stringify(wechatyOptions)
@@ -133,7 +133,7 @@ export class UserManager extends Manager {
     }
 
     function setWechatyOptions () {
-      log.silly('Usermanager.js', 'setWechatyOptions(%s, "%s") SET',
+      log.silly('Usermanager', 'setWechatyOptions(%s, "%s") SET',
         matrixUser.getId(), JSON.stringify(wechatyOptions))
       const data = {
         ...matrixUser.get(
@@ -148,7 +148,7 @@ export class UserManager extends Manager {
     }
 
     function getWechatyOptions () {
-      log.silly('Usermanager.js', 'getWechatyOptions(%s)', matrixUser.getId())
+      log.silly('Usermanager', 'getWechatyOptions(%s)', matrixUser.getId())
 
       const data = {
         ...matrixUser.get(
@@ -156,7 +156,7 @@ export class UserManager extends Manager {
         ),
       } as WechatyBridgeData
 
-      log.silly('Usermanager.js', 'wechatyOptionsGet(%s) -> "%s"',
+      log.silly('Usermanager', 'wechatyOptionsGet(%s) -> "%s"',
         matrixUser.getId(), JSON.stringify(data.wechatyOptions))
 
       return {
