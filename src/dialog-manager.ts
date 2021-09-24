@@ -36,7 +36,7 @@ export class DialogManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('Dialogmanager.js', 'constructor()')
+    log.verbose('Dialogmanager', 'constructor()')
   }
 
   public teamManager (managers: {
@@ -104,7 +104,7 @@ export class DialogManager extends Manager {
       )
 
     } else if (/^!version$/i.test(text)) {
-      log.verbose('MatrixHandler', 'gotoSetupDialog() !version.js')
+      log.verbose('MatrixHandler', 'gotoSetupDialog() !version')
       await this.appserviceManager.sendMessage(
         `version: ${VERSION}`,
         superEvent.room(),

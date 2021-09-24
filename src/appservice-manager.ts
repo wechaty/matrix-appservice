@@ -158,7 +158,7 @@ export class AppserviceManager extends Manager {
               }
             )
           } catch (e) {
-            log.error(`Appservicemanager.js', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+            log.error(`Appservicemanager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
             throw e
           }
           return
@@ -171,7 +171,7 @@ export class AppserviceManager extends Manager {
         text,
       )
     } catch (e) {
-      log.error(`Appservicemanager.js', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+      log.error(`Appservicemanager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
       throw e
     }
   }
