@@ -1,6 +1,6 @@
 {
   "name": "matrix-appservice-wechaty",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "Matrix Application Services Bridge for Wechat",
   "type": "module",
   "exports": {
