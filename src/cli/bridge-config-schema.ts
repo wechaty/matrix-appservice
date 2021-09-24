@@ -1,4 +1,4 @@
-import { AppServiceRegistration } from 'matrix-appservice-bridge'
+import type { AppServiceRegistration } from 'matrix-appservice-bridge'
 
 /**
  * This interface should be sync with ../config/schema.yaml

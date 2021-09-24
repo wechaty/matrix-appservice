@@ -1,5 +1,5 @@
 import cuid from 'cuid'
-import { ReadStream } from 'fs'
+import type { ReadStream } from 'fs'
 
 import {
   Bridge,
@@ -12,16 +12,15 @@ import {
 }                       from 'matrix-appservice-bridge'
 
 import { Message } from 'wechaty'
-import { MessageType } from 'wechaty-puppet'
 
 import {
   log,
-}                       from './config'
+}                       from './config.js'
 import {
   Manager,
   Managers,
-}                         from './manager'
-import { Registration } from './registration'
+}                         from './manager.js'
+import type { Registration } from './registration.js'
 
 export class AppserviceManager extends Manager {
 
@@ -34,16 +33,16 @@ export class AppserviceManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('AppserviceManager', 'constructor()')
+    log.verbose('Appservicemanager', 'constructor()')
   }
 
   teamManager (managers: Managers) {
     // I'm the solo one!
-    log.verbose('AppserviceManager', 'setManager(%s)', managers)
+    log.verbose('Appservicemanager', 'setManager(%s)', managers)
   }
 
   public setBridge (matrixBridge: Bridge): void {
-    log.verbose('AppserviceManager', 'setBridge(bridge)')
+    log.verbose('Appservicemanager', 'setBridge(bridge)')
 
     if (this.bridge) {
       throw new Error('bridge can not be set twice!')
@@ -56,7 +55,7 @@ export class AppserviceManager extends Manager {
     if (registration instanceof AppServiceRegistration) {
       this.localpart = (registration as AppServiceRegistration).getSenderLocalpart()!
     } else if (typeof registration === 'string') {
-      this.localpart = matrixBridge.getBot().getUserId().split(':')[0].replace('@', '')
+      this.localpart = matrixBridge.getBot().getUserId().split(':')[0]!.replace('@', '')
     } else {
       this.localpart = (registration as unknown as Registration).senderLocalpart!
     }
@@ -118,7 +117,7 @@ export class AppserviceManager extends Manager {
     fromUser? : MatrixUser,
   ) {
     const text = typeof (message) === 'string' ? message : message.text()
-    log.verbose('AppserviceManager', 'sendMessage(%s%s%s)',
+    log.verbose('Appservicemanager', 'sendMessage(%s%s%s)',
       text.substr(0, 100),
       inRoom
         ? ', ' + inRoom.getId()
@@ -132,13 +131,13 @@ export class AppserviceManager extends Manager {
 
     if (typeof (message) !== 'string') {
       switch (message.type()) {
-        case MessageType.Unknown:
+        case Message.Type.Unknown:
           break
-        case MessageType.Audio:
+        case Message.Type.Audio:
           break
-        case MessageType.Contact: // image in ipad protocol is Emoticon
+        case Message.Type.Contact: // image in ipad protocol is Emoticon
           break
-        case MessageType.Emoticon: case MessageType.Image: case MessageType.Attachment:
+        case Message.Type.Emoticon: case Message.Type.Image: case Message.Type.Attachment:
         // image in web protocol is Image, in ipad protocol is Emoticon
           try {
             const file = await message.toFileBox()
@@ -154,12 +153,12 @@ export class AppserviceManager extends Manager {
               {
                 body: file.name,
                 info: {},
-                msgtype: message.type() === MessageType.Attachment ? 'm.file' : 'm.image',
+                msgtype: message.type() === Message.Type.Attachment ? 'm.file' : 'm.image',
                 url: url,
               }
             )
           } catch (e) {
-            log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+            log.error(`Appservicemanager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
             throw e
           }
           return
@@ -172,7 +171,7 @@ export class AppserviceManager extends Manager {
         text,
       )
     } catch (e) {
-      log.error(`AppserviceManager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
+      log.error(`Appservicemanager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
       throw e
     }
   }
@@ -194,7 +193,7 @@ export class AppserviceManager extends Manager {
   ): {
     [key: string]: string,
   } {
-    log.verbose('AppserviceManager', 'storeQuery(%s, "%s")',
+    log.verbose('Appservicemanager', 'storeQuery(%s, "%s")',
       dataKey,
       JSON.stringify(filterData),
     )
@@ -219,7 +218,7 @@ export class AppserviceManager extends Manager {
       topic?     : string,
     } = {},
   ): Promise<MatrixRoom> {
-    log.verbose('AppserviceManager', 'createRoom(["%s"], "%s")',
+    log.verbose('Appservicemanager', 'createRoom(["%s"], "%s")',
       userIdList.join('","'),
       JSON.stringify(args),
     )

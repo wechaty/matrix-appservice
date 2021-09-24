@@ -5,13 +5,12 @@ import {
   createCli,
   log,
   VERSION,
-}                     from '../src/'
-import dotenv         from 'dotenv'
+  LOG_LEVEL,
+}                     from '../src/mod.js'
 
-dotenv.config()
 async function main () {
-  if (process.env.LOG_LEVEL) {
-    log.level(process.env.LOG_LEVEL as any)
+  if (LOG_LEVEL) {
+    log.level(LOG_LEVEL as any)
   }
 
   log.info('matrix-appservice-wechaty', `v${VERSION}`)

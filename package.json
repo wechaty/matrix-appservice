@@ -1,27 +1,42 @@
 {
   "name": "matrix-appservice-wechaty",
-  "version": "0.9.5",
+  "version": "0.9.13",
   "description": "Matrix Application Services Bridge for Wechat",
-  "main": "dist/src/index.js",
-  "typings": "dist/src/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/src/mod.js",
+      "require": "./dist/cjs/src/mod.js"
+    }
+  },
+  "typings": "./dist/esm/src/mod.d.ts",
+  "engines": {
+    "node": ">=16",
+    "npm": ">=7",
+    "wechaty": ">=0.69",
+    "wechaty-puppet": ">=0.43"
+  },
   "scripts": {
-    "build": "tsc",
-    "clean": "shx rm -fr dist/* *-store.db",
-    "dist": "npm run clean && npm run build && chmod +x dist/bin/*.js && cp -R config dist/",
+    "build": "tsc && tsc -p tsconfig.cjs.json",
+    "clean": "shx rm -fr dist/* ./*-store.db",
+    "dist": "npm-run-all clean build dist:copy dist:commonjs",
+    "dist:commonjs": "jq -n \"{ type: \\\"commonjs\\\" }\" > dist/cjs/package.json",
+    "dist:copy": "npm-run-all dist:copy:esm dist:copy:cjs",
+    "dist:copy:esm": "cp -R config dist/esm && shx cp -R commonjs/ dist/esm/",
+    "dist:copy:cjs": "cp -R config dist/cjs && shx cp -R commonjs/ dist/cjs/",
     "lint": "npm run lint:es && npm run lint:ts && npm run lint:md",
     "lint:md": "markdownlint README.md",
     "lint:es": "eslint --ignore-pattern tests/fixtures/ '{bin,src,tests}/**/*.ts' ",
-    "lint:ts": "tsc --noEmit",
-    "dev": "LOG_LEVEL=silly ts-node bin/matrix-appservice-wechaty.ts",
-    "dev:genarate-registration": "ts-node bin/matrix-appservice-wechaty.ts --config config.yaml --url http://localhost:8788 --generate-registration",
-    "dev:service": "ts-node bin/matrix-appservice-wechaty.ts --config config.yaml --file wechaty-registration.yaml",
-    "dev:watch": "LOG_LEVEL=silly npx nodemon --watch '{bin,src,tests}/**/*.ts' --exec './node_modules/.bin/ts-node' bin/matrix-appservice-wechaty.ts",
-    "pack": "npm pack",
+    "lint:ts": "tsc --isolatedModules --noEmit",
+    "dev": "cross-env LOG_LEVEL=silly NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" bin/matrix-appservice-wechaty.ts",
+    "dev:genarate-registration": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" bin/matrix-appservice-wechaty.ts --config wechaty-config.yaml --url http://localhost:8788 --generate-registration",
+    "dev:service": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" bin/matrix-appservice-wechaty.ts --config wechaty-config.yaml --file wechaty-registration.yaml",
+    "dev:watch": "cross-env NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" LOG_LEVEL=silly npx nodemon --watch \"{bin,src,tests}/**/*.ts\" --exec node bin/matrix-appservice-wechaty.ts",
     "sloc": "sloc bin scripts src tests --details --format cli-table --keys total,source,comment && sloc bin scripts src tests",
     "test:pack": "bash -x scripts/npm-pack-testing.sh",
-    "test:unit": "blue-tape -r ts-node/register 'src/**/*.spec.ts' 'tests/**/*.spec.ts'",
-    "test": "npm run lint && npm run test:unit",
-    "watch": "nodemon --watch src/ --ext ts --ignore 'src/**/*.spec.ts' --exec npm run dist"
+    "test:unit": "tap --node-arg=--loader=ts-node/esm --node-arg=--no-warnings \"src/**/*.spec.ts\" \"tests/**/*.spec.ts\"",
+    "test": "npm-run-all lint test:unit",
+    "watch": "nodemon --watch src/ --ext ts --ignore \"src/**/*.spec.ts\" --exec npm run dist"
   },
   "repository": {
     "type": "git",
@@ -44,26 +59,30 @@
     "cuid": "^2.1.8",
     "dotenv": "^10.0.0",
     "matrix-appservice-bridge": "^3.0.0",
+    "npm-run-all": "^4.1.5",
     "read-pkg-up": "^7.0.1",
     "update-notifier": "^5.1.0",
-    "wechaty": "^0.62.3"
+    "wechaty": "^0.68.1"
   },
   "devDependencies": {
-    "@chatie/eslint-config": "^0.12.3",
+    "@chatie/eslint-config": "^0.14.1",
     "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^0.16.2",
+    "@chatie/tsconfig": "^0.20.2",
     "@types/nedb": "^1.8.11",
     "@types/update-notifier": "^5.0.0",
+    "cross-env": "^7.0.3",
     "nodemon": "^2.0.7",
     "pkg-jq": "^0.2.11",
     "qrcode-terminal": "^0.12.0",
     "shx": "^0.3.3",
     "sloc": "^0.2.1",
-    "tstest": "^0.4.10"
+    "tstest": "^0.5.16",
+    "type-fest": "^2.3.4",
+    "typescript": "^4.4.3"
   },
   "bin": {
-    "matrix-appservice-wechaty": "dist/bin/matrix-appservice-wechaty.js"
+    "matrix-appservice-wechaty": "dist/esm/bin/matrix-appservice-wechaty.js"
   },
   "publishConfig": {
     "access": "public",

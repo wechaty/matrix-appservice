@@ -9,11 +9,12 @@ import {
 import {
   AGE_LIMIT_SECONDS,
   log,
-}                             from './config'
+}                             from './config.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { MiddleManager }      from './middle-manager'
-import { Manager }            from './manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { MiddleManager }      from './middle-manager.js'
+import { Manager }            from './manager.js'
+import qrt from 'qrcode-terminal'
 
 export class WechatyManager extends Manager {
 
@@ -26,7 +27,7 @@ export class WechatyManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('WechatyManager', 'constructor()')
+    log.verbose('Wechatymanager', 'constructor()')
     this.matrixWechatyDict     = new Map<string,      Wechaty>()
     this.wechatyMatrixDict     = new WeakMap<Wechaty, string>()
   }
@@ -47,7 +48,7 @@ export class WechatyManager extends Manager {
     matrixConsumerId : string,
     wechatyOptions?  : WechatyOptions,
   ): Wechaty {
-    log.verbose('WechatyManager', 'create(%s, "%s")',
+    log.verbose('Wechatymanager', 'create(%s, "%s")',
       matrixConsumerId,
       JSON.stringify(wechatyOptions),
     )
@@ -87,7 +88,7 @@ export class WechatyManager extends Manager {
   public async destroy (
     wechatyOrmatrixConsumerId: string | Wechaty,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'destroy(%s) (total %s instances)',
+    log.verbose('Wechatymanager', 'destroy(%s) (total %s instances)',
       wechatyOrmatrixConsumerId,
       this.count(),
     )
@@ -104,16 +105,16 @@ export class WechatyManager extends Manager {
     }
 
     if (!wechaty) {
-      log.error('WechatyManager', 'destroy() can not get wechaty for id "%s"', matrixConsumerId)
+      log.error('Wechatymanager', 'destroy() can not get wechaty for id "%s"', matrixConsumerId)
       this.matrixWechatyDict.delete(matrixConsumerId)
       return
     }
     if (!matrixConsumerId) {
-      log.error('WechatyManager', 'destroy() can not get id for wechaty "%s"', wechaty)
+      log.error('Wechatymanager', 'destroy() can not get id for wechaty "%s"', wechaty)
       try {
         await wechaty.stop()
-      } catch (e) {
-        log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
+      } catch (e :any) {
+        log.error('Wechatymanager', 'destroy() wechaty.stop() rejection: %s', e.message)
       }
       this.wechatyMatrixDict.delete(wechaty)
       return
@@ -121,7 +122,7 @@ export class WechatyManager extends Manager {
 
     try {
       await wechaty.stop()
-    } catch (e) {
+    } catch (e: any) {
       log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
     } finally {
       this.wechatyMatrixDict.delete(wechaty)
@@ -130,7 +131,7 @@ export class WechatyManager extends Manager {
   }
 
   public matrixConsumerId (ofWechaty: Wechaty): string {
-    log.verbose('WechatyManager', 'consumerId(%s)', ofWechaty)
+    log.verbose('Wechatymanager', 'consumerId(%s)', ofWechaty)
 
     const consumerId = this.wechatyMatrixDict.get(ofWechaty)
     if (!consumerId) {
@@ -142,7 +143,7 @@ export class WechatyManager extends Manager {
   public wechaty (
     ofMatrixConsumerId: string,
   ): null | Wechaty {
-    log.verbose('WechatyManager', 'wechaty(%s) (total %s instances)',
+    log.verbose('Wechatymanager', 'wechaty(%s) (total %s instances)',
       ofMatrixConsumerId,
       this.matrixWechatyDict.size,
     )
@@ -161,7 +162,7 @@ export class WechatyManager extends Manager {
   public async filehelperOf (
     wechatyOrmatrixConsumerId: string | Wechaty,
   ): Promise<null | Contact> {
-    log.silly('WechatyManager', 'filehelperOf(%s)', wechatyOrmatrixConsumerId)
+    log.silly('Wechatymanager', 'filehelperOf(%s)', wechatyOrmatrixConsumerId)
 
     let wechaty: null | Wechaty
 
@@ -170,13 +171,13 @@ export class WechatyManager extends Manager {
     } else {
       wechaty = this.wechaty(wechatyOrmatrixConsumerId)
       if (!wechaty) {
-        log.silly('WechatyManager', 'filehelperOf(%s) no wechaty found', wechatyOrmatrixConsumerId)
+        log.silly('Wechatymanager', 'filehelperOf(%s) no wechaty found', wechatyOrmatrixConsumerId)
         return null
       }
     }
 
     if (!wechaty.logonoff()) {
-      log.silly('WechatyManager', 'filehelperOf(%s) wechaty not loged in yet', wechaty)
+      log.silly('Wechatymanager', 'filehelperOf(%s) wechaty not loged in yet', wechaty)
       return null
     }
 
@@ -197,9 +198,9 @@ export class WechatyManager extends Manager {
     status  : ScanStatus,
     wechaty : Wechaty,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'onScan(%s, %s)', qrcode, status)
+    log.verbose('Wechatymanager', 'onScan(%s, %s)', qrcode, status)
 
-    require('qrcode-terminal').generate(qrcode)  // show qrcode on console
+    qrt.generate(qrcode)  // show qrcode on console
 
     const qrcodeImageUrl = [
       'https://api.qrserver.com/v1/create-qr-code/?data=',
@@ -208,7 +209,7 @@ export class WechatyManager extends Manager {
 
     const statusName = ScanStatus[status]
 
-    log.verbose('WechatyManager', 'onScan(%s, %s(%s), %s)',
+    log.verbose('Wechatymanager', 'onScan(%s, %s(%s), %s)',
       qrcodeImageUrl, statusName, status, wechaty)
 
     let text: string
@@ -237,7 +238,7 @@ export class WechatyManager extends Manager {
   protected async onLogin (
     wechatyContact: Contact,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'onLogin(%s)', wechatyContact)
+    log.verbose('Wechatymanager', 'onLogin(%s)', wechatyContact)
     this.selfWechaty = wechatyContact.wechaty
 
     const text = 'You are now logged in to Wechat. Your user name is: ' + wechatyContact.name()
@@ -253,7 +254,7 @@ export class WechatyManager extends Manager {
   protected async onLogout (
     wechatyContact: Contact,
   ) {
-    log.verbose('WechatyManager', 'onLogout(%s)', wechatyContact)
+    log.verbose('Wechatymanager', 'onLogout(%s)', wechatyContact)
 
     const text = [
       'You are now logged out from Wechat.',
@@ -269,7 +270,7 @@ export class WechatyManager extends Manager {
   protected async onMessage (
     message: Message,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'onMessage("%s") from "%s" to "%s" with age "%s" (timestamp: "%s")',
+    log.verbose('Wechatymanager', 'onMessage("%s") from "%s" to "%s" with age "%s" (timestamp: "%s")',
       message,
       message.talker()!.id,
       (message.to() || message.room())!.id,
@@ -278,12 +279,12 @@ export class WechatyManager extends Manager {
     )
 
     if (message.age() > AGE_LIMIT_SECONDS) {
-      log.silly('WechatyManager', 'onMessage() age %s > %s seconds', message.age(), AGE_LIMIT_SECONDS)
+      log.silly('Wechatymanager', 'onMessage() age %s > %s seconds', message.age(), AGE_LIMIT_SECONDS)
       return
     }
 
     if (message.self()) {
-      log.silly('WechatyManager', 'onMessage() self() is true, skipped')
+      log.silly('Wechatymanager', 'onMessage() self() is true, skipped')
       return
     }
 
@@ -300,7 +301,7 @@ export class WechatyManager extends Manager {
     onWechatyMessage  : Message,
     // forMatrixConsumer : MatrixUser,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'processContactMessage(%s)',
+    log.verbose('Wechatymanager', 'processContactMessage(%s)',
       onWechatyMessage,
       // forMatrixConsumer.getId(),
     )
@@ -316,7 +317,7 @@ export class WechatyManager extends Manager {
   async processRoomMessage (
     onWechatyMessage  : Message,
   ): Promise<void> {
-    log.verbose('WechatyManager', 'processRoomMessage(%s)',
+    log.verbose('Wechatymanager', 'processRoomMessage(%s)',
       onWechatyMessage,
     )
 
