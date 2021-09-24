@@ -14,7 +14,9 @@ import {
 import type { AppserviceManager }  from './appservice-manager.js'
 import type { MiddleManager }      from './middle-manager.js'
 import { Manager }            from './manager.js'
+import { createRequire } from 'module'
 
+const require = createRequire(import.meta.url)
 export class WechatyManager extends Manager {
 
   protected matrixWechatyDict: Map<string, Wechaty>
