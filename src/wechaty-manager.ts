@@ -16,7 +16,7 @@ import type { MiddleManager }      from './middle-manager.js'
 import { Manager }            from './manager.js'
 import { createRequire } from 'module'
 
-const require = createRequire(import.meta.url)
+const require_ = createRequire(import.meta.url)
 export class WechatyManager extends Manager {
 
   protected matrixWechatyDict: Map<string, Wechaty>
@@ -201,7 +201,7 @@ export class WechatyManager extends Manager {
   ): Promise<void> {
     log.verbose('Wechatymanager', 'onScan(%s, %s)', qrcode, status)
 
-    require('qrcode-terminal').generate(qrcode)  // show qrcode on console
+    require_('qrcode-terminal').generate(qrcode)  // show qrcode on console
 
     const qrcodeImageUrl = [
       'https://api.qrserver.com/v1/create-qr-code/?data=',
