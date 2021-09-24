@@ -67,3 +67,4 @@ t/
 .DS_Store
 .idea
 wechaty-config.yaml
+.devcontainer/synapse
