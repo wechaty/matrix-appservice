@@ -1,6 +1,3 @@
-import dotenv         from 'dotenv'
-
-dotenv.config()
 export {
   createCli,
   checkUpdate,
@@ -9,4 +6,5 @@ export {
 export {
   log,
   VERSION,
+  LOG_LEVEL,
 }               from './config.js'
