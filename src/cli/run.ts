@@ -13,13 +13,16 @@ import { MatrixHandler }      from '../matrix-handler.js'
 import { UserManager }        from '../user-manager.js'
 import { WechatyManager }     from '../wechaty-manager.js'
 
-import { log }                from '../config.js'
+import {
+  log,
+  DEFAULT_PORT,
+}                from '../config.js'
 
 import type { BridgeConfig }       from './bridge-config-schema'
 
 export async function run (
-  port         : number,
-  bridgeConfig : BridgeConfig,
+  port         : number|null,
+  bridgeConfig : BridgeConfig|null,
 ): Promise<void> {
   log.info('cli', 'run(port=%s,)', port)
 
@@ -30,12 +33,15 @@ export async function run (
     wechatyManager,
   }                     = createManagers()
 
+  if (!bridgeConfig) {
+    throw Error('Error: No bridgeConfig found. Please check your run options or config file(./config/schema.yaml).')
+  }
   const matrixBridge = createBridge(
     bridgeConfig,
     matrixHandler,
   )
 
-  await matrixBridge.run(port, bridgeConfig)
+  await matrixBridge.run(port = port || DEFAULT_PORT)
 
   /**
    * setBridge() need to be after the matrixBridge.run() (started)
