@@ -67,6 +67,3 @@ t/
 .DS_Store
 .idea
 wechaty-config.yaml
-
-# Ignore immature devcontainer config
-.devcontainer

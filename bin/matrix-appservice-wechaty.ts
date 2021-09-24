@@ -5,11 +5,11 @@ import {
   createCli,
   log,
   VERSION,
-}                     from '../src/'
+}                     from '../src/mod.js'
 
 async function main () {
-  if (process.env.LOG_LEVEL) {
-    log.level(process.env.LOG_LEVEL as any)
+  if (process.env['LOG_LEVEL']) {
+    log.level(process.env['LOG_LEVEL'] as any)
   }
 
   log.info('matrix-appservice-wechaty', `v${VERSION}`)

@@ -1,4 +1,4 @@
-import {
+import type {
   BridgeContext,
   Request,
   MatrixUser,
@@ -9,15 +9,15 @@ import {
   AGE_LIMIT_SECONDS,
 
   log,
-}                     from './config'
+}                     from './config.js'
 
-import { SuperEvent }         from './super-event'
+import { SuperEvent }         from './super-event.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { DialogManager }      from './dialog-manager'
-import { MiddleManager }      from './middle-manager'
-import { WechatyManager }     from './wechaty-manager'
-import { UserManager }        from './user-manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { DialogManager }      from './dialog-manager.js'
+import type { MiddleManager }      from './middle-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import type { UserManager }        from './user-manager.js'
 import { Contact, FileBox, Message, MiniProgram, UrlLink } from 'wechaty'
 
 export class MatrixHandler {
@@ -81,7 +81,7 @@ export class MatrixHandler {
 
       await this.process(superEvent)
 
-    } catch (e: any) {
+    } catch (e :any) {
       log.error('MatrixHandler', 'onEvent() rejection: %s', e && e.message)
       console.error(e)
     }
@@ -220,9 +220,9 @@ export class MatrixHandler {
         .filehelperOf(matrixUser.getId())
 
       if (filehelper) {
-        await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!.body}"`)
+        await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!['body']}"`)
       }
-    } catch (e: any) {
+    } catch (e :any) {
       log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', e.message)
     }
 
@@ -269,7 +269,7 @@ export class MatrixHandler {
         throw new Error('unknown service id ' + service.getId())
 
       }
-    } catch (e: any) {
+    } catch (e :any) {
       const adminRoom = await this.middleManager.adminRoom(user.getId())
       const errorMsg = [
         'MatrixHandler - processDirectMessage() failed! ',
@@ -311,7 +311,7 @@ export class MatrixHandler {
       // XXX removing the overload declarations may be a better choice.
       await wechatyRoom.say(message as any)
 
-    } catch (e: any) {
+    } catch (e :any) {
       log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)
       // const wechatyRoom = await this.middleManager.wechatyUser(superEvent.)
       // await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
@@ -344,16 +344,16 @@ export class MatrixHandler {
     const body = superEvent.text()
     let message : string|number|Message|Contact|FileBox|MiniProgram|UrlLink
     = body
-    switch (content.msgtype) {
+    switch (content['msgtype']) {
       case 'm.text':
         break
       case 'm.image': case 'm.file':
-        mxcUrl = content.url as string
+        mxcUrl = content['url'] as string
         httpsUrl = await this.appserviceManager.mxcUrlToHttp(mxcUrl)
         // XXX can't show Animation well in wechat.
         message = FileBox.fromUrl(
           httpsUrl,
-          body.indexOf('.') > -1 || content.msgtype !== 'm.image'
+          body.indexOf('.') > -1 || content['msgtype'] !== 'm.image'
             ? body
             : `${mxcUrl.split('/').pop()}.gif`,
         )

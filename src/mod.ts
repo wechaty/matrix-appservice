@@ -4,9 +4,9 @@ dotenv.config()
 export {
   createCli,
   checkUpdate,
-}               from './cli/'
+}               from './cli/mod.js'
 
 export {
   log,
   VERSION,
-}               from './config'
+}               from './config.js'

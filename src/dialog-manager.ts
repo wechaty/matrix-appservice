@@ -1,14 +1,14 @@
-import { SuperEvent } from './super-event'
+import type { SuperEvent } from './super-event.js'
 
 import {
   log,
   VERSION,
-}           from './config'
+}           from './config.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { UserManager }        from './user-manager'
-import { WechatyManager }     from './wechaty-manager'
-import { Manager }            from './manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { UserManager }        from './user-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import { Manager }            from './manager.js'
 
 export class DialogManager extends Manager {
 
@@ -36,7 +36,7 @@ export class DialogManager extends Manager {
 
   constructor () {
     super()
-    log.verbose('DialogManager', 'constructor()')
+    log.verbose('Dialogmanager.js', 'constructor()')
   }
 
   public teamManager (managers: {
@@ -71,7 +71,7 @@ export class DialogManager extends Manager {
     log.verbose('MatrixHandler', 'gotoSetupDialog()')
 
     const matrixUser = superEvent.sender()
-    const text = superEvent.event.content!.body as string || ''
+    const text = superEvent.event.content!['body'] as string || ''
 
     if (/^!logout$/i.test(text)) {
 
@@ -104,7 +104,7 @@ export class DialogManager extends Manager {
       )
 
     } else if (/^!version$/i.test(text)) {
-      log.verbose('MatrixHandler', 'gotoSetupDialog() !version')
+      log.verbose('MatrixHandler', 'gotoSetupDialog() !version.js')
       await this.appserviceManager.sendMessage(
         `version: ${VERSION}`,
         superEvent.room(),

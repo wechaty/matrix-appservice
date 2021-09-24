@@ -26,7 +26,7 @@ RUN npm install \
 
 COPY . .
 RUN npm test \
-  && ./scripts/generate-version.sh \
+  && ./scripts/generate-package-json.sh \
   && npm run dist \
   && npm link
 
