@@ -1,4 +1,4 @@
-# How to develop in docker containers in vscode.
+# How to develop in docker containers with vscode.
 
 1. install docker and docker-compose
 2. run `bash .devcontainer/init.sh`
