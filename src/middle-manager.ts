@@ -287,7 +287,7 @@ export class MiddleManager extends Manager {
     void this.appserviceManager.setProfile(
       matrixUserId,
       avatarUrl,
-      `${alias}-${wechatyUser.name()}`
+      `${wechatyUser.name()}-${alias}`
     )
 
     return matrixUser
