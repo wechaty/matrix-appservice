@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  synapse:
+    image: docker.io/matrixdotorg/synapse:v1.39.0
+    environment:
+      - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
+    volumes:
+      - synapse:/data
+      - ..:/wechaty
+    ports:
+      - 8008:8008/tcp
+
+  matrix-appservice-wechaty:
+      image: wechaty/matrix-appservice:latest
+      volumes:
+        - ..:/data
+      environment:
+        - WECHATY_LOG=silly
+      command: ["--config", "wechaty-config.yaml", "--file", "wechaty-registration.yaml"]
+
+volumes:
+  synapse:
+    external:
+      name: devcontainer_synapse
