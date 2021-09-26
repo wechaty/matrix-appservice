@@ -22,7 +22,6 @@ jobs:
 
   pack:
     name: Pack
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/v'))
     needs: build
     runs-on: ubuntu-latest
     steps:
