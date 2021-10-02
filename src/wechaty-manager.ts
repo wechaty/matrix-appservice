@@ -199,7 +199,7 @@ export class WechatyManager extends Manager {
   ): Promise<void> {
     log.verbose('Wechatymanager', 'onScan(%s, %s)', qrcode, status)
 
-    require('qrcode-terminal').generate(qrcode)  // show qrcode on console
+    // require('qrcode-terminal').generate(qrcode)  // show qrcode on console
 
     const qrcodeImageUrl = [
       'https://api.qrserver.com/v1/create-qr-code/?data=',
