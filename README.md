@@ -10,6 +10,7 @@ Wechat (微信) Matrix Application Service Bridge
 ![NPM](https://github.com/chatie/matrix-appservice-wechaty/workflows/NPM/badge.svg)
 ![Docker](https://github.com/chatie/matrix-appservice-wechaty/workflows/Docker/badge.svg)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
+[![ES Modules](https://img.shields.io/badge/ES-Modules-brightgreen)](https://github.com/Chatie/tsconfig/issues/16)
 
 ## What is [Matrix]
 
