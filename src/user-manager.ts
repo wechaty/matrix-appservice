@@ -59,7 +59,7 @@ export class UserManager extends Manager {
 
     const data = {
       ...matrixUser.get(
-        WECHATY_BRIDGE_DATA_KEY
+        WECHATY_BRIDGE_DATA_KEY,
       ),
     } as WechatyBridgeData
 
@@ -77,7 +77,7 @@ export class UserManager extends Manager {
 
     const data = {
       ...matrixUser.get(
-        WECHATY_BRIDGE_DATA_KEY
+        WECHATY_BRIDGE_DATA_KEY,
       ),
     } as WechatyBridgeData
 
@@ -95,7 +95,7 @@ export class UserManager extends Manager {
 
     const data = {
       ...matrixUser.get(
-        WECHATY_BRIDGE_DATA_KEY
+        WECHATY_BRIDGE_DATA_KEY,
       ),
     } as WechatyBridgeData
 
@@ -137,7 +137,7 @@ export class UserManager extends Manager {
         matrixUser.getId(), JSON.stringify(wechatyOptions))
       const data = {
         ...matrixUser.get(
-          WECHATY_BRIDGE_DATA_KEY
+          WECHATY_BRIDGE_DATA_KEY,
         ),
       } as WechatyBridgeData
 
@@ -152,7 +152,7 @@ export class UserManager extends Manager {
 
       const data = {
         ...matrixUser.get(
-          WECHATY_BRIDGE_DATA_KEY
+          WECHATY_BRIDGE_DATA_KEY,
         ),
       } as WechatyBridgeData
 
