@@ -25,6 +25,7 @@ npm init -y
 npm install --production ./*-*.*.*.tgz \
   @chatie/tsconfig@$NPM_TAG \
   pkg-jq \
+  qrcode-terminal \
 
 #
 # CommonJS
