@@ -13,8 +13,7 @@
   "engines": {
     "node": ">=16",
     "npm": ">=7",
-    "wechaty": ">=0.69",
-    "wechaty-puppet": ">=0.43"
+    "wechaty": ">=0.69"
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.cjs.json",
