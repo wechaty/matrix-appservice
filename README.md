@@ -1,6 +1,6 @@
 # matrix-appservice-wechaty [![[M] Matrix](https://img.shields.io/matrix/matrix-appservice-wechaty:matrix.org)](https://matrix.to/#/#matrix-appservice-wechaty:matrix.org)
 
-Wechat (微信) Matrix Application Services Bridge
+Wechat (微信) Matrix Application Service Bridge
 
 ![Matrix + Wechaty](docs/images/matrix-wechaty-1280x720.png)
 > Image credit: [Gnosis](https://blog.gnosis.pm/we-are-moving-our-open-gnosis-community-chat-to-matrix-542e9017499)
@@ -13,24 +13,24 @@ Wechat (微信) Matrix Application Services Bridge
 
 ## What is [Matrix]
 
-> [Matrix](https://matrix.org/blog/index) is an open network for secure, decentralized communication, like [Pidgin](http://pidgin.im) on your Phone.
+> [Matrix](https://matrix.org/blog/index) is an open network for secure, decentralized communication, which can be used similarly to [Pidgin](http://pidgin.im) on your phone.
 >
-> Pidgin try to IM all your friends in one place in Linux, and with Matrix you can have your Phone clinet with your private server which is highly customized. Matrix did not use XMPP protocol, it's server uses REST so that it could be more easy to extend.
+> Pidgin tries to have all your friends in one place in Linux, regardless of what IM they use. With Matrix you can have your phone client connected to your private server which can all be highly customized. Matrix does not use the XMPP protocol, it uses a REST API so that it could be easier to extend.
 
-The [Matrix] client [Riot](https://riot.im/app/) is a universal secure chat app entirely under your control. It supports all types of the platforms, including Web/Browser, Android, and iPhone.
+The [Matrix] client [Element](https://element.io/) is a universal secure chat app entirely under your control. It supports desktop (Windows, Mac and Linux) and mobile (Android and iOS)
 
 ## What is `matrix-appservice-wechaty`
 
-`matrix-appservice-wechaty` is a WeChat (微信) Matrix AppService for bridging the Matrix user with WeChat user.
+`matrix-appservice-wechaty` is a WeChat (微信) Matrix AppService for bridging your WeChat groups to Matrix rooms.
 
 It has been officially listed at [[Matrix] Bridge Page for Wechaty](https://matrix.org/docs/projects/bridge/matrix-appservice-wechaty).
 
-According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), Wechaty Bot in Matrix will create an [Simple Puppeted Bridge](https://matrix.org/docs/guides/types-of-bridging#simple-puppeted-bridge) with [Portal Rooms](https://matrix.org/docs/guides/types-of-bridging#portal-rooms) because we want to bring all conversations from Wechat to Matrix, and let the Matrix user control his account on Wechat.
+According to [Types of Bridging](https://matrix.org/docs/guides/types-of-bridging), the Matrix Wechaty Bot implements a [Simple Puppeted Bridge](https://matrix.org/docs/guides/types-of-bridging#simple-puppeted-bridge) with [Portal Rooms](https://matrix.org/docs/guides/types-of-bridging#portal-rooms) because we want to bring all conversations from WeChat to Matrix, and let the Matrix user control his account on Wechat.
 
 ## Features
 
-1. Support connect to Wechat via [Web](https://github.com/wechaty/wechaty-puppet-puppeteer)/[iPad](https://github.com/wechaty/wechaty-puppet-padplus)/[Hostie](https://github.com/wechaty/wechaty-puppet-hostie)/Windows/Mac Protocol, with the power of [Wechaty](https://github.com/wechaty)
-1. Map all Wechat users/room/official accounts to Matrix virtual users
+1. Supports connecting to Wechat via the [Web](https://github.com/wechaty/wechaty-puppet-puppeteer)/[iPad](https://github.com/wechaty/wechaty-puppet-padplus)/[Hostie](https://github.com/wechaty/wechaty-puppet-hostie)/Windows/Mac WeChat protocols, with the power of [Wechaty](https://github.com/wechaty)
+1. Maps all Wechat users/room/official accounts to Matrix virtual users
 
 ## Requirements
 
@@ -52,13 +52,13 @@ sudo npm install -g matrix-appservice-wechaty
 
 Copy [config/config.sample.yaml](https://github.com/chatie/matrix-appservice-wechaty/blob/master/config/config.sample.yaml) to `config.yaml` and update it to match your setup.
 
-1. `domain` needs to change to your domain name, which should points to your homeserver.
+1. `domain` needs to change to your domain name, which should point to your homeserver.
 1. `homeserverUrl` needs to change to your homeserver url, with the port number included.
 1. `registration` needs to change to your registration yaml file name (see next part for how to generate it)
 
 ### 2 Generate `wechaty-registration.yaml`
 
-After we setup the `config.yaml`, then we can generate the `wechaty-registration.yaml` file for  registing to the home server:
+After we setup the `config.yaml`, then we can generate the `wechaty-registration.yaml` file for registering the appservice to the homeserver:
 
 ```sh
 export APP_SERVICE_ENDPOINT='http://localhost:8788'
@@ -69,7 +69,7 @@ matrix-appservice-wechaty \
   --generate-registration
 ```
 
-Note: The URL `APP_SERVICE_ENDPIOINT` is used by the home server to communite with appservice, in this example is: `http://localhost:8788`. If you have other appservices, or other requirements, pick an appropriate hostname and port.
+Note: The URL `APP_SERVICE_ENDPIOINT` is used by the home server to communicate with the appservice, in this example is: `http://localhost:8788`. If you have other appservices, or other requirements, pick an appropriate hostname and port.
 
 ### 3 Register the App Service
 
@@ -170,13 +170,13 @@ matrix-appservice-wechaty:
   command: ["--config", "/data/config.yaml", "--file", "/data/wechaty-registration.yaml", "--port", "8788"]
 ```
 
-## Beidge Usage
+## Bridge Usage
 
-1. Talk to Wechaty Bot (`@wechaty:your.domain.ltd`)
-1. Send the message `!login` (three times ... wip... )
-1. The `wechaty` app service bot will then send you a QR Code for scanning by WeChat.
+1. Direct Message Wechaty Bot (`@wechaty:your.domain.ltd`)
+1. Send the message `!login` (three times... wip... )
+1. The `wechaty` app service bot will then send you a QR Code for scanning on WeChat.
 
-After scan the QR Code and confirm on your phone, everything will be setup automatically by the wechaty bot.
+After you have scanned the QR Code and confirmed it on your phone, everything will be setup automatically by the wechaty bot.
 
 ### Authentication
 
@@ -194,7 +194,7 @@ After scan the QR Code and confirm on your phone, everything will be setup autom
 
 Simply run the `!logout` management command.
 
-## Install Matrix Server
+## Setup Your Matrix Server
 
 By following the guide from [@spantaleev](https://github.com/spantaleev), you can set your matrix server up just in dozens of minutes.
 
@@ -202,7 +202,7 @@ By following the guide from [@spantaleev](https://github.com/spantaleev), you ca
 
 ### TODO
 
-Distill steps to setup the matrix server from <https://github.com/spantaleev/matrix-docker-ansible-deploy/blob/master/docs/README.md>
+Detail steps to setup the Matrix server from <https://github.com/spantaleev/matrix-docker-ansible-deploy/blob/master/docs/README.md>
 
 ## See Also
 
@@ -311,9 +311,9 @@ Finished  [#13](https://github.com/Chatie/matrix-appservice-wechaty/issues/13): 
 
 ## Disclaimer
 
-I accept no responsibility if Tencent ban your IP, Account or even your details on their system. They have never given official support on custom clients.
+I accept no responsibility if Tencent bans your IP, account or even your details on their system. They have never given official support on custom clients.
 
-> &mdash; Credit: [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer)
+> &mdash; Disclaimer based off: [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord/blob/master/docs/puppeting.md#caveats--disclaimer)
 
 ## Special Thanks
 
