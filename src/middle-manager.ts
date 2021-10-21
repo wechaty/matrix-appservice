@@ -11,10 +11,10 @@ import {
 
 import {
   log,
-}                            from './config'
-import { WechatyManager }     from './wechaty-manager'
-import { AppserviceManager }  from './appservice-manager'
-import { Manager } from './manager'
+}                            from './config.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import type { AppserviceManager }  from './appservice-manager.js'
+import { Manager } from './manager.js'
 
 interface WechatyRoomData {
   consumerId?: string   // the matrix user id who is using the matrix-appservice-wechaty
@@ -100,6 +100,9 @@ export class MiddleManager extends Manager {
       ? matrixUserList[0]
       : this.generateMatrixUser(user, userData)
 
+    if (!matrixUser) {
+      throw new Error('NO MATRIX USER')
+    }
     return matrixUser
   }
 
@@ -213,7 +216,7 @@ export class MiddleManager extends Manager {
       .getEntriesByMatrixRoomData(query)
 
     const matrixRoom = entryList.length > 0
-      ? entryList[0].matrix
+      ? entryList[0]!.matrix
       : await this.generateMatrixRoom(wechatyUserOrRoom, data)
 
     if (!matrixRoom) {
@@ -290,7 +293,7 @@ export class MiddleManager extends Manager {
     const wechaty = wechatyRoomOrUser.wechaty
     const consumerId = this.wechatyManager.matrixConsumerId(wechaty)
 
-    const inviteeIdList = [ consumerId ]
+    const inviteeIdList = [consumerId]
     let   roomName: string
     let   creatorId: string
 
@@ -417,8 +420,8 @@ export class MiddleManager extends Manager {
           state.sender,
           state.state_key,
           state.user_id,
-        ].every(s => s === botId)
-      )
+        ].every(s => s === botId),
+      ),
     )
 
     // const event = await this.appserviceManager.bridge.getIntent().getStateEvent(
@@ -473,7 +476,7 @@ export class MiddleManager extends Manager {
   ): Promise<void> {
     log.verbose('MiddleManager', 'directMessageToMatrixConsumer("%s", "%s")',
       text,
-      from
+      from,
     )
 
     let matrixRoom
@@ -508,7 +511,7 @@ export class MiddleManager extends Manager {
   ): Promise<MatrixRoom> {
     log.verbose('AppserviceManager', 'adminRoom(%s)', forConsumerIdOrWechaty)
 
-    let botId = this.appserviceManager.appserviceUserId()
+    const botId = this.appserviceManager.appserviceUserId()
     let consumerId: string
 
     if (forConsumerIdOrWechaty instanceof Wechaty)  {
@@ -533,14 +536,14 @@ export class MiddleManager extends Manager {
     let matrixRoom: MatrixRoom
 
     if (matrixRoomList.length > 0) {
-      if (!matrixRoomList[0].matrix) {
+      if (!matrixRoomList[0]!.matrix) {
         throw new Error(`matrix room not found for roomData: "${JSON.stringify(roomData)}`)
       }
-      matrixRoom = matrixRoomList[0].matrix
+      matrixRoom = matrixRoomList[0]!.matrix
 
     } else {
       matrixRoom = await this.appserviceManager.createRoom(
-        [ botId, consumerId ],
+        [botId, consumerId],
         {
           creatorId: botId,
           name: 'Wechaty AppService Bot',

@@ -5,7 +5,7 @@ import {
   createCli,
   log,
   VERSION,
-}                     from '../src/'
+}                     from '../src/mod.js'
 
 async function main () {
   if (process.env['LOG_LEVEL']) {

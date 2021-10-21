@@ -1,18 +1,18 @@
-import {
+import type {
   BridgeContext,
   Event,
   MatrixRoom,
   MatrixUser,
   Request,
+  EventType,
 }                   from 'matrix-appservice-bridge'
-import { EventType } from 'matrix-js-sdk'
 
 import {
   log,
-}                           from './config'
+}                           from './config.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { WechatyManager }     from './wechaty-manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
 
 export interface DirectMessageUserPair {
   user    : MatrixUser,

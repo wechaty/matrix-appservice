@@ -5,16 +5,16 @@ import {
   MatrixUser,
 }                   from 'matrix-appservice-bridge'
 
-import { AppserviceManager }  from '../appservice-manager'
-import { MiddleManager }      from '../middle-manager'
-import { DialogManager }      from '../dialog-manager'
-import { MatrixHandler }      from '../matrix-handler'
-import { UserManager }        from '../user-manager'
-import { WechatyManager }     from '../wechaty-manager'
+import { AppserviceManager }  from '../appservice-manager.js'
+import { MiddleManager }      from '../middle-manager.js'
+import { DialogManager }      from '../dialog-manager.js'
+import { MatrixHandler }      from '../matrix-handler.js'
+import { UserManager }        from '../user-manager.js'
+import { WechatyManager }     from '../wechaty-manager.js'
 
-import { log }                from '../config'
+import { log }                from '../config.js'
 
-import { BridgeConfig }       from './bridge-config-schema'
+import type { BridgeConfig }       from './bridge-config-schema.js'
 
 export async function run (
   port         : number,
@@ -54,7 +54,7 @@ export async function run (
 
   // wait all wechaty to be started
   await Promise.all(
-    bridgeUserList.map(startWechaty)
+    bridgeUserList.map(startWechaty),
   )
 }
 
@@ -76,7 +76,7 @@ function createBridge (
 
   const onEvent = (
     request: Request,
-    context: BridgeContext
+    context: BridgeContext,
   ) => matrixHandler.onEvent(
     request,
     context,
@@ -86,7 +86,7 @@ function createBridge (
    * This is for keeping a clear typing information
    */
   const onUserQuery = (
-    user: any
+    user: any,
   ) => matrixHandler.onUserQuery(
     user,
   )

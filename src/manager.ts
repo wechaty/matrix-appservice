@@ -1,3 +1,4 @@
+/* eslint no-use-before-define: off */
 export interface Managers {
   [manager: string]: Manager
 }

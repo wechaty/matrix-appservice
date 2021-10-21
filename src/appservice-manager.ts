@@ -10,11 +10,11 @@ import {
 
 import {
   log,
-}                       from './config'
+}                       from './config.js'
 import {
   Manager,
   Managers,
-}                         from './manager'
+}                         from './manager.js'
 
 export class AppserviceManager extends Manager {
 
@@ -38,6 +38,7 @@ export class AppserviceManager extends Manager {
   public setBridge (matrixBridge: Bridge): void {
     log.verbose('AppserviceManager', 'setBridge(bridge)')
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (this.bridge) {
       throw new Error('bridge can not be set twice!')
     }
@@ -104,6 +105,7 @@ export class AppserviceManager extends Manager {
   ) {
     log.verbose('AppserviceManager', 'sendMessage(%s%s%s)',
       withText.substr(0, 100),
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       inRoom
         ? ', ' + inRoom.getId()
         : '',
@@ -116,7 +118,7 @@ export class AppserviceManager extends Manager {
       let matrixUserId
 
       if (fromUser) {
-        matrixUserId = fromUser && fromUser.getId()
+        matrixUserId = fromUser.getId()
       }
 
       const intent = this.bridge.getIntent(matrixUserId)
@@ -155,7 +157,7 @@ export class AppserviceManager extends Manager {
 
     const query = {} as { [key: string]: string }
 
-    for (let [key, value] of Object.entries(filterData)) {
+    for (const [key, value] of Object.entries(filterData)) {
       query[`${dataKey}.${key}`] = value
     }
 

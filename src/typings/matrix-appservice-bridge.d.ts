@@ -8,6 +8,10 @@
  */
 
 /* eslint camelcase: off */
+/* eslint no-use-before-define: off */
+
+// Huan(202110) FIXME: enable no-undef by fixing the typings
+/* eslint no-undef: off */
 
 declare module 'matrix-appservice-bridge' {
 
@@ -98,9 +102,10 @@ declare module 'matrix-appservice-bridge' {
       registration: AppServiceRegistration,
       memberCache: MembershipCache,
     )
-    getJoinedMembers(roomId: string) : Promise<RoomMemberDict>
-    getJoinedRooms  ()               : Promise<Array<string>>
-    isRemoteUser    (userId: string) : boolean
+
+    getJoinedMembers  (roomId: string) : Promise<RoomMemberDict>
+    getJoinedRooms    ()               : Promise<Array<string>>
+    isRemoteUser      (userId: string) : boolean
 
   }
 
@@ -225,6 +230,7 @@ declare module 'matrix-appservice-bridge' {
       room_id: string,
       room_alias?: string,
     }>
+
     getClient       ()                                                                    : MatrixClient
     getEvent        (roomId: string, eventId: string, useCache?: boolean)                 : Promise<any>
     getProfileInfo  (userId: string, info?: string, useCache?: boolean)                   : Promise<any>
@@ -457,4 +463,7 @@ declare module 'matrix-appservice-bridge' {
     }
   }
 
+  export {
+    EventType,
+  }
 }

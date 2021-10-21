@@ -1,4 +1,4 @@
-import {
+import type {
   BridgeContext,
   Request,
   MatrixUser,
@@ -9,15 +9,15 @@ import {
   AGE_LIMIT_SECONDS,
 
   log,
-}                     from './config'
+}                     from './config.js'
 
-import { SuperEvent }         from './super-event'
+import { SuperEvent }         from './super-event.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { DialogManager }      from './dialog-manager'
-import { MiddleManager }      from './middle-manager'
-import { WechatyManager }     from './wechaty-manager'
-import { UserManager }        from './user-manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { DialogManager }      from './dialog-manager.js'
+import type { MiddleManager }      from './middle-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import type { UserManager }        from './user-manager.js'
 
 export class MatrixHandler {
 
@@ -81,7 +81,7 @@ export class MatrixHandler {
       await this.process(superEvent)
 
     } catch (e) {
-      log.error('MatrixHandler', 'onEvent() rejection: %s', e && e.message)
+      log.error('MatrixHandler', 'onEvent() rejection: %s', e && (e as Error).message)
       console.error(e)
     }
   }
@@ -222,7 +222,7 @@ export class MatrixHandler {
         await filehelper.say(`Matrix user "${matrixUser.getId()}" in room "${matrixRoom.getId()}" said: "${superEvent.event.content!.body}"`)
       }
     } catch (e) {
-      log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', e.message)
+      log.warn('MatrixHandler', 'processMatrixMessage() filehelperOf() rejection: %s', (e as Error).message)
     }
 
     const room = superEvent.room()
@@ -274,7 +274,7 @@ export class MatrixHandler {
         'MatrixHandler - processDirectMessage() failed! ',
         `from ${service.getId()} to ${user.getId()} with content "${superEvent.text()}": `,
         'Exception(might not logged in to WeChat?) ',
-        e && e.message,
+        e && (e as Error).message,
       ].join('')
 
       await this.appserviceManager.sendMessage(
@@ -309,7 +309,7 @@ export class MatrixHandler {
       await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
 
     } catch (e) {
-      log.error('MatrixHandler', 'processGroupMessage() rejection: %s', e.message)
+      log.error('MatrixHandler', 'processGroupMessage() rejection: %s', (e as Error).message)
       // const wechatyRoom = await this.middleManager.wechatyUser(superEvent.)
       // await wechatyRoom.say(superEvent.event.content!.body || 'undefined')
     }

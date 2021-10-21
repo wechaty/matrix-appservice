@@ -1,13 +1,13 @@
-import { SuperEvent } from './super-event'
+import type { SuperEvent } from './super-event.js'
 
 import {
   log,
-}           from './config'
+}           from './config.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { UserManager }        from './user-manager'
-import { WechatyManager }     from './wechaty-manager'
-import { Manager }            from './manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { UserManager }        from './user-manager.js'
+import type { WechatyManager }     from './wechaty-manager.js'
+import { Manager }            from './manager.js'
 
 export class DialogManager extends Manager {
 

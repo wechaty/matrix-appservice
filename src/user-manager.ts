@@ -1,16 +1,16 @@
-import {
+import type {
   WechatyOptions,
 }                     from 'wechaty'
 
-import {
+import type {
   MatrixUser,
 }                     from 'matrix-appservice-bridge'
 
 import {
   log,
-}           from './config'
-import { AppserviceManager } from './appservice-manager'
-import { Manager } from './manager'
+}           from './config.js'
+import type { AppserviceManager } from './appservice-manager.js'
+import { Manager } from './manager.js'
 
 const WECHATY_BRIDGE_DATA_KEY = 'wechatyBridge'
 
@@ -59,7 +59,7 @@ export class UserManager extends Manager {
 
     const data = {
       ...matrixUser.get(
-        WECHATY_BRIDGE_DATA_KEY
+        WECHATY_BRIDGE_DATA_KEY,
       ),
     } as WechatyBridgeData
 
@@ -77,7 +77,7 @@ export class UserManager extends Manager {
 
     const data = {
       ...matrixUser.get(
-        WECHATY_BRIDGE_DATA_KEY
+        WECHATY_BRIDGE_DATA_KEY,
       ),
     } as WechatyBridgeData
 
@@ -95,7 +95,7 @@ export class UserManager extends Manager {
 
     const data = {
       ...matrixUser.get(
-        WECHATY_BRIDGE_DATA_KEY
+        WECHATY_BRIDGE_DATA_KEY,
       ),
     } as WechatyBridgeData
 
@@ -135,7 +135,7 @@ export class UserManager extends Manager {
         matrixUser.getId(), JSON.stringify(wechatyOptions))
       const data = {
         ...matrixUser.get(
-          WECHATY_BRIDGE_DATA_KEY
+          WECHATY_BRIDGE_DATA_KEY,
         ),
       } as WechatyBridgeData
 
@@ -150,7 +150,7 @@ export class UserManager extends Manager {
 
       const data = {
         ...matrixUser.get(
-          WECHATY_BRIDGE_DATA_KEY
+          WECHATY_BRIDGE_DATA_KEY,
         ),
       } as WechatyBridgeData
 

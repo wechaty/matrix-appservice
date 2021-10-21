@@ -9,11 +9,11 @@ import {
 import {
   AGE_LIMIT_SECONDS,
   log,
-}                             from './config'
+}                             from './config.js'
 
-import { AppserviceManager }  from './appservice-manager'
-import { MiddleManager }      from './middle-manager'
-import { Manager }            from './manager'
+import type { AppserviceManager }  from './appservice-manager.js'
+import type { MiddleManager }      from './middle-manager.js'
+import { Manager }            from './manager.js'
 
 export class WechatyManager extends Manager {
 
@@ -112,7 +112,7 @@ export class WechatyManager extends Manager {
       try {
         await wechaty.stop()
       } catch (e) {
-        log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
+        log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', (e as Error).message)
       }
       this.wechatyMatrixDict.delete(wechaty)
       return
@@ -121,7 +121,7 @@ export class WechatyManager extends Manager {
     try {
       await wechaty.stop()
     } catch (e) {
-      log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', e.message)
+      log.error('WechatyManager', 'destroy() wechaty.stop() rejection: %s', (e as Error).message)
     } finally {
       this.wechatyMatrixDict.delete(wechaty)
       this.matrixWechatyDict.delete(matrixConsumerId)
@@ -146,7 +146,7 @@ export class WechatyManager extends Manager {
       this.matrixWechatyDict.size,
     )
 
-    let wechaty = this.matrixWechatyDict.get(ofMatrixConsumerId)
+    const wechaty = this.matrixWechatyDict.get(ofMatrixConsumerId)
     if (!wechaty) {
       return null
     }
