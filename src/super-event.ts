@@ -52,7 +52,7 @@ export class SuperEvent {
   }
 
   public target (): null | MatrixUser {
-    return this.context?.targets?.matrix || null
+    return this.context?.targets.matrix || null
   }
 
   public room (): MatrixRoom {
@@ -115,7 +115,7 @@ export class SuperEvent {
     log.verbose('SuperEvent', 'isRoomInvitation() for event id: %s', this.event.event_id)
     const ret = !!(
       this.event.type === 'm.room.member'
-      && this.event.content && this.event.content['membership'] === 'invite'
+      && this.event.content['membership'] === 'invite'
       && this.event.state_key
     )
     log.silly('SuperEvent', 'isRoomInvitation() -> %s', ret)

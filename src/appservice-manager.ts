@@ -44,9 +44,9 @@ export class AppserviceManager extends Manager {
   public setBridge (matrixBridge: Bridge): void {
     log.verbose('Appservicemanager', 'setBridge(bridge)')
 
-    if (this.bridge) {
-      throw new Error('bridge can not be set twice!')
-    }
+    // if (this.bridge) {
+    //   throw new Error('bridge can not be set twice!')
+    // }
 
     this.bridge    = matrixBridge
     this.domain    = matrixBridge.opts.domain
@@ -119,6 +119,7 @@ export class AppserviceManager extends Manager {
     const text = typeof (message) === 'string' ? message : message.text()
     log.verbose('Appservicemanager', 'sendMessage(%s%s%s)',
       text.substr(0, 100),
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       inRoom
         ? ', ' + inRoom.getId()
         : '',
@@ -155,7 +156,7 @@ export class AppserviceManager extends Manager {
                 info: {},
                 msgtype: message.type() === Message.Type.Attachment ? 'm.file' : 'm.image',
                 url: url,
-              }
+              },
             )
           } catch (e) {
             log.error(`Appservicemanager', 'sendMessage() rejection from ${fromUser ? fromUser.getId() : 'BOT'} to room ${inRoom.getId()}`)
@@ -279,7 +280,7 @@ export class AppserviceManager extends Manager {
   public async uploadContent (
     content: string | Buffer | ReadStream,
     userId?: string,
-    opts?: FileUploadOpts | undefined
+    opts?: FileUploadOpts | undefined,
   ): Promise<string> {
     return this.bridge.getIntent(userId).uploadContent(content, opts)
   }
