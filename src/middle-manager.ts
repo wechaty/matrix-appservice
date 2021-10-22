@@ -273,10 +273,11 @@ export class MiddleManager extends Manager {
       matrixUserId,
       { type: avatarFile.mimeType },
     )
+    const alias = await wechatyUser.alias()
 
     const matrixUser   = new MatrixUser(matrixUserId, {
       avatarUrl,
-      displayName: wechatyUser.name(),
+      displayName: alias,
     })
 
     // userData.name   = wechatyUser.name() + APPSERVICE_NAME_POSTFIX
@@ -286,7 +287,7 @@ export class MiddleManager extends Manager {
     void this.appserviceManager.setProfile(
       matrixUserId,
       avatarUrl,
-      wechatyUser.name(),
+      `${wechatyUser.name()}-${alias}`,
     )
 
     return matrixUser
