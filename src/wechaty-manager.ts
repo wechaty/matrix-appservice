@@ -306,12 +306,8 @@ export class WechatyManager extends Manager {
       // forMatrixConsumer.getId(),
     )
 
-    const from = onWechatyMessage.talker()
-    if (!from) {
-      throw new Error('can not found from contact for wechat message')
-    }
-
-    await this.middleManager.directMessageToMatrixConsumer(onWechatyMessage, from)
+    const talker = onWechatyMessage.talker()
+    await this.middleManager.directMessageToMatrixConsumer(onWechatyMessage, talker)
   }
 
   async processRoomMessage (
@@ -325,13 +321,10 @@ export class WechatyManager extends Manager {
     if (!room) {
       throw new Error('no room')
     }
-    const from = onWechatyMessage.talker()
-    if (!from) {
-      throw new Error('no from')
-    }
+    const talker = onWechatyMessage.talker()
 
     const matrixRoom = await this.middleManager.matrixRoom(room)
-    const matrixUser = await this.middleManager.matrixUser(from)
+    const matrixUser = await this.middleManager.matrixUser(talker)
 
     await this.appserviceManager.sendMessage(
       onWechatyMessage,

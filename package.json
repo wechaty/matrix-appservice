@@ -1,6 +1,6 @@
 {
   "name": "matrix-appservice-wechaty",
-  "version": "0.9.17",
+  "version": "0.9.20",
   "description": "Matrix Application Services Bridge for Wechat",
   "type": "module",
   "exports": {
@@ -13,8 +13,7 @@
   "engines": {
     "node": ">=16",
     "npm": ">=7",
-    "wechaty": ">=0.69",
-    "wechaty-puppet": ">=0.43"
+    "wechaty": ">=0.69"
   },
   "scripts": {
     "build": "tsc && tsc -p tsconfig.cjs.json",
@@ -58,28 +57,23 @@
   "dependencies": {
     "cuid": "^2.1.8",
     "dotenv": "^10.0.0",
-    "matrix-appservice-bridge": "^3.0.0",
+    "matrix-appservice-bridge": "^3.1.1",
     "npm-run-all": "^4.1.5",
-    "read-pkg-up": "^7.0.1",
+    "read-pkg-up": "^7",
     "update-notifier": "^5.1.0",
     "wechaty": "^0.68.1"
   },
   "devDependencies": {
-    "@chatie/eslint-config": "^0.14.1",
+    "@chatie/eslint-config": "^1.0.2",
     "@chatie/git-scripts": "^0.6.2",
     "@chatie/semver": "^0.4.7",
-    "@chatie/tsconfig": "^0.20.2",
-    "@types/nedb": "^1.8.11",
-    "@types/update-notifier": "^5.0.0",
-    "cross-env": "^7.0.3",
-    "nodemon": "^2.0.7",
+    "@chatie/tsconfig": "^0.20.6",
+    "@types/nedb": "^1.8.12",
+    "@types/update-notifier": "^5.1.0",
+    "nodemon": "^2.0.14",
     "pkg-jq": "^0.2.11",
     "qrcode-terminal": "^0.12.0",
-    "shx": "^0.3.3",
-    "sloc": "^0.2.1",
-    "tstest": "^0.7.2",
-    "type-fest": "^2.3.4",
-    "typescript": "^4.4.3"
+    "sloc": "^0.2.1"
   },
   "bin": {
     "matrix-appservice-wechaty": "dist/esm/bin/matrix-appservice-wechaty.js"

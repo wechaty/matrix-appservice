@@ -18,7 +18,7 @@ import {
   DEFAULT_PORT,
 }                from '../config.js'
 
-import type { BridgeConfig }       from './bridge-config-schema'
+import type { BridgeConfig }       from './bridge-config-schema.js'
 
 export async function run (
   port         : number|null,
@@ -61,7 +61,7 @@ export async function run (
 
   // wait all wechaty to be started
   await Promise.all(
-    bridgeUserList.map(startWechaty)
+    bridgeUserList.map(startWechaty),
   )
 }
 
@@ -83,7 +83,7 @@ function createBridge (
 
   const onEvent = (
     request: Request<WeakEvent>,
-    context?: BridgeContext
+    context?: BridgeContext,
   ) => matrixHandler.onEvent(
     request,
     context,
@@ -93,7 +93,7 @@ function createBridge (
    * This is for keeping a clear typing information
    */
   const onUserQuery = (
-    user: any
+    user: any,
   ) => matrixHandler.onUserQuery(
     user,
   )

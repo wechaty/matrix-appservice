@@ -287,7 +287,7 @@ export class MiddleManager extends Manager {
     void this.appserviceManager.setProfile(
       matrixUserId,
       avatarUrl,
-      `${wechatyUser.name()}-${alias}`
+      `${wechatyUser.name()}-${alias}`,
     )
 
     return matrixUser
@@ -437,8 +437,8 @@ export class MiddleManager extends Manager {
           state.sender,
           state.state_key,
           state.user_id,
-        ].every(s => s === botId)
-      )
+        ].every(s => s === botId),
+      ),
     )
 
     // const event = await this.appserviceManager.bridge.getIntent().getStateEvent(
@@ -489,7 +489,7 @@ export class MiddleManager extends Manager {
     const text = typeof (message) === 'string' ? message : message.text()
     log.verbose('Middlemanager', 'directMessageToMatrixConsumer("%s", "%s")',
       text,
-      from
+      from,
     )
 
     let matrixRoom

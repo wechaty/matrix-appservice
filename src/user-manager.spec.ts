@@ -46,7 +46,7 @@ function getMockAppserviceManager () {
   return appserviceManager
 }
 
-test('smoke testing for enable() disable() isEnabled() listist()', async (t) => {
+test('smoke testing for enable() disable() isEnabled() listist()', async t => {
   const MATRIX_USER_ID1 = 'dummy_id1'
   const MATRIX_USER_ID2 = 'dummy_id2'
 
@@ -89,7 +89,7 @@ test('smoke testing for enable() disable() isEnabled() listist()', async (t) => 
 
 })
 
-test('wechatyOptions()', async (t) => {
+test('wechatyOptions()', async t => {
   const MATRIX_USER_ID = 'dummy_id'
   const EXPECTED_NAME  = 'expected_name'
 
