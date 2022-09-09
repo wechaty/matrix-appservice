@@ -18,7 +18,8 @@ import type { DialogManager }      from './dialog-manager.js'
 import type { MiddleManager }      from './middle-manager.js'
 import type { WechatyManager }     from './wechaty-manager.js'
 import type { UserManager }        from './user-manager.js'
-import { Contact, FileBox, Message, MiniProgram, UrlLink } from 'wechaty'
+import type { Contact, Message, MiniProgram, UrlLink } from 'wechaty'
+import { FileBox } from 'file-box'
 
 export class MatrixHandler {
 
@@ -352,10 +353,12 @@ export class MatrixHandler {
         httpsUrl = await this.appserviceManager.mxcUrlToHttp(mxcUrl)
         // XXX can't show Animation well in wechat.
         message = FileBox.fromUrl(
-          httpsUrl,
-          body.indexOf('.') > -1 || content['msgtype'] !== 'm.image'
-            ? body
-            : `${mxcUrl.split('/').pop()}.gif`,
+          httpsUrl, {
+            name:
+              body.indexOf('.') > -1 || content['msgtype'] !== 'm.image'
+                ? body
+                : `${mxcUrl.split('/').pop()}.gif`,
+          },
         )
     }
     return message
