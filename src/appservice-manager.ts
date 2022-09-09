@@ -11,7 +11,8 @@ import {
   FileUploadOpts,
 }                       from 'matrix-appservice-bridge'
 
-import { Message } from 'wechaty'
+import * as PUPPET from 'wechaty-puppet'
+import type { Message } from 'wechaty'
 
 import {
   log,
@@ -132,13 +133,13 @@ export class AppserviceManager extends Manager {
 
     if (typeof (message) !== 'string') {
       switch (message.type()) {
-        case Message.Type.Unknown:
+        case PUPPET.types.Message.Unknown:
           break
-        case Message.Type.Audio:
+        case PUPPET.types.Message.Audio:
           break
-        case Message.Type.Contact: // image in ipad protocol is Emoticon
+        case PUPPET.types.Message.Contact: // image in ipad protocol is Emoticon
           break
-        case Message.Type.Emoticon: case Message.Type.Image: case Message.Type.Attachment:
+        case PUPPET.types.Message.Emoticon: case PUPPET.types.Message.Image: case PUPPET.types.Message.Attachment:
         // image in web protocol is Image, in ipad protocol is Emoticon
           try {
             const file = await message.toFileBox()
@@ -147,14 +148,14 @@ export class AppserviceManager extends Manager {
             // digital summary consuming too much computing resources, use the url to lable it is better.
             const url = await intent.uploadContent(buffer, {
               name: file.name,
-              type: file.mimeType === 'emoticon' ? 'image/gif' : file.mimeType,
+              type: file.mediaType === 'emoticon' ? 'image/gif' : file.mediaType,
             })
             await intent.sendMessage(
               inRoom.getId(),
               {
                 body: file.name,
                 info: {},
-                msgtype: message.type() === Message.Type.Attachment ? 'm.file' : 'm.image',
+                msgtype: message.type() === PUPPET.types.Message.Attachment ? 'm.file' : 'm.image',
                 url: url,
               },
             )

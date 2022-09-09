@@ -1,6 +1,6 @@
 {
   "name": "matrix-appservice-wechaty",
-  "version": "0.9.20",
+  "version": "1.0.0",
   "description": "Matrix Application Services Bridge for Wechat",
   "type": "module",
   "exports": {
@@ -59,9 +59,11 @@
     "dotenv": "^10.0.0",
     "matrix-appservice-bridge": "^3.1.1",
     "npm-run-all": "^4.1.5",
+    "qrcode-terminal": "^0.12.0",
     "read-pkg-up": "^7",
     "update-notifier": "^5.1.0",
-    "wechaty": "^0.68.1"
+    "wechaty": "^1.20.2",
+    "wechaty-puppet-wechat": "^1.18.1"
   },
   "devDependencies": {
     "@chatie/eslint-config": "^1.0.2",
@@ -69,6 +71,7 @@
     "@chatie/semver": "^0.4.7",
     "@chatie/tsconfig": "^0.20.6",
     "@types/nedb": "^1.8.12",
+    "@types/qrcode-terminal": "^0.12.0",
     "@types/update-notifier": "^5.1.0",
     "nodemon": "^2.0.14",
     "pkg-jq": "^0.2.11",

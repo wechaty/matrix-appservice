@@ -2,6 +2,7 @@ import {
   Room as WechatyRoom,
   Contact as WechatyUser,
   Wechaty,
+  WechatyBuilder,
   Message,
 }                             from 'wechaty'
 
@@ -16,6 +17,7 @@ import {
 import type { WechatyManager }     from './wechaty-manager.js'
 import type { AppserviceManager }  from './appservice-manager.js'
 import { Manager } from './manager.js'
+import { ContactImpl, RoomImpl } from 'wechaty/impls'
 
 interface WechatyRoomData {
   consumerId?: string   // the matrix user id who is using the matrix-appservice-wechaty
@@ -134,7 +136,7 @@ export class MiddleManager extends Manager {
       if (!wechaty) {
         throw new Error('no wechaty instance for matrix user id ' + idOrRoomOrUser)
       }
-      return wechaty.userSelf()
+      return wechaty.currentUser
 
     } else if (idOrRoomOrUser instanceof MatrixRoom) {
       matchKey = WECHATY_ROOM_DATA_KEY
@@ -190,13 +192,13 @@ export class MiddleManager extends Manager {
 
     const data = { consumerId } as WechatyRoomData
 
-    if (wechatyUserOrRoom instanceof WechatyUser) {
+    if (ContactImpl.valid(wechatyUserOrRoom)) {
       const matrixUser = await this.matrixUser(wechatyUserOrRoom)
 
       data.matrixUserId = matrixUser.getId()
       data.direct       = true
 
-    } else if (wechatyUserOrRoom instanceof WechatyRoom) {
+    } else if (RoomImpl.valid(wechatyUserOrRoom)) {
 
       data.wechatyRoomId = wechatyUserOrRoom.id
       data.direct        = false
@@ -271,7 +273,7 @@ export class MiddleManager extends Manager {
     const avatarUrl = await this.appserviceManager.uploadContent(
       avatarBuffer,
       matrixUserId,
-      { type: avatarFile.mimeType },
+      { type: avatarFile.mediaType },
     )
 
     const matrixUser   = new MatrixUser(matrixUserId, {
@@ -312,7 +314,7 @@ export class MiddleManager extends Manager {
     let   roomName: string
     let   creatorId: string
 
-    if (wechatyRoomOrUser instanceof WechatyRoom) {
+    if (RoomImpl.valid(wechatyRoomOrUser)) {
       // Room: group
       creatorId = this.appserviceManager.appserviceUserId()
       roomName = await wechatyRoomOrUser.topic()
@@ -321,7 +323,7 @@ export class MiddleManager extends Manager {
         this.wechatyManager.ifSelfWechaty(member.id)
         || inviteeIdList.push(matrixUser.getId())
       }
-    } else if (wechatyRoomOrUser instanceof WechatyUser) {
+    } else if (ContactImpl.valid(wechatyRoomOrUser)) {
       // User: direct message
       roomName = wechatyRoomOrUser.name()
       const matrixUser = await this.matrixUser(wechatyRoomOrUser)
@@ -494,13 +496,13 @@ export class MiddleManager extends Manager {
     let matrixRoom
     let matrixUser
 
-    if (from instanceof WechatyUser) {
+    if (ContactImpl.valid(from)) {
       // receive messages from wecahty users(your friends)
 
       matrixRoom = await this.matrixRoom(from)
       matrixUser = await this.matrixUser(from)
 
-    } else if (from instanceof Wechaty) {
+    } else if (WechatyBuilder.valid(from)) {
       // xxx This block will not be called on the code now, send message (the messages said by your self on other device)
 
       const consumerId = this.wechatyManager.matrixConsumerId(from)
@@ -528,7 +530,7 @@ export class MiddleManager extends Manager {
     const botId = this.appserviceManager.appserviceUserId()
     let consumerId: string
 
-    if (forConsumerIdOrWechaty instanceof Wechaty)  {
+    if (WechatyBuilder.valid(forConsumerIdOrWechaty))  {
       consumerId = this.wechatyManager.matrixConsumerId(forConsumerIdOrWechaty)
     } else {
       consumerId = forConsumerIdOrWechaty
